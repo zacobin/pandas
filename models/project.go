@@ -31,13 +31,13 @@ const (
 type Project struct {
 	ModelTypeInfo
 	gorm.Model
-	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	UserID        string    `json:"user_id"`
-	Description   string    `json:"description"`
-	CreatedAt     time.Time `json:"created_at"`
-	LastUpdatedAt time.Time `json:"last_updated_at"`
-	Status        string    `json:"status"`
+	ProjectID        string    `json:"id"`
+	Name             string    `json:"name"`
+	UserID           string    `json:"user_id"`
+	Description      string    `json:"description"`
+	ProjectCreatedAt time.Time `json:"created_at"`
+	LastUpdatedAt    time.Time `json:"last_updated_at"`
+	Status           string    `json:"status"`
 }
 
 // Validate validates this deployment

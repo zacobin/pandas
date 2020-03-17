@@ -29,6 +29,7 @@ type deviceInProjectFactory struct {
 }
 
 func newDeviceInProjectFactory(servingOptions *modelsoptions.ServingOptions) factory.Factory {
+	servingOptions = modelsoptions.NewServingOptions()
 	modelDB, err := gorm.Open(servingOptions.StorePath, "pandas-devices.db")
 	if err != nil {
 		logrus.Fatal(err)
@@ -80,8 +81,8 @@ func (pf *deviceInProjectFactory) Get(owner factory.Owner, deviceInProjectId str
 
 func (pf *deviceInProjectFactory) Delete(owner factory.Owner, deviceInProjectID string) error {
 	pf.modelDB.Delete(&models.Project{
-		UserID: owner.User(),
-		ID:     deviceInProjectID,
+		UserID:    owner.User(),
+		ProjectID: deviceInProjectID,
 	})
 	return factory.Error(pf.modelDB)
 }
@@ -91,7 +92,7 @@ func (pf *deviceInProjectFactory) Update(owner factory.Owner, model models.Model
 	deviceInProject.LastUpdatedAt = time.Now()
 
 	// Check wethere the deviceInProject exist
-	if _, err := pf.Get(owner, deviceInProject.ID); err != nil {
+	if _, err := pf.Get(owner, deviceInProject.ProjectID); err != nil {
 		return err
 	}
 	pf.modelDB.Save(deviceInProject)
