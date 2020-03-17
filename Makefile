@@ -49,7 +49,7 @@ $(addprefix docker-build-, $(IMAGES)): docker-build-%: %
 	cp bin/$(IMAGE_NAME) $(IMAGE_DIR)/bin/main
 	@full_img_name=$(IMAGE_NAME_PREFIX)$(IMAGE_NAME); \
 		cd ./$(IMAGE_DIR)/ && \
-			docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/$$full_img_name .
+			docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/$$full_img_name . -f Dockerfile.dev
 	@rm -rf $(IMAGE_DIR)/bin
 	@"./scripts/push.sh" $(IMAGE_NAME)
 	# @kubectl delete pod $$(kubectl get pod -n pandas | grep $(IMAGE_NAME) | awk '{print $$1}') -n pandas 
