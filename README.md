@@ -1,5 +1,7 @@
 # Overview
 
+![Go](https://img.shields.io/badge/golang-1.13.8-green.svg) ![Go](https://github.com/cloustone/pandas/workflows/Go/badge.svg) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcloustone%2Fpandas.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2Fcloustone%2Fpandas?ref=badge_small)
+
 Pandas is device managment and modeling platform which can be deployed in any environments to provide the following features.
 
 * Integrate with 3rd-party broker, for example, mainflux to provide device connection. 
@@ -32,4 +34,8 @@ Pandas is designed and implemented based on micro service architecture,which inc
 
 Start pandas  in docker-compose mode  (in future)
 > ./deploy.sh dockercompose up  
+
+### 3rd-Party Software
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcloustone%2Fpandas.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fcloustone%2Fpandas?ref=badge_large)
 
