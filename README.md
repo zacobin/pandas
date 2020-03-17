@@ -1,8 +1,5 @@
 # Overview
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcloustone%2Fpandas.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcloustone%2Fpandas?ref=badge_shield)
-
-
-![Go](https://img.shields.io/badge/golang-1.13.8-green.svg) ![Go](https://github.com/cloustone/pandas/workflows/Go/badge.svg) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcloustone%2Fpandas.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2Fcloustone%2Fpandas?ref=badge_small)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcloustone%2Fpandas.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcloustone%2Fpandas?ref=badge_shield) ![Go](https://img.shields.io/badge/golang-1.13.8-green.svg) ![Go](https://github.com/cloustone/pandas/workflows/Go/badge.svg) 
 
 Pandas is device managment and modeling platform which can be deployed in any environments to provide the following features.
 

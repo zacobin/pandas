@@ -24,7 +24,7 @@ func NewProject(m interface{}) *grpc_pms_v1.Project {
 	lastUpdatedAt, _ := ptypes.TimestampProto(objectModel.LastUpdatedAt)
 
 	object := &grpc_pms_v1.Project{
-		ID:            objectModel.ID,
+		ID:            objectModel.ProjectID,
 		Name:          objectModel.Name,
 		UserID:        objectModel.UserID,
 		Description:   objectModel.Description,
@@ -50,13 +50,13 @@ func NewProjectModel(object *grpc_pms_v1.Project) *models.Project {
 	createdAt, _ := ptypes.Timestamp(object.CreatedAt)
 	lastUpdatedAt, _ := ptypes.Timestamp(object.LastUpdatedAt)
 	model := &models.Project{
-		ID:            object.ID,
-		Name:          object.Name,
-		UserID:        object.UserID,
-		Description:   object.Description,
-		Status:        object.Status,
-		CreatedAt:     createdAt,
-		LastUpdatedAt: lastUpdatedAt,
+		ProjectID:        object.ID,
+		Name:             object.Name,
+		UserID:           object.UserID,
+		Description:      object.Description,
+		Status:           object.Status,
+		ProjectCreatedAt: createdAt,
+		LastUpdatedAt:    lastUpdatedAt,
 	}
 	return model
 }

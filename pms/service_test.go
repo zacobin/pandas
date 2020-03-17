@@ -15,7 +15,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/cloustone/pandas/models/factory"
 	modelsoptions "github.com/cloustone/pandas/models/options"
 	pb "github.com/cloustone/pandas/pms/grpc_pms_v1"
 	. "github.com/smartystreets/goconvey/convey"
@@ -24,7 +23,8 @@ import (
 func TestInitialize(t *testing.T) {
 	Convey("TestInitialize should return ok", t, func() {
 		servingOptions := modelsoptions.NewServingOptions()
-		factory.Initialize(servingOptions)
+		//factory.Initialize(servingOptions)
+		//fmt.Println(servingOptions.CacheConnectedUrl)
 		pm := NewProjectManagementService(servingOptions)
 		So(pm, ShouldNotBeNil)
 	})

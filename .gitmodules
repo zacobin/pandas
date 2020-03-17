@@ -1,3 +1,6 @@
 [submodule "dashboard"]
 	path = dashboard
 	url = https://github.com/cloustone/pandas-dashboard
+[submodule "pandas-dashboard"]
+	path = pandas-dashboard
+	url = https://github.com/cloustone/pandas-dashboard

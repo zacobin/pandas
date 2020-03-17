@@ -29,7 +29,9 @@ type viewFactory struct {
 }
 
 func newViewFactory(servingOptions *modelsoptions.ServingOptions) factory.Factory {
+	servingOptions = modelsoptions.NewServingOptions()
 	modelDB, err := gorm.Open(servingOptions.StorePath, "pandas-projects.db")
+	//modelDB, err := gorm.Open("sqlite3", "pandas-projects.db")
 	if err != nil {
 		logrus.Fatal(err)
 	}

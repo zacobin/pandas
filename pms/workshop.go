@@ -29,7 +29,9 @@ type workshopFactory struct {
 }
 
 func newWorkshopFactory(servingOptions *modelsoptions.ServingOptions) factory.Factory {
+	servingOptions = modelsoptions.NewServingOptions()
 	modelDB, err := gorm.Open(servingOptions.StorePath, "pandas-workshops.db")
+	//modelDB, err := gorm.Open("sqlite3", "pandas-workshops.db")
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -80,8 +82,8 @@ func (pf *workshopFactory) Get(owner factory.Owner, ID string) (models.Model, er
 
 func (pf *workshopFactory) Delete(owner factory.Owner, ID string) error {
 	pf.modelDB.Delete(&models.Project{
-		UserID: owner.User(),
-		ID:     ID,
+		UserID:    owner.User(),
+		ProjectID: ID,
 	})
 	return factory.Error(pf.modelDB)
 }
@@ -91,7 +93,7 @@ func (pf *workshopFactory) Update(owner factory.Owner, model models.Model) error
 	workshop.LastUpdatedAt = time.Now()
 
 	// Check wethere the workshop exist
-	if _, err := pf.Get(owner, workshop.ID); err != nil {
+	if _, err := pf.Get(owner, workshop.ProjectID); err != nil {
 		return err
 	}
 	pf.modelDB.Save(workshop)
