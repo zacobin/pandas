@@ -14,10 +14,13 @@ package shiro
 import (
 	"errors"
 	"sync"
+	"time"
 
+	"github.com/cloustone/pandas/shiro/auth"
 	"github.com/cloustone/pandas/shiro/options"
 	"github.com/cloustone/pandas/shiro/realms"
 	. "github.com/cloustone/pandas/shiro/realms"
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 // SecurityManager is responsible for authenticate and simple authorization
@@ -39,9 +42,10 @@ func NewSecurityManager(servingOptions *options.ServingOptions) SecurityManager 
 
 // defaultSecuriityManager
 type defaultSecurityManager struct {
-	mutex          sync.RWMutex
-	servingOptions *options.ServingOptions
-	realms         []realms.Realm
+	mutex            sync.RWMutex
+	servingOptions   *options.ServingOptions
+	realms           []realms.Realm
+	backstoreManager *backstoreManager
 }
 
 // newDefaultSecurityManager return security manager instance
@@ -54,9 +58,10 @@ func newDefaultSecurityManager(servingOptions *options.ServingOptions) *defaultS
 		realms = append(realms, NewRealm(options))
 	}
 	return &defaultSecurityManager{
-		mutex:          sync.RWMutex{},
-		servingOptions: servingOptions,
-		realms:         realms,
+		mutex:            sync.RWMutex{},
+		servingOptions:   servingOptions,
+		realms:           realms,
+		backstoreManager: newBackstoreManager(servingOptions),
 	}
 }
 
@@ -71,12 +76,36 @@ func (s *defaultSecurityManager) AddDomainRealm(realm realms.Realm) {
 
 // Authenticate iterate all realm to authenticate the principal
 func (s *defaultSecurityManager) Authenticate(principal *Principal) error {
+	authenticated := false
+
 	for _, realm := range s.realms {
 		if err := realm.Authenticate(principal); err == nil {
-			return nil
+			if err := s.backstoreManager.getPrincipal(principal); err != nil {
+				return errors.New("invalid user")
+			}
+			authenticated = true
+			break
 		}
 	}
-	return errors.New("no valid realms")
+	if !authenticated {
+		return errors.New("no valid realms")
+	}
+
+	claims := auth.JwtClaims{
+		AccessId: principal.ID,
+		Name:     principal.Username,
+		Roles:    principal.Roles,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * time.Duration(6000)).Unix(),
+			Issuer:    "pandas",
+		},
+	}
+	token, err := auth.GenToken(claims)
+	if err != nil {
+		return err
+	}
+	principal.Token = token
+	return nil
 }
 
 func (s *defaultSecurityManager) Authorize(principal Principal, object *Object, action string) error {
