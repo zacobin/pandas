@@ -51,7 +51,7 @@ $(addprefix docker-build-, $(IMAGES)): docker-build-%: %
 		cd ./$(IMAGE_DIR)/ && \
 			docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/$$full_img_name .
 	@rm -rf $(IMAGE_DIR)/bin
-	@"./scripts/push.sh" $(IMAGE_NAME)
+	#@"./scripts/push.sh" $(IMAGE_NAME)
 	# @kubectl delete pod $$(kubectl get pod -n pandas | grep $(IMAGE_NAME) | awk '{print $$1}') -n pandas 
 
 .PHONY: deploy
@@ -82,12 +82,12 @@ apimachinery:
 .PHONY: dmms 
 dmms: cmd/dmms 
 	@echo "building device management server (dmms)..."
-	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/dmms
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/dmms
 
 .PHONY: pms 
 pms: cmd/pms 
 	@echo "building project management server (pms)..."
-	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/pms
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/pms
 
 .PHONY: rulechain 
 rulechain: cmd/rulechain
