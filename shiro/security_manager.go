@@ -27,7 +27,7 @@ import (
 type SecurityManager interface {
 	UseAdaptor(Adaptor)
 	AddDomainRealm(realms.Realm)
-	Authenticate(principal *Principal) error
+	Authenticate(principal *Principal, factor ...string) error
 	Authorize(principal Principal, object *Object, action string) error
 	GetAuthzDefinitions(principal Principal) ([]*AuthzDefinition, error)
 	GetPrincipalDefinition(principal Principal) (*PrincipalDefinition, error)
@@ -36,7 +36,7 @@ type SecurityManager interface {
 
 // NewSecurityManager create security manager to hold all realms for
 // authenticate
-func NewSecurityManager(servingOptions *options.ServingOptions) SecurityManager {
+func NewSecurityManager(servingOptions *options.ServingOptions, backstoreManager *backstoreManager, mfa auth.MFAuthenticator) SecurityManager {
 	return nil
 }
 
@@ -44,13 +44,14 @@ func NewSecurityManager(servingOptions *options.ServingOptions) SecurityManager 
 type defaultSecurityManager struct {
 	mutex            sync.RWMutex
 	servingOptions   *options.ServingOptions
-	realms           []realms.Realm
 	backstoreManager *backstoreManager
+	realms           []realms.Realm
+	mfa              auth.MFAuthenticator
 }
 
 // newDefaultSecurityManager return security manager instance
 // All realms are created here, if failed, shiro must be restarted
-func newDefaultSecurityManager(servingOptions *options.ServingOptions) *defaultSecurityManager {
+func newDefaultSecurityManager(servingOptions *options.ServingOptions, backstoreManager *backstoreManager, mfa auth.MFAuthenticator) *defaultSecurityManager {
 	realmOptions := NewRealmOptionsWithFile(servingOptions.RealmConfigFile)
 	realms := []Realm{}
 
@@ -60,8 +61,9 @@ func newDefaultSecurityManager(servingOptions *options.ServingOptions) *defaultS
 	return &defaultSecurityManager{
 		mutex:            sync.RWMutex{},
 		servingOptions:   servingOptions,
+		backstoreManager: backstoreManager,
 		realms:           realms,
-		backstoreManager: newBackstoreManager(servingOptions),
+		mfa:              mfa,
 	}
 }
 
@@ -75,7 +77,7 @@ func (s *defaultSecurityManager) AddDomainRealm(realm realms.Realm) {
 }
 
 // Authenticate iterate all realm to authenticate the principal
-func (s *defaultSecurityManager) Authenticate(principal *Principal) error {
+func (s *defaultSecurityManager) Authenticate(principal *Principal, factor ...string) error {
 	authenticated := false
 
 	for _, realm := range s.realms {
@@ -89,6 +91,11 @@ func (s *defaultSecurityManager) Authenticate(principal *Principal) error {
 	}
 	if !authenticated {
 		return errors.New("no valid realms")
+	}
+
+	// Two factor authentication
+	if err := s.mfa.Authenticate(principal, factor...); err != nil {
+		return err
 	}
 
 	claims := auth.JwtClaims{

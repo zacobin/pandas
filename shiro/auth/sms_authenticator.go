@@ -9,31 +9,14 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package realms
+package auth
 
-type Principal struct {
-	ID           string
-	Token        string
-	Username     string
-	Password     string
-	Roles        []string
-	PhoneNumbers string
+import (
+	"github.com/cloustone/pandas/shiro/auth/sms"
+	"github.com/cloustone/pandas/shiro/auth/sms/aliyun"
+	"github.com/cloustone/pandas/shiro/options"
+)
+
+func NewSmsAuthenticator(servingOptions *options.ServingOptions) sms.Authenticator {
+	return aliyun.NewAuthenticator(servingOptions)
 }
-
-func NewPrincipal(username, pwd string) *Principal {
-	return &Principal{
-		Roles: []string{},
-	}
-}
-
-func (p *Principal) WithRole(role string) *Principal {
-	p.Roles = append(p.Roles, role)
-	return p
-}
-
-func (p *Principal) WithRoles(roles ...string) *Principal {
-	p.Roles = append(p.Roles, roles...)
-	return p
-}
-
-type PrincipalDefinition struct{}

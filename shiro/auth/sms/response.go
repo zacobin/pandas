@@ -9,31 +9,20 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package realms
+package sms
 
-type Principal struct {
-	ID           string
-	Token        string
-	Username     string
-	Password     string
-	Roles        []string
-	PhoneNumbers string
+// The response code which stands for a sms is sent successfully.
+const ResponseCodeOk = "OK"
+
+// The Response of sending sms API.
+type Response struct {
+	RawResponse []byte `json:"-"` // The raw response from server.
+	RequestId   string `json:"RequestId"`
+	Code        string `json:"Code"`
+	Message     string `json:"Message"`
+	BizId       string `json:"BizId"`
 }
 
-func NewPrincipal(username, pwd string) *Principal {
-	return &Principal{
-		Roles: []string{},
-	}
+func (m *Response) IsSuccessful() bool {
+	return m.Code == ResponseCodeOk
 }
-
-func (p *Principal) WithRole(role string) *Principal {
-	p.Roles = append(p.Roles, role)
-	return p
-}
-
-func (p *Principal) WithRoles(roles ...string) *Principal {
-	p.Roles = append(p.Roles, roles...)
-	return p
-}
-
-type PrincipalDefinition struct{}

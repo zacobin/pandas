@@ -19,12 +19,15 @@ import (
 )
 
 type ServingOptions struct {
-	SecureServing    *genericoptions.SecureServingOptions
-	BroadcastServing *broadcast_options.ServingOptions
-	ServiceID        string
-	InitFile         string
-	RealmConfigFile  string
-	MFA              string
+	SecureServing      *genericoptions.SecureServingOptions
+	BroadcastServing   *broadcast_options.ServingOptions
+	ServiceID          string
+	InitFile           string
+	RealmConfigFile    string
+	MFA                string
+	SmsAccessURL       string
+	SmsAccessKeyID     string
+	SmsAccessKeySecret string
 }
 
 func NewServingOptions() *ServingOptions {
@@ -44,4 +47,7 @@ func (s *ServingOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&s.InitFile, "init-file", s.InitFile, "initial shiro config file")
 	fs.StringVar(&s.RealmConfigFile, "realm-config-file", s.RealmConfigFile, "realm config file")
 	fs.StringVar(&s.MFA, "mfa", s.MFA, "multiple factor authentication")
+	fs.StringVar(&s.SmsAccessURL, "sms-access-url", s.SmsAccessURL, "sms authenticator access key url")
+	fs.StringVar(&s.SmsAccessKeyID, "sms-access-key-id", s.SmsAccessKeyID, "sms authenticator access key id")
+	fs.StringVar(&s.SmsAccessKeySecret, "sms-access-key-secret", s.SmsAccessKeySecret, "sms authenticator access key secret")
 }

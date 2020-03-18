@@ -12,9 +12,14 @@ service UnifiedUserManagement {
     rpc GetRolePermissions(GetRolePermissionsRequest) returns (GetRolePermissionsResponse) {}
 }
 
+message MFArgs {
+    string SignName = 1;
+}
+
 message AuthenticateRequest{ 
     string Username = 1;
     string Password = 2;
+    MFArgs mfa = 3;
 }
 message AuthenticateResponse { 
     string Token = 1;

@@ -12,23 +12,40 @@
 package auth
 
 import (
+	"errors"
+
+	"github.com/cloustone/pandas/shiro/auth/sms"
 	"github.com/cloustone/pandas/shiro/options"
 	"github.com/cloustone/pandas/shiro/realms"
 )
 
-type MultipleFactorAuthenticator interface {
+type MFAuthenticator interface {
 	Authenticate(principal *realms.Principal, factor ...string) error
 }
 
-func NewMultipleFactorAuthenticator(servingOptions *options.ServingOptions) MultipleFactorAuthenticator {
+func NewMFAuthenticator(servingOptions *options.ServingOptions) MFAuthenticator {
 	switch servingOptions.MFA {
 	default:
-		return &defaultMFA{}
+		return &defaultMFA{
+			smsAuthenticator: NewSmsAuthenticator(servingOptions),
+		}
 	}
 }
 
-type defaultMFA struct{}
+type defaultMFA struct {
+	smsAuthenticator sms.Authenticator
+}
+
+// TODO: how to add customized template params here in future
+const (
+	templateCode  = "SMS_82045083"
+	templateParam = "{\"code\":\"1234\"}"
+)
 
 func (m *defaultMFA) Authenticate(principal *realms.Principal, factor ...string) error {
-	return nil
+	if len(factor) == 0 {
+		return errors.New("invalid arguments")
+	}
+	_, err := m.smsAuthenticator.Execute(principal.PhoneNumbers, factor[0], templateCode, templateParam)
+	return err
 }

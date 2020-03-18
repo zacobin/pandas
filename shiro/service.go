@@ -24,17 +24,20 @@ import (
 
 // UnifiedUserManagementService manage user's authentication and authorization
 type UnifiedUserManagementService struct {
-	servingOptions  *options.ServingOptions
-	securityManager SecurityManager
-	mfa             auth.MultipleFactorAuthenticator
+	servingOptions   *options.ServingOptions
+	securityManager  SecurityManager
+	backstoreManager *backstoreManager
 }
 
 // UnifiedUserManagementService  return service instance
 func NewUnifiedUserManagementService(servingOptions *options.ServingOptions) *UnifiedUserManagementService {
+	mfa := auth.NewMFAuthenticator(servingOptions)
+	backstoreManager := newBackstoreManager(servingOptions)
+
 	s := &UnifiedUserManagementService{
-		servingOptions:  servingOptions,
-		securityManager: NewSecurityManager(servingOptions),
-		mfa:             auth.NewMultipleFactorAuthenticator(servingOptions),
+		servingOptions:   servingOptions,
+		backstoreManager: backstoreManager,
+		securityManager:  NewSecurityManager(servingOptions, backstoreManager, mfa),
 	}
 	return s
 }
@@ -44,10 +47,6 @@ func (s *UnifiedUserManagementService) Authenticate(ctx context.Context, in *pb.
 	principal := realms.NewPrincipal(in.Username, in.Password)
 	if err := s.securityManager.Authenticate(principal); err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "%w", err)
-	}
-	// TODO: add two factor authentication
-	if err := s.mfa.Authenticate(principal, ""); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "mfa:%w", err)
 	}
 	return &pb.AuthenticateResponse{Token: principal.Token, Roles: principal.Roles}, nil
 }

@@ -9,31 +9,8 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package realms
+package sms
 
-type Principal struct {
-	ID           string
-	Token        string
-	Username     string
-	Password     string
-	Roles        []string
-	PhoneNumbers string
+type Authenticator interface {
+	Execute(phoneNumbers, signName, templateCode, templateParam string) (*Response, error)
 }
-
-func NewPrincipal(username, pwd string) *Principal {
-	return &Principal{
-		Roles: []string{},
-	}
-}
-
-func (p *Principal) WithRole(role string) *Principal {
-	p.Roles = append(p.Roles, role)
-	return p
-}
-
-func (p *Principal) WithRoles(roles ...string) *Principal {
-	p.Roles = append(p.Roles, roles...)
-	return p
-}
-
-type PrincipalDefinition struct{}
