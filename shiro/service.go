@@ -14,7 +14,6 @@ package shiro
 import (
 	"context"
 
-	"github.com/cloustone/pandas/shiro/auth"
 	pb "github.com/cloustone/pandas/shiro/grpc_shiro_v1"
 	"github.com/cloustone/pandas/shiro/options"
 	"github.com/cloustone/pandas/shiro/realms"
@@ -31,8 +30,8 @@ type UnifiedUserManagementService struct {
 
 // UnifiedUserManagementService  return service instance
 func NewUnifiedUserManagementService(servingOptions *options.ServingOptions) *UnifiedUserManagementService {
-	mfa := auth.NewMFAuthenticator(servingOptions)
 	backstoreManager := newBackstoreManager(servingOptions)
+	mfa := NewMFAuthenticator(servingOptions, backstoreManager)
 
 	s := &UnifiedUserManagementService{
 		servingOptions:   servingOptions,
@@ -40,6 +39,11 @@ func NewUnifiedUserManagementService(servingOptions *options.ServingOptions) *Un
 		securityManager:  NewSecurityManager(servingOptions, backstoreManager, mfa),
 	}
 	return s
+}
+
+// NotifyMFA will post a mfa code to client
+func (s *UnifiedUserManagementService) NotifyMFA(ctx context.Context, in *pb.NotifyMFARequest) (*pb.NotifyMFAResponse, error) {
+	return nil, nil
 }
 
 // Authenticate authenticate the principal in specific domain realm

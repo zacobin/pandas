@@ -16,7 +16,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/cloustone/pandas/shiro/options"
+	"github.com/cloustone/pandas/pkg/sms"
 )
 
 var (
@@ -30,13 +30,13 @@ var (
 )
 
 func main() {
-	sevingOptons := &options.ServingOptions{
+	sevingOptons := &sms.ServingOptions{
 		SmsAccessURL:       gatewayUrl,
 		SmsAccessKeyID:     accessKeyID,
 		SmsAccessKeySecret: accessKeySecret,
 	}
-	smsAuthc := aliyun.NewSmsAuthenticator(servingOptions)
-	result, err := smsAuthc.Execute(phoneNumbers, signName, templateCode, templateParam)
+	client := sms.NewSmsClient(servingOptions)
+	result, err := client.Execute(phoneNumbers, signName, templateCode, templateParam)
 	fmt.Println("Got raw response from server:", string(result.RawResponse))
 	if err != nil {
 		panic("Failed to send Message: " + err.Error())

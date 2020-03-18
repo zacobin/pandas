@@ -11,6 +11,10 @@
 //  under the License.
 package sms
 
-type Authenticator interface {
+type Client interface {
 	Execute(phoneNumbers, signName, templateCode, templateParam string) (*Response, error)
+}
+
+func NewClient(servingOptions *ServingOptions) Client {
+	return newAliyunSMS(servingOptions)
 }

@@ -9,18 +9,15 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package aliyun
+package sms
 
 import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/cloustone/pandas/shiro/auth/sms"
-	"github.com/cloustone/pandas/shiro/options"
 )
 
-type smsAuthenticator struct {
+type aliyunSMS struct {
 	request         *aliyunCommunicationRequest
 	gatewayUrl      string
 	accessKeyID     string
@@ -28,17 +25,17 @@ type smsAuthenticator struct {
 	client          *http.Client
 }
 
-func NewAuthenticator(servingOptions *options.ServingOptions) sms.Authenticator {
-	return &smsAuthenticator{
+func newAliyunSMS(servingOptions *ServingOptions) Client {
+	return &aliyunSMS{
 		request:         &aliyunCommunicationRequest{},
-		gatewayUrl:      servingOptions.SmsAccessURL,
+		gatewayUrl:      servingOptions.AccessURL,
 		client:          &http.Client{},
-		accessKeyID:     servingOptions.SmsAccessKeyID,
-		accessKeySecret: servingOptions.SmsAccessKeySecret,
+		accessKeyID:     servingOptions.AccessKeyID,
+		accessKeySecret: servingOptions.AccessKeySecret,
 	}
 }
 
-func (s *smsAuthenticator) Execute(phoneNumbers, signName, templateCode, templateParam string) (*sms.Response, error) {
+func (s *aliyunSMS) Execute(phoneNumbers, signName, templateCode, templateParam string) (*Response, error) {
 	err := s.request.SetParamsValue(s.accessKeyID, phoneNumbers, signName, templateCode, templateParam)
 	if err != nil {
 		return nil, err
@@ -59,7 +56,7 @@ func (s *smsAuthenticator) Execute(phoneNumbers, signName, templateCode, templat
 	}
 	defer response.Body.Close()
 
-	result := new(sms.Response)
+	result := new(Response)
 	err = json.Unmarshal(body, result)
 
 	result.RawResponse = body

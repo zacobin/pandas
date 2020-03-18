@@ -26,3 +26,7 @@ func (b *backstoreManager) getPrincipal(pricipal *realms.Principal) error {
 	// TODO: access database to retrieve principal's roles
 	return nil
 }
+
+func (b *backstoreManager) updatePrincipal(principal *realms.Principal) error {
+	return nil
+}

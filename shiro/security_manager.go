@@ -36,7 +36,7 @@ type SecurityManager interface {
 
 // NewSecurityManager create security manager to hold all realms for
 // authenticate
-func NewSecurityManager(servingOptions *options.ServingOptions, backstoreManager *backstoreManager, mfa auth.MFAuthenticator) SecurityManager {
+func NewSecurityManager(servingOptions *options.ServingOptions, backstoreManager *backstoreManager, mfa MFAuthenticator) SecurityManager {
 	return nil
 }
 
@@ -46,12 +46,12 @@ type defaultSecurityManager struct {
 	servingOptions   *options.ServingOptions
 	backstoreManager *backstoreManager
 	realms           []realms.Realm
-	mfa              auth.MFAuthenticator
+	mfa              MFAuthenticator
 }
 
 // newDefaultSecurityManager return security manager instance
 // All realms are created here, if failed, shiro must be restarted
-func newDefaultSecurityManager(servingOptions *options.ServingOptions, backstoreManager *backstoreManager, mfa auth.MFAuthenticator) *defaultSecurityManager {
+func newDefaultSecurityManager(servingOptions *options.ServingOptions, backstoreManager *backstoreManager, mfa MFAuthenticator) *defaultSecurityManager {
 	realmOptions := NewRealmOptionsWithFile(servingOptions.RealmConfigFile)
 	realms := []Realm{}
 
@@ -94,7 +94,7 @@ func (s *defaultSecurityManager) Authenticate(principal *Principal, factor ...st
 	}
 
 	// Two factor authentication
-	if err := s.mfa.Authenticate(principal, factor...); err != nil {
+	if err := s.mfa.Authenticate(principal); err != nil {
 		return err
 	}
 

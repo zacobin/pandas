@@ -4,6 +4,8 @@ syntax = "proto3";
 package grpc.shiro.v1;
 
 service UnifiedUserManagement {
+    // NotifyMFA will post a mfa code to client
+    rpc NotifyMFA(NotifyMFARequest) returns (NotifyMFAResponse) {}
     // Authenticate authenticate the principal in specific domain realm
     rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse) {}
     // AddDomainRealm adds specific realm
@@ -11,6 +13,11 @@ service UnifiedUserManagement {
     // GetRolePermissions return role's dynamica route path
     rpc GetRolePermissions(GetRolePermissionsRequest) returns (GetRolePermissionsResponse) {}
 }
+
+message NotifyMFARequest {
+    string UserName = 1;
+}
+message NotifyMFAResponse {}
 
 message MFArgs {
     string SignName = 1;

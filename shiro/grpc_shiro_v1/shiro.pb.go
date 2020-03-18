@@ -23,6 +23,74 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+type NotifyMFARequest struct {
+	UserName             string   `protobuf:"bytes,1,opt,name=UserName,proto3" json:"UserName,omitempty" bson:"UserName,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *NotifyMFARequest) Reset()         { *m = NotifyMFARequest{} }
+func (m *NotifyMFARequest) String() string { return proto.CompactTextString(m) }
+func (*NotifyMFARequest) ProtoMessage()    {}
+func (*NotifyMFARequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_shiro_1064de92c0caba75, []int{0}
+}
+func (m *NotifyMFARequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_NotifyMFARequest.Unmarshal(m, b)
+}
+func (m *NotifyMFARequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_NotifyMFARequest.Marshal(b, m, deterministic)
+}
+func (dst *NotifyMFARequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NotifyMFARequest.Merge(dst, src)
+}
+func (m *NotifyMFARequest) XXX_Size() int {
+	return xxx_messageInfo_NotifyMFARequest.Size(m)
+}
+func (m *NotifyMFARequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_NotifyMFARequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NotifyMFARequest proto.InternalMessageInfo
+
+func (m *NotifyMFARequest) GetUserName() string {
+	if m != nil {
+		return m.UserName
+	}
+	return ""
+}
+
+type NotifyMFAResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *NotifyMFAResponse) Reset()         { *m = NotifyMFAResponse{} }
+func (m *NotifyMFAResponse) String() string { return proto.CompactTextString(m) }
+func (*NotifyMFAResponse) ProtoMessage()    {}
+func (*NotifyMFAResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_shiro_1064de92c0caba75, []int{1}
+}
+func (m *NotifyMFAResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_NotifyMFAResponse.Unmarshal(m, b)
+}
+func (m *NotifyMFAResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_NotifyMFAResponse.Marshal(b, m, deterministic)
+}
+func (dst *NotifyMFAResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NotifyMFAResponse.Merge(dst, src)
+}
+func (m *NotifyMFAResponse) XXX_Size() int {
+	return xxx_messageInfo_NotifyMFAResponse.Size(m)
+}
+func (m *NotifyMFAResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_NotifyMFAResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NotifyMFAResponse proto.InternalMessageInfo
+
 type MFArgs struct {
 	SignName             string   `protobuf:"bytes,1,opt,name=SignName,proto3" json:"SignName,omitempty" bson:"SignName,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -34,7 +102,7 @@ func (m *MFArgs) Reset()         { *m = MFArgs{} }
 func (m *MFArgs) String() string { return proto.CompactTextString(m) }
 func (*MFArgs) ProtoMessage()    {}
 func (*MFArgs) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_e804704c12cb0cd2, []int{0}
+	return fileDescriptor_shiro_1064de92c0caba75, []int{2}
 }
 func (m *MFArgs) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MFArgs.Unmarshal(m, b)
@@ -74,7 +142,7 @@ func (m *AuthenticateRequest) Reset()         { *m = AuthenticateRequest{} }
 func (m *AuthenticateRequest) String() string { return proto.CompactTextString(m) }
 func (*AuthenticateRequest) ProtoMessage()    {}
 func (*AuthenticateRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_e804704c12cb0cd2, []int{1}
+	return fileDescriptor_shiro_1064de92c0caba75, []int{3}
 }
 func (m *AuthenticateRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AuthenticateRequest.Unmarshal(m, b)
@@ -127,7 +195,7 @@ func (m *AuthenticateResponse) Reset()         { *m = AuthenticateResponse{} }
 func (m *AuthenticateResponse) String() string { return proto.CompactTextString(m) }
 func (*AuthenticateResponse) ProtoMessage()    {}
 func (*AuthenticateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_e804704c12cb0cd2, []int{2}
+	return fileDescriptor_shiro_1064de92c0caba75, []int{4}
 }
 func (m *AuthenticateResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AuthenticateResponse.Unmarshal(m, b)
@@ -171,7 +239,7 @@ func (m *AddDomainRealmRequest) Reset()         { *m = AddDomainRealmRequest{} }
 func (m *AddDomainRealmRequest) String() string { return proto.CompactTextString(m) }
 func (*AddDomainRealmRequest) ProtoMessage()    {}
 func (*AddDomainRealmRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_e804704c12cb0cd2, []int{3}
+	return fileDescriptor_shiro_1064de92c0caba75, []int{5}
 }
 func (m *AddDomainRealmRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddDomainRealmRequest.Unmarshal(m, b)
@@ -201,7 +269,7 @@ func (m *AddDomainRealmResponse) Reset()         { *m = AddDomainRealmResponse{}
 func (m *AddDomainRealmResponse) String() string { return proto.CompactTextString(m) }
 func (*AddDomainRealmResponse) ProtoMessage()    {}
 func (*AddDomainRealmResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_e804704c12cb0cd2, []int{4}
+	return fileDescriptor_shiro_1064de92c0caba75, []int{6}
 }
 func (m *AddDomainRealmResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddDomainRealmResponse.Unmarshal(m, b)
@@ -231,7 +299,7 @@ func (m *GetRolePermissionsRequest) Reset()         { *m = GetRolePermissionsReq
 func (m *GetRolePermissionsRequest) String() string { return proto.CompactTextString(m) }
 func (*GetRolePermissionsRequest) ProtoMessage()    {}
 func (*GetRolePermissionsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_e804704c12cb0cd2, []int{5}
+	return fileDescriptor_shiro_1064de92c0caba75, []int{7}
 }
 func (m *GetRolePermissionsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetRolePermissionsRequest.Unmarshal(m, b)
@@ -261,7 +329,7 @@ func (m *GetRolePermissionsResponse) Reset()         { *m = GetRolePermissionsRe
 func (m *GetRolePermissionsResponse) String() string { return proto.CompactTextString(m) }
 func (*GetRolePermissionsResponse) ProtoMessage()    {}
 func (*GetRolePermissionsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_e804704c12cb0cd2, []int{6}
+	return fileDescriptor_shiro_1064de92c0caba75, []int{8}
 }
 func (m *GetRolePermissionsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetRolePermissionsResponse.Unmarshal(m, b)
@@ -282,6 +350,8 @@ func (m *GetRolePermissionsResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_GetRolePermissionsResponse proto.InternalMessageInfo
 
 func init() {
+	proto.RegisterType((*NotifyMFARequest)(nil), "grpc.shiro.v1.NotifyMFARequest")
+	proto.RegisterType((*NotifyMFAResponse)(nil), "grpc.shiro.v1.NotifyMFAResponse")
 	proto.RegisterType((*MFArgs)(nil), "grpc.shiro.v1.MFArgs")
 	proto.RegisterType((*AuthenticateRequest)(nil), "grpc.shiro.v1.AuthenticateRequest")
 	proto.RegisterType((*AuthenticateResponse)(nil), "grpc.shiro.v1.AuthenticateResponse")
@@ -303,6 +373,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type UnifiedUserManagementClient interface {
+	// NotifyMFA will post a mfa code to client
+	NotifyMFA(ctx context.Context, in *NotifyMFARequest, opts ...grpc.CallOption) (*NotifyMFAResponse, error)
 	// Authenticate authenticate the principal in specific domain realm
 	Authenticate(ctx context.Context, in *AuthenticateRequest, opts ...grpc.CallOption) (*AuthenticateResponse, error)
 	// AddDomainRealm adds specific realm
@@ -317,6 +389,15 @@ type unifiedUserManagementClient struct {
 
 func NewUnifiedUserManagementClient(cc *grpc.ClientConn) UnifiedUserManagementClient {
 	return &unifiedUserManagementClient{cc}
+}
+
+func (c *unifiedUserManagementClient) NotifyMFA(ctx context.Context, in *NotifyMFARequest, opts ...grpc.CallOption) (*NotifyMFAResponse, error) {
+	out := new(NotifyMFAResponse)
+	err := c.cc.Invoke(ctx, "/grpc.shiro.v1.UnifiedUserManagement/NotifyMFA", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *unifiedUserManagementClient) Authenticate(ctx context.Context, in *AuthenticateRequest, opts ...grpc.CallOption) (*AuthenticateResponse, error) {
@@ -348,6 +429,8 @@ func (c *unifiedUserManagementClient) GetRolePermissions(ctx context.Context, in
 
 // UnifiedUserManagementServer is the server API for UnifiedUserManagement service.
 type UnifiedUserManagementServer interface {
+	// NotifyMFA will post a mfa code to client
+	NotifyMFA(context.Context, *NotifyMFARequest) (*NotifyMFAResponse, error)
 	// Authenticate authenticate the principal in specific domain realm
 	Authenticate(context.Context, *AuthenticateRequest) (*AuthenticateResponse, error)
 	// AddDomainRealm adds specific realm
@@ -358,6 +441,24 @@ type UnifiedUserManagementServer interface {
 
 func RegisterUnifiedUserManagementServer(s *grpc.Server, srv UnifiedUserManagementServer) {
 	s.RegisterService(&_UnifiedUserManagement_serviceDesc, srv)
+}
+
+func _UnifiedUserManagement_NotifyMFA_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NotifyMFARequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UnifiedUserManagementServer).NotifyMFA(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.shiro.v1.UnifiedUserManagement/NotifyMFA",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UnifiedUserManagementServer).NotifyMFA(ctx, req.(*NotifyMFARequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _UnifiedUserManagement_Authenticate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -419,6 +520,10 @@ var _UnifiedUserManagement_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*UnifiedUserManagementServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "NotifyMFA",
+			Handler:    _UnifiedUserManagement_NotifyMFA_Handler,
+		},
+		{
 			MethodName: "Authenticate",
 			Handler:    _UnifiedUserManagement_Authenticate_Handler,
 		},
@@ -435,29 +540,31 @@ var _UnifiedUserManagement_serviceDesc = grpc.ServiceDesc{
 	Metadata: "shiro.proto",
 }
 
-func init() { proto.RegisterFile("shiro.proto", fileDescriptor_shiro_e804704c12cb0cd2) }
+func init() { proto.RegisterFile("shiro.proto", fileDescriptor_shiro_1064de92c0caba75) }
 
-var fileDescriptor_shiro_e804704c12cb0cd2 = []byte{
-	// 322 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x52, 0xcd, 0x4e, 0x02, 0x31,
-	0x10, 0x16, 0x88, 0x44, 0x07, 0xf5, 0x50, 0x41, 0xd7, 0xd5, 0x03, 0xa9, 0x18, 0xf1, 0xb2, 0x89,
-	0xf8, 0x04, 0x18, 0xa3, 0x27, 0x0c, 0x59, 0xe5, 0xe0, 0xc9, 0x54, 0x76, 0x58, 0x1a, 0xd8, 0x16,
-	0x3b, 0x05, 0x5f, 0xcf, 0x47, 0x33, 0x65, 0x59, 0x02, 0x2b, 0xfe, 0x1c, 0xbf, 0x99, 0xf9, 0xfa,
-	0xfd, 0xa4, 0x50, 0xa1, 0xa1, 0x34, 0x3a, 0x98, 0x18, 0x6d, 0x35, 0xdb, 0x8f, 0xcd, 0xa4, 0x1f,
-	0xa4, 0x93, 0xd9, 0x35, 0x6f, 0x40, 0xb9, 0x73, 0xdf, 0x36, 0x31, 0x31, 0x1f, 0x76, 0x9e, 0x64,
-	0xac, 0x1e, 0x45, 0x82, 0x5e, 0xa1, 0x5e, 0x68, 0xee, 0x86, 0x4b, 0xcc, 0x67, 0x70, 0xd8, 0x9e,
-	0xda, 0x21, 0x2a, 0x2b, 0xfb, 0xc2, 0x62, 0x88, 0xef, 0x53, 0x24, 0xeb, 0x28, 0x3d, 0x42, 0xa3,
-	0x56, 0x28, 0x19, 0x76, 0xbb, 0xae, 0x20, 0xfa, 0xd0, 0x26, 0xf2, 0x8a, 0xe9, 0x2e, 0xc3, 0xec,
-	0x12, 0x4a, 0xc9, 0x40, 0x78, 0xa5, 0x7a, 0xa1, 0x59, 0x69, 0xd5, 0x82, 0x35, 0x47, 0x41, 0x6a,
-	0x27, 0x74, 0x17, 0xfc, 0x16, 0xaa, 0xeb, 0xba, 0x34, 0xd1, 0x8a, 0x90, 0x55, 0x61, 0xfb, 0x59,
-	0x8f, 0x50, 0x2d, 0x54, 0x53, 0xe0, 0xa6, 0xa1, 0x1e, 0x23, 0x79, 0xc5, 0x7a, 0xc9, 0x4d, 0xe7,
-	0x80, 0x1f, 0x43, 0xad, 0x1d, 0x45, 0x77, 0x3a, 0x11, 0x52, 0x85, 0x28, 0xc6, 0xc9, 0xc2, 0x3d,
-	0xf7, 0xe0, 0x28, 0xbf, 0x48, 0x9f, 0xe7, 0xa7, 0x70, 0xf2, 0x80, 0xd6, 0xd1, 0xbb, 0x68, 0x12,
-	0x49, 0x24, 0xb5, 0xa2, 0x8c, 0x76, 0x06, 0xfe, 0xa6, 0x65, 0x4a, 0x6d, 0x7d, 0x16, 0xa1, 0xd6,
-	0x53, 0x72, 0x20, 0x31, 0x72, 0x55, 0x74, 0x84, 0x12, 0x31, 0x26, 0xa8, 0x2c, 0x7b, 0x81, 0xbd,
-	0xd5, 0x2c, 0x8c, 0xe7, 0x72, 0x6f, 0x28, 0xd8, 0x3f, 0xff, 0xf5, 0x66, 0xe1, 0x76, 0x8b, 0xbd,
-	0xc2, 0xc1, 0x7a, 0x12, 0xd6, 0xc8, 0x13, 0x37, 0x35, 0xe0, 0x5f, 0xfc, 0x71, 0xb5, 0x14, 0x18,
-	0x01, 0xfb, 0x9e, 0x99, 0x35, 0x73, 0xf4, 0x1f, 0x3b, 0xf3, 0xaf, 0xfe, 0x71, 0x99, 0x89, 0xbd,
-	0x95, 0xe7, 0x1f, 0xf5, 0xe6, 0x2b, 0x00, 0x00, 0xff, 0xff, 0x62, 0x36, 0xdb, 0xc7, 0xb7, 0x02,
-	0x00, 0x00,
+var fileDescriptor_shiro_1064de92c0caba75 = []byte{
+	// 366 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x53, 0x5d, 0x4f, 0xe2, 0x40,
+	0x14, 0x5d, 0x68, 0x96, 0x2c, 0x97, 0xdd, 0x8d, 0x0e, 0xa0, 0xb5, 0x9a, 0xd8, 0x8c, 0x18, 0xf1,
+	0xa5, 0x89, 0xf8, 0x0b, 0x6a, 0x0c, 0x3e, 0x41, 0x48, 0x95, 0x07, 0x9f, 0xcc, 0x48, 0x87, 0x32,
+	0x81, 0xce, 0x60, 0x67, 0xc0, 0xf8, 0x37, 0xfc, 0xc5, 0x66, 0xe8, 0x47, 0x60, 0x04, 0xf5, 0xf1,
+	0xdc, 0x7b, 0x4e, 0xcf, 0x99, 0x73, 0x53, 0xa8, 0xc9, 0x09, 0x4b, 0x84, 0x37, 0x4f, 0x84, 0x12,
+	0xe8, 0x5f, 0x94, 0xcc, 0x47, 0x5e, 0x3a, 0x59, 0x5e, 0x61, 0x0f, 0xf6, 0xfa, 0x42, 0xb1, 0xf1,
+	0x5b, 0xaf, 0xeb, 0x07, 0xf4, 0x65, 0x41, 0xa5, 0x42, 0x0e, 0xfc, 0x19, 0x4a, 0x9a, 0xf4, 0x49,
+	0x4c, 0xed, 0x92, 0x5b, 0x6a, 0x57, 0x83, 0x02, 0xe3, 0x3a, 0xec, 0xaf, 0xf1, 0xe5, 0x5c, 0x70,
+	0x49, 0x71, 0x0b, 0x2a, 0xbd, 0xae, 0x9f, 0x44, 0x52, 0x4b, 0xef, 0x59, 0xc4, 0xd7, 0xa5, 0x39,
+	0xc6, 0x4b, 0xa8, 0xfb, 0x0b, 0x35, 0xa1, 0x5c, 0xb1, 0x11, 0x51, 0xd4, 0x70, 0xe3, 0x86, 0x9b,
+	0xc6, 0x7a, 0x37, 0x20, 0x52, 0xbe, 0x8a, 0x24, 0xb4, 0xcb, 0xe9, 0x2e, 0xc7, 0xe8, 0x02, 0xac,
+	0x78, 0x4c, 0x6c, 0xcb, 0x2d, 0xb5, 0x6b, 0x9d, 0xa6, 0xb7, 0xf1, 0x2c, 0x2f, 0x8d, 0x13, 0x68,
+	0x06, 0xbe, 0x81, 0xc6, 0xa6, 0x6f, 0x9a, 0x1a, 0x35, 0xe0, 0xf7, 0x83, 0x98, 0x52, 0x9e, 0xb9,
+	0xa6, 0x40, 0x4f, 0x03, 0x31, 0xa3, 0xd2, 0x2e, 0xbb, 0x96, 0x9e, 0xae, 0x00, 0x3e, 0x84, 0xa6,
+	0x1f, 0x86, 0xb7, 0x22, 0x26, 0x8c, 0x07, 0x94, 0xcc, 0xe2, 0x2c, 0x3d, 0xb6, 0xe1, 0xc0, 0x5c,
+	0x64, 0xa5, 0x1c, 0xc3, 0xd1, 0x1d, 0x55, 0x5a, 0x3e, 0xa0, 0x49, 0xcc, 0xa4, 0x64, 0x82, 0xcb,
+	0x5c, 0x76, 0x02, 0xce, 0xb6, 0x65, 0x2a, 0xed, 0xbc, 0x5b, 0xd0, 0x1c, 0x72, 0x36, 0x66, 0x34,
+	0xd4, 0x55, 0xf4, 0x08, 0x27, 0x11, 0x8d, 0x29, 0x57, 0x68, 0x00, 0xd5, 0xa2, 0x7e, 0x74, 0x6a,
+	0x3c, 0xda, 0x3c, 0xa4, 0xe3, 0xee, 0x26, 0x64, 0x21, 0x7f, 0xa1, 0x47, 0xf8, 0xbb, 0xde, 0x0e,
+	0xc2, 0x86, 0x66, 0xcb, 0xc9, 0x9c, 0xb3, 0x2f, 0x39, 0xc5, 0xa7, 0x9f, 0xe0, 0xff, 0x66, 0x37,
+	0xa8, 0x65, 0x0a, 0xb7, 0x75, 0xea, 0x9c, 0x7f, 0xc3, 0x2a, 0x0c, 0xa6, 0x80, 0x3e, 0xb7, 0x88,
+	0xda, 0x86, 0x7c, 0xe7, 0x15, 0x9c, 0xcb, 0x1f, 0x30, 0x73, 0xb3, 0xe7, 0xca, 0xea, 0xff, 0xb9,
+	0xfe, 0x08, 0x00, 0x00, 0xff, 0xff, 0x58, 0x11, 0x76, 0xee, 0x4e, 0x03, 0x00, 0x00,
 }
