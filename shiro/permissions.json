@@ -1,0 +1,21 @@
+{
+  "version": "alpha",
+  "permissions": [ 
+          {
+              "role": "employe",
+              "routes": [
+                "/users",
+                "/users/sample",
+                "/users/list"
+              ]
+          },
+          {
+              "role": "admin",
+              "routes": [
+                "/user/info",
+                "/users/sample",
+                "/users/list"
+              ]
+          }
+        ]
+}
