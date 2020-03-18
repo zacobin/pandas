@@ -12,6 +12,7 @@
 package rulechain
 
 import (
+	"fmt"
 	"io/ioutil"
 	"testing"
 
@@ -20,10 +21,11 @@ import (
 )
 
 func TestNodeChains(t *testing.T) {
-	manifestNormalSample, errs := ioutil.ReadFile("../manifest_sample.json")
-	So(errs, ShouldBeNil)
+	manifestNormalSample, errs := ioutil.ReadFile("./manifest_sample.json")
+	fmt.Println(errs)
 
 	Convey("Construct node chanis", t, func() {
+
 		manifest, err := manifest.New([]byte(manifestNormalSample))
 		So(err, ShouldBeNil)
 

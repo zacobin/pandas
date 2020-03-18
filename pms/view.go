@@ -52,7 +52,7 @@ func (pf *viewFactory) Save(owner factory.Owner, obj models.Model) (models.Model
 		return nil, err
 	}
 	// update cache
-	pf.cache.Set(factory.NewCacheID(owner, view.ID), view)
+	pf.cache.Set(factory.NewCacheID(owner, view.ViewID), view)
 	return view, nil
 }
 
@@ -86,7 +86,7 @@ func (pf *viewFactory) Get(owner factory.Owner, viewID string) (models.Model, er
 func (pf *viewFactory) Delete(owner factory.Owner, viewID string) error {
 	pf.modelDB.Delete(&models.View{
 		ProjectID: owner.Project(),
-		ID:        viewID,
+		ViewID:    viewID,
 	})
 	pf.cache.Delete(factory.NewCacheID(owner, viewID))
 	return nil
