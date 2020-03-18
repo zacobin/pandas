@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	AssetPath = "../rulechain/assets"
+	AssetPath = "$GOPATH/src/github.com/cloustone/pandas/rulechain/assets"
 )
 
 type Node interface {

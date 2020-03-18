@@ -78,7 +78,7 @@ func NewWorkshop(m models.Model) *grpc_pms_v1.Workshop {
 	lastUpdatedAt, _ := ptypes.TimestampProto(ws.LastUpdatedAt)
 
 	return &grpc_pms_v1.Workshop{
-		ID:            ws.ID,
+		ID:            ws.WorkshopID,
 		Name:          ws.Name,
 		UserID:        ws.UserID,
 		Description:   ws.Description,
@@ -104,7 +104,7 @@ func NewWorkshopModel(ws *grpc_pms_v1.Workshop) *models.Workshop {
 	lastUpdatedAt, _ := ptypes.Timestamp(ws.LastUpdatedAt)
 
 	return &models.Workshop{
-		ID:            ws.ID,
+		WorkshopID:    ws.ID,
 		Name:          ws.Name,
 		UserID:        ws.UserID,
 		Description:   ws.Description,
@@ -132,7 +132,7 @@ func NewView(m models.Model) *grpc_pms_v1.View {
 	lastUpdatedAt, _ := ptypes.TimestampProto(v.LastUpdatedAt)
 
 	return &grpc_pms_v1.View{
-		ID:            v.ID,
+		ID:            v.ViewID,
 		Name:          v.Name,
 		ProjectID:     v.ProjectID,
 		WorkshopID:    v.WorkshopID,
@@ -159,7 +159,7 @@ func NewViewModel(v *grpc_pms_v1.View) *models.View {
 	lastUpdatedAt, _ := ptypes.Timestamp(v.LastUpdatedAt)
 
 	return &models.View{
-		ID:            v.ID,
+		ViewID:        v.ID,
 		Name:          v.Name,
 		ProjectID:     v.ProjectID,
 		WorkshopID:    v.WorkshopID,

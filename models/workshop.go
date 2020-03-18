@@ -25,7 +25,7 @@ import (
 type Workshop struct {
 	ModelTypeInfo
 	gorm.Model
-	ID            string    `json:"id"`
+	WorkshopID    string    `json:"id"`
 	Name          string    `json:"name"`
 	Description   string    `json:"description"`
 	UserID        string    `json:"userID"`
@@ -33,7 +33,7 @@ type Workshop struct {
 	CreatedAt     time.Time `json:"createdAt"`
 	LastUpdatedAt time.Time `json:"lastUpdatedAt"`
 	Status        string    `json:"status"`
-	ViewIDs       []string  `json:"views"`
+	ViewIDs       []string  `json:"views" gorm:"type:string[]"`
 }
 
 // Validate validates this deployment

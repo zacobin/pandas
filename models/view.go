@@ -25,15 +25,15 @@ import (
 type View struct {
 	ModelTypeInfo
 	gorm.Model
-	ID            string    `json:"id"`
+	ViewID        string    `json:"id"`
 	Name          string    `json:"name"`
 	ProjectID     string    `json:"projectID"`
 	WorkshopID    string    `json:"workshopID"`
 	CreatedAt     time.Time `json:"createdAt"`
 	LastUpdatedAt time.Time `json:"lastUpdatedAt"`
-	Payload       []byte    `json:"payload"`
+	Payload       []byte    `json:"payload" gorm:"type:byte[]"`
 	Status        string    `json:"status"`
-	Variables     []string  `json:"variables"`
+	Variables     []string  `json:"variables" gorm:"type:string[]"`
 }
 
 // Validate validates this deployment
