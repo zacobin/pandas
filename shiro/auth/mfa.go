@@ -9,30 +9,26 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package realms
+package auth
 
-type Principal struct {
-	ID       string
-	Token    string
-	Username string
-	Password string
-	Roles    []string
+import (
+	"github.com/cloustone/pandas/shiro/options"
+	"github.com/cloustone/pandas/shiro/realms"
+)
+
+type MultipleFactorAuthenticator interface {
+	Authenticate(principal *realms.Principal, factor ...string) error
 }
 
-func NewPrincipal(username, pwd string) *Principal {
-	return &Principal{
-		Roles: []string{},
+func NewMultipleFactorAuthenticator(servingOptions *options.ServingOptions) MultipleFactorAuthenticator {
+	switch servingOptions.MFA {
+	default:
+		return &defaultMFA{}
 	}
 }
 
-func (p *Principal) WithRole(role string) *Principal {
-	p.Roles = append(p.Roles, role)
-	return p
-}
+type defaultMFA struct{}
 
-func (p *Principal) WithRoles(roles ...string) *Principal {
-	p.Roles = append(p.Roles, roles...)
-	return p
+func (m *defaultMFA) Authenticate(principal *realms.Principal, factor ...string) error {
+	return nil
 }
-
-type PrincipalDefinition struct{}

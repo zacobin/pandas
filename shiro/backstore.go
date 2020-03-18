@@ -10,3 +10,19 @@
 //  License for the specific language governing permissions and limitations
 //  under the License.
 package shiro
+
+import (
+	"github.com/cloustone/pandas/shiro/options"
+	"github.com/cloustone/pandas/shiro/realms"
+)
+
+type backstoreManager struct{}
+
+func newBackstoreManager(servingOptions *options.ServingOptions) *backstoreManager {
+	return &backstoreManager{}
+}
+
+func (b *backstoreManager) getPrincipal(pricipal *realms.Principal) error {
+	// TODO: access database to retrieve principal's roles
+	return nil
+}

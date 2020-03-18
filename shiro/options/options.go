@@ -24,6 +24,7 @@ type ServingOptions struct {
 	ServiceID        string
 	InitFile         string
 	RealmConfigFile  string
+	MFA              string
 }
 
 func NewServingOptions() *ServingOptions {
@@ -42,4 +43,5 @@ func (s *ServingOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&s.ServiceID, "service-id", s.ServiceID, "shiro service ID")
 	fs.StringVar(&s.InitFile, "init-file", s.InitFile, "initial shiro config file")
 	fs.StringVar(&s.RealmConfigFile, "realm-config-file", s.RealmConfigFile, "realm config file")
+	fs.StringVar(&s.MFA, "mfa", s.MFA, "multiple factor authentication")
 }
