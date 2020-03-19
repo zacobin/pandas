@@ -1,4 +1,4 @@
-FROM alpine 
+FROM cloustone/pandas-base 
 
 LABEL vendor=cloustone
 LABEL product=pandas
