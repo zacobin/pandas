@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.Name}}
+  labels:
+    run: {{ .Values.Name}}
+spec:
+  replicas: {{ .Values.replicas}}
+  selector:
+      matchLabels:
+        run: {{ .Values.Name}}
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        run: {{ .Values.Name}}
+    spec:
+      containers:
+      - name: {{ .Values.Name}}
+        image: {{ .Values.image }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: httpport
+        livenessProbe:
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          tcpSocket:
+            port: 8080
+        readinessProbe:
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          tcpSocket:
+            port: 8080
