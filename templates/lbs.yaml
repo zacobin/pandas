@@ -22,18 +22,22 @@ subjects:
 
 ---
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pandas-lbs
   namespace: {{.Values.namespace.name}}
+  labels:
+    service: pandas-lbs
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      service: pandas-lbs
   template:
     metadata:
       labels:
         service: pandas-lbs
-        version: {{.Values.lbs.version}}
     spec:
       serviceAccount: {{.Values.docker.image_prefix}}lbs
       serviceAccountName: {{.Values.docker.image_prefix}}lbs
@@ -58,10 +62,6 @@ spec:
               fieldPath: metadata.namespace
         - name: PANDAS_SERVICE_DISCOVERY_PATH
           value: /pandas
-        - name: PANDAS_SERVICE_DISCOVERY_TYPE
-          value: zookeeper
-        - name: PANDAS_SERVICE_DISCOVERY_SERVER
-          value: {{ .Values.public.zookeeper.address }}
         - name: PANDAS_DEPLOY_MODE
           value: kubernetes
         - name: PANDAS_PRODUCT_REGISTRY

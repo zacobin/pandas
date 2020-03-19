@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-registry=127.0.0.1:5000
+registry=10.4.47.129:5000
 #registry=192.168.64.1:5000
 
 pull_image() {

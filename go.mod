@@ -24,7 +24,7 @@ require (
 	github.com/go-martini/martini v0.0.0-20170121215854-22fa46961aab // indirect
 	github.com/go-openapi/errors v0.19.4
 	github.com/go-openapi/loads v0.19.5
-	github.com/go-openapi/runtime v0.19.12
+	github.com/go-openapi/runtime v0.19.14
 	github.com/go-openapi/spec v0.19.7
 	github.com/go-openapi/strfmt v0.19.5
 	github.com/go-openapi/swag v0.19.8
@@ -37,10 +37,12 @@ require (
 	github.com/interpose/middleware v0.0.0-20150216143757-05ed56ed52fa // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jinzhu/gorm v1.9.12
+	github.com/jteeuwen/go-bindata v3.0.7+incompatible // indirect
 	github.com/justinas/nosurf v1.1.0 // indirect
 	github.com/meatballhat/negroni-logrus v1.1.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029 // indirect
+	github.com/rogpeppe/godef v1.1.2 // indirect
 	github.com/rs/xid v1.2.1
 	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v1.6.4
@@ -48,8 +50,11 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.2
 	github.com/streadway/amqp v0.0.0-20200108173154-1c71cc93ed71
+	github.com/zmb3/gogetdoc v0.0.0-20190228002656-b37376c5da6a // indirect
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
+	golang.org/x/tools v0.0.0-20200318150045-ba25ddc85566 // indirect
 	google.golang.org/grpc v1.26.0
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/macaron.v1 v1.3.5

@@ -5,14 +5,14 @@ env: dev
 services:
   expose_node_port: true
 docker:
-  registry: 192.168.1.192:5000
+  registry: 10.4.47.129:5000
   namespace: cloustone 
   image_prefix: pandas-
   pullPolicy: Always
 public:
   namespace: kube-public
   ingress:
-    deploy: true
+    deploy: false
   prometheus: 
     address: prometheus.kube-public:9090
   etcd:
@@ -34,31 +34,31 @@ public:
       dist: 25672
 
 apimachinery:
-  deploy: true
+  deploy: false
   version: latest
   port: 30001
   cpus: 100m
   memory: 256Mi
 dmms:
-  deploy: true
+  deploy: false
   version: latest
   port: 0 
   cpus: 100m
   memory: 256Mi
 pms:
-  deploy: true
+  deploy: false
   version: latest
   port: 0 
   cpus: 100m
   memory: 256Mi
 headmast:
-  deploy: true
+  deploy: false
   version: latest
   port: 0 
   cpus: 100m
   memory: 256Mi
 rulechain:
-  deploy: true
+  deploy: false
   version: latest
   port: 0
   cpus: 100m
@@ -69,14 +69,17 @@ lbs:
   port: 0
   cpus: 100m
   memory: 64Mi
+  baidu:
+    service_id: pandas
+    ak: xxxxxxxxxx
 shiro:
-  deploy: true
+  deploy: false
   version: latest
   port: 0
   cpus: 100m
   memory: 256Mi
 dashboard:
-  deploy: true
+  deploy: false
   version: latest
   port: 30880
   cpus: 100m

@@ -61,10 +61,10 @@ func Cross(h http.Handler) http.Handler {
 func assetFS() *assetfs.AssetFS {
 
 	return &assetfs.AssetFS{
-		Asset:     dashboard.Asset,
-		AssetDir:  dashboard.AssetDir,
-		AssetInfo: dashboard.AssetInfo,
-		Prefix:    "dist",
+		Asset:    dashboard.Asset,
+		AssetDir: dashboard.AssetDir,
+		//AssetInfo: dashboard.AssetInfo,
+		Prefix: "dist",
 	}
 }
 
