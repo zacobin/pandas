@@ -11,7 +11,7 @@ import (
 
 const (
 	// currently unused: privateKeyPath = "keys/apiKey.prv"
-	publicKeyPath = "keys/apiKey.pem"
+	publicKeyPath = "../scripts/tokens/keys/apiKey.pem"
 	issuerName    = "example.com"
 )
 
