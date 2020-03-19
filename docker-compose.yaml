@@ -62,7 +62,7 @@ services:
     environment:
       PANDAS_PORT: 30011
       PANDAS_DNS_SERVER: "docker-compose"
-  #   #command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
+    #command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
 
   pms:
     image: cloustone/pandas-pms
@@ -86,7 +86,7 @@ services:
     environment:
       PANDAS_PORT: 30013
       PANDAS_DNS_SERVER: "docker-compose"
-  #   #command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
+    #command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
 
   rulechain:
     image: cloustone/pandas-rulechain
@@ -98,7 +98,7 @@ services:
     environment:
       PANDAS_PORT: 30014
       PANDAS_DNS_SERVER: "docker-compose"
-  #   #command: ["/dockerize", "-wait", "tcp://headmast:30013", "/main"]
+    #command: ["/dockerize", "-wait", "tcp://headmast:30013", "/main"]
 
   lbs:
     image: cloustone/pandas-lbs
@@ -108,7 +108,7 @@ services:
     environment:
       PANDAS_PORT: 30015
       PANDAS_DNS_SERVER: "docker-compose"
-  #   #command: ["/dockerize", "-wait", "tcp://headmast:30013", "/main"]
+    #command: ["/dockerize", "-wait", "tcp://headmast:30013", "/main"]
 
   shiro:
     image: cloustone/pandas-shiro
@@ -120,5 +120,5 @@ services:
     environment:
       PANDAS_PORT: 30016
       PANDAS_DNS_SERVER: "docker-compose"
-  #   #command: ["/dockerize", "-wait", "tcp://headmast:30013", "/main"]
+    #command: ["/dockerize", "-wait", "tcp://headmast:30013", "/main"]
 
