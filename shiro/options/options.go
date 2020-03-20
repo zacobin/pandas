@@ -27,6 +27,7 @@ type ServingOptions struct {
 	RealmConfigFile  string
 	MFA              string
 	SmsOptions       *sms.ServingOptions
+	RolesFile        string
 }
 
 func NewServingOptions() *ServingOptions {
@@ -36,6 +37,7 @@ func NewServingOptions() *ServingOptions {
 		SmsOptions:       sms.NewServingOptions(),
 		ServiceID:        xid.New().String(),
 		RealmConfigFile:  "./shiro-realms.json",
+		RolesFile:        "./shiro-roles.json",
 	}
 	return &s
 }
@@ -48,4 +50,5 @@ func (s *ServingOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&s.InitFile, "init-file", s.InitFile, "initial shiro config file")
 	fs.StringVar(&s.RealmConfigFile, "realm-config-file", s.RealmConfigFile, "realm config file")
 	fs.StringVar(&s.MFA, "mfa", s.MFA, "multiple factor authentication")
+	fs.StringVar(&s.RolesFile, "roles-file", s.RolesFile, "builtin roles definitions")
 }

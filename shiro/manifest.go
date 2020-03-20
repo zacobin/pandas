@@ -17,17 +17,17 @@ import (
 	"io/ioutil"
 )
 
-// RoleManifest contains builtin role and routes, the file can be loaded since
+// roleManifest contains builtin role and routes, the file can be loaded since
 // the security manager is started, security manager use default role policy to
 // initialize it
-type RoleManifest struct {
+type roleManifest struct {
 	Version string  `json:"version"`
 	Roles   []*Role `json:"roles"`
 }
 
-// LoadRoleManifes load roles from manifest file
-func LoadRoleManifest(fileName string) (*RoleManifest, error) {
-	manifest := &RoleManifest{
+// loadRoles load roles from manifest file
+func loadRoles(fileName string) ([]*Role, error) {
+	manifest := &roleManifest{
 		Roles: []*Role{},
 	}
 
@@ -47,6 +47,5 @@ func LoadRoleManifest(fileName string) (*RoleManifest, error) {
 		}
 		roleMaps[role.Name] = role
 	}
-
-	return manifest, nil
+	return manifest.Roles, nil
 }

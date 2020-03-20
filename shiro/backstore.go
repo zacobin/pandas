@@ -14,6 +14,7 @@ package shiro
 import (
 	"github.com/cloustone/pandas/shiro/options"
 	"github.com/cloustone/pandas/shiro/realms"
+	"github.com/sirupsen/logrus"
 )
 
 type backstoreManager struct{}
@@ -29,4 +30,19 @@ func (b *backstoreManager) getPrincipal(pricipal *realms.Principal) error {
 
 func (b *backstoreManager) updatePrincipal(principal *realms.Principal) error {
 	return nil
+}
+
+func (b *backstoreManager) loadRoles(rolesFile string) {
+	// Load builtin role's definitions
+	_, err := loadRoles(rolesFile)
+	if err != nil {
+		logrus.WithError(err)
+	}
+}
+
+func (b *backstoreManager) getAllRoles() []*Role {
+	return nil
+}
+
+func (b *backstoreManager) updateRole(r *Role) {
 }

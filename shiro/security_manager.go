@@ -21,6 +21,7 @@ import (
 	"github.com/cloustone/pandas/shiro/realms"
 	. "github.com/cloustone/pandas/shiro/realms"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/sirupsen/logrus"
 )
 
 // SecurityManager is responsible for authenticate and simple authorization
@@ -32,6 +33,9 @@ type SecurityManager interface {
 	GetAuthzDefinitions(principal Principal) ([]*AuthzDefinition, error)
 	GetPrincipalDefinition(principal Principal) (*PrincipalDefinition, error)
 	GetPrincipalAllowableObjects(principal Principal) ([]*Object, error)
+	GetAllRoles() []*Role
+	UpdateRole(r *Role)
+	UpdatePrincipalRole(principal Principal, r *Role) error
 }
 
 // NewSecurityManager create security manager to hold all realms for
@@ -52,12 +56,11 @@ type defaultSecurityManager struct {
 // newDefaultSecurityManager return security manager instance
 // All realms are created here, if failed, shiro must be restarted
 func newDefaultSecurityManager(servingOptions *options.ServingOptions, backstoreManager *backstoreManager, mfa MFAuthenticator) *defaultSecurityManager {
-	realmOptions := NewRealmOptionsWithFile(servingOptions.RealmConfigFile)
-	realms := []Realm{}
-
-	for _, options := range realmOptions {
-		realms = append(realms, NewRealm(options))
+	realms, err := NewRealmsWithFile(servingOptions.RealmConfigFile)
+	if err != nil {
+		logrus.Fatalf(err.Error())
 	}
+	backstoreManager.loadRoles(servingOptions.RolesFile)
 	return &defaultSecurityManager{
 		mutex:            sync.RWMutex{},
 		servingOptions:   servingOptions,
@@ -117,4 +120,14 @@ func (s *defaultSecurityManager) Authenticate(principal *Principal, factor ...st
 
 func (s *defaultSecurityManager) Authorize(principal Principal, object *Object, action string) error {
 	return nil
+}
+
+// GetAllRoles return all builtin role's definitions
+func (s *defaultSecurityManager) GetAllRoles() []*Role {
+	return s.backstoreManager.getAllRoles()
+}
+
+// UpdateRole update a role's definition
+func (s *defaultSecurityManager) UpdateRole(r *Role) {
+	s.backstoreManager.updateRole(r)
 }
