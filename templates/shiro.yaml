@@ -80,14 +80,14 @@ spec:
           limits:
             cpu: {{.Values.shiro.cpus}}
             memory: {{.Values.shiro.memory}}
+        readinessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:4430"]
+          initialDelaySeconds: 5
         livenessProbe:
           exec:
-            command:
-              - /bin/sh
-              - -c
-              - "grpc-health-checker --port 8080 --tls"
-          initialDelaySeconds: 15
-          timeoutSeconds: 2
+            command: ["/bin/grpc_health_probe", "-addr=:4430"]
+          initialDelaySeconds: 10
             
 ---
 

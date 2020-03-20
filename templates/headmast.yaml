@@ -80,14 +80,6 @@ spec:
           limits:
             cpu: {{.Values.headmast.cpus}}
             memory: {{.Values.headmast.memory}}
-        livenessProbe:
-          exec:
-            command:
-              - /bin/sh
-              - -c
-              - "grpc-health-checker --port 8080 --tls"
-          initialDelaySeconds: 15
-          timeoutSeconds: 2
             
 ---
 

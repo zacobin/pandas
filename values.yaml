@@ -1,6 +1,6 @@
 namespace: 
   name: namespace 
-  deploy: false
+  deploy: true
 env: dev
 services:
   expose_node_port: true
@@ -34,31 +34,31 @@ public:
       dist: 25672
 
 apimachinery:
-  deploy: false
+  deploy: true
   version: latest
   port: 30001
   cpus: 100m
   memory: 256Mi
 dmms:
-  deploy: false
+  deploy: true
   version: latest
   port: 0 
   cpus: 100m
   memory: 256Mi
 pms:
-  deploy: false
+  deploy: true
   version: latest
   port: 0 
   cpus: 100m
   memory: 256Mi
 headmast:
-  deploy: false
+  deploy: true
   version: latest
   port: 0 
   cpus: 100m
   memory: 256Mi
 rulechain:
-  deploy: false
+  deploy: true
   version: latest
   port: 0
   cpus: 100m
@@ -73,7 +73,7 @@ lbs:
     service_id: pandas
     ak: xxxxxxxxxx
 shiro:
-  deploy: false
+  deploy: true
   version: latest
   port: 0
   cpus: 100m
