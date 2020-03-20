@@ -32,7 +32,7 @@ all: build
 
 .PHONY: docker
 docker: export GOOS=linux
-docker: $(addprefix docker-build-, $(IMAGES)) 
+docker: pandas-base $(addprefix docker-build-, $(IMAGES)) 
 	docker images | grep '<none>' | awk '{print $3}' | xargs docker rmi
 	@echo "docker building completed!" 
 
@@ -46,13 +46,17 @@ $(addprefix docker-build-, $(IMAGES)): docker-build-%: %
 	@cp scripts/dockerize $(IMAGE_DIR)/bin/
 #	@if [ "$(UNAME)" = "Linux" ]; then cp bin/$(IMAGE_NAME) $(IMAGE_DIR)/bin/main ; fi
 #	@if [ "$(UNAME)" = "Darwin" ]; then cp bin/linux_amd64/$(IMAGE_NAME) $(IMAGE_DIR)/bin/main ; fi
-	#cp bin/$(IMAGE_NAME) $(IMAGE_DIR)/bin/main
+	cp bin/$(IMAGE_NAME) $(IMAGE_DIR)/bin/main
 	@full_img_name=$(IMAGE_NAME_PREFIX)$(IMAGE_NAME); \
 		cd ./$(IMAGE_DIR)/ && \
-			docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/$$full_img_name ../../../. -f Dockerfile 
+			docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/$$full_img_name ../../../. -f Dockerfile.dev 
 	@rm -rf $(IMAGE_DIR)/bin
-	@"./scripts/push.sh" $(IMAGE_NAME)
+	#@"./scripts/push.sh" $(IMAGE_NAME)
 	# @kubectl delete pod $$(kubectl get pod -n pandas | grep $(IMAGE_NAME) | awk '{print $$1}') -n pandas 
+
+pandas-base:
+	@echo building $(IMAGE_NAME_PREFIX)pandas-base image ...
+	docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/pandas-base . -f docker/base/Dockerfile
 
 .PHONY: deploy
 deploy:
