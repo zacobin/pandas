@@ -10,3 +10,43 @@
 //  License for the specific language governing permissions and limitations
 //  under the License.
 package shiro
+
+import (
+	"encoding/json"
+	"errors"
+	"io/ioutil"
+)
+
+// RoleManifest contains builtin role and routes, the file can be loaded since
+// the security manager is started, security manager use default role policy to
+// initialize it
+type RoleManifest struct {
+	Version string  `json:"version"`
+	Roles   []*Role `json:"roles"`
+}
+
+// LoadRoleManifes load roles from manifest file
+func LoadRoleManifest(fileName string) (*RoleManifest, error) {
+	manifest := &RoleManifest{
+		Roles: []*Role{},
+	}
+
+	buf, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(buf, manifest); err != nil {
+		return nil, err
+	}
+
+	roleMaps := make(map[string]*Role)
+	// check mainifest's validity
+	for _, role := range manifest.Roles {
+		if _, found := roleMaps[role.Name]; found {
+			return nil, errors.New("invalid role manifest file")
+		}
+		roleMaps[role.Name] = role
+	}
+
+	return manifest, nil
+}

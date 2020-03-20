@@ -1,8 +1,8 @@
 {
-  "version": "alpha",
-  "permissions": [ 
+  "version": "v1",
+  "roles": [ 
           {
-              "role": "employe",
+              "name": "employe",
               "routes": [
                 "/users",
                 "/users/sample",
@@ -10,7 +10,7 @@
               ]
           },
           {
-              "role": "admin",
+              "name": "admin",
               "routes": [
                 "/user/info",
                 "/users/sample",
