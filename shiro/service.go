@@ -60,7 +60,43 @@ func (s *UnifiedUserManagementService) AddDomainRealm(ctx context.Context, in *p
 	return nil, nil
 }
 
-// GetRolePermissions return role's dynamica route path
-func (s *UnifiedUserManagementService) GetRolePermissions(ctx context.Context, in *pb.GetRolePermissionsRequest) (*pb.GetRolePermissionsResponse, error) {
-	return nil, nil
+// GetRoles return all roles's permissions
+func (s *UnifiedUserManagementService) GetRoles(ctx context.Context, in *pb.GetRolesRequest) (*pb.GetRolesResponse, error) {
+	allRoles := []*pb.Role{}
+	roles := s.securityManager.GetAllRoles()
+	for _, role := range roles {
+		allRoles = append(allRoles, &pb.Role{
+			Name:        role.Name,
+			Permissions: role.Routes,
+		})
+	}
+	return &pb.GetRolesResponse{Roles: allRoles}, nil
+}
+
+// UpdateRole update a role's definition
+func (s *UnifiedUserManagementService) UpdateRole(ctx context.Context, in *pb.UpdateRoleRequest) (*pb.UpdateRoleResponse, error) {
+	err := s.securityManager.UpdateRole(&Role{
+		Name:   in.RoleName,
+		Routes: in.Role.Permissions,
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%w", err)
+	}
+	return &pb.UpdateRoleResponse{}, nil
+}
+
+// UpdatePrincipal update principal detail
+func (s *UnifiedUserManagementService) UpdatePrincipal(ctx context.Context, in *pb.UpdatePrincipalRequest) (*pb.UpdatePrincipalResponse, error) {
+	err := s.securityManager.UpdatePrincipal(realms.Principal{
+		ID:       in.Principal.ID,
+		Username: in.Principal.Username,
+		Password: in.Principal.Password,
+		Roles:    in.Principal.Roles,
+	})
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%w", err)
+	}
+	return &pb.UpdatePrincipalResponse{}, nil
+
 }

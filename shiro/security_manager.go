@@ -32,10 +32,9 @@ type SecurityManager interface {
 	Authorize(principal Principal, object *Object, action string) error
 	GetAuthzDefinitions(principal Principal) ([]*AuthzDefinition, error)
 	GetPrincipalDefinition(principal Principal) (*PrincipalDefinition, error)
-	GetPrincipalAllowableObjects(principal Principal) ([]*Object, error)
 	GetAllRoles() []*Role
-	UpdateRole(r *Role)
-	UpdatePrincipalRole(principal Principal, r *Role) error
+	UpdateRole(r *Role) error
+	UpdatePrincipal(principal Principal) error
 }
 
 // NewSecurityManager create security manager to hold all realms for
