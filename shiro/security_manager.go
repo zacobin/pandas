@@ -59,7 +59,7 @@ func newDefaultSecurityManager(servingOptions *options.ServingOptions, backstore
 	if err != nil {
 		logrus.Fatalf(err.Error())
 	}
-	backstoreManager.loadRoles(servingOptions.RolesFile)
+	backstoreManager.loadRolesWithFile(servingOptions.RolesFile)
 	return &defaultSecurityManager{
 		mutex:            sync.RWMutex{},
 		servingOptions:   servingOptions,

@@ -28,6 +28,7 @@ type ServingOptions struct {
 	MFA              string
 	SmsOptions       *sms.ServingOptions
 	RolesFile        string
+	BackstorePath    string
 }
 
 func NewServingOptions() *ServingOptions {
@@ -38,6 +39,7 @@ func NewServingOptions() *ServingOptions {
 		ServiceID:        xid.New().String(),
 		RealmConfigFile:  "./shiro-realms.json",
 		RolesFile:        "./shiro-roles.json",
+		BackstorePath:    "localhost:27017",
 	}
 	return &s
 }
@@ -51,4 +53,5 @@ func (s *ServingOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&s.RealmConfigFile, "realm-config-file", s.RealmConfigFile, "realm config file")
 	fs.StringVar(&s.MFA, "mfa", s.MFA, "multiple factor authentication")
 	fs.StringVar(&s.RolesFile, "roles-file", s.RolesFile, "builtin roles definitions")
+	fs.StringVar(&s.BackstorePath, "backstore-path", s.BackstorePath, "backstore path for postgres")
 }
