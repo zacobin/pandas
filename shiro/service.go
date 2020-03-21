@@ -17,6 +17,7 @@ import (
 	pb "github.com/cloustone/pandas/shiro/grpc_shiro_v1"
 	"github.com/cloustone/pandas/shiro/options"
 	"github.com/cloustone/pandas/shiro/realms"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -33,17 +34,19 @@ func NewUnifiedUserManagementService(servingOptions *options.ServingOptions) *Un
 	backstoreManager := newBackstoreManager(servingOptions)
 	mfa := NewMFAuthenticator(servingOptions, backstoreManager)
 
-	s := &UnifiedUserManagementService{
+	return &UnifiedUserManagementService{
 		servingOptions:   servingOptions,
 		backstoreManager: backstoreManager,
 		securityManager:  NewSecurityManager(servingOptions, backstoreManager, mfa),
 	}
-	return s
 }
 
 // NotifyMFA will post a mfa code to client
 func (s *UnifiedUserManagementService) NotifyMFA(ctx context.Context, in *pb.NotifyMFARequest) (*pb.NotifyMFAResponse, error) {
-	return nil, nil
+	s.securityManager.LaunchMFANotification(realms.Principal{
+		ID: in.Principal.ID,
+	})
+	return &pb.NotifyMFAResponse{}, nil
 }
 
 // Authenticate authenticate the principal in specific domain realm
@@ -53,6 +56,25 @@ func (s *UnifiedUserManagementService) Authenticate(ctx context.Context, in *pb.
 		return nil, status.Errorf(codes.InvalidArgument, "%w", err)
 	}
 	return &pb.AuthenticateResponse{Token: principal.Token, Roles: principal.Roles}, nil
+}
+
+// GetPrincipalPermissions return principal's role's permissions used by dashboard
+func (s *UnifiedUserManagementService) GetPrincipalPermissions(ctx context.Context, in *pb.GetPrincipalPermissionsRequest) (*pb.GetPrincipalPermissionsResponse, error) {
+	roleNames := in.Principal.Roles
+	roles := []*pb.Role{}
+
+	for _, roleName := range roleNames {
+		if role := s.securityManager.GetRole(roleName); role == nil {
+			logrus.Errorf("invalid role '%s'", roleName)
+			continue
+		} else {
+			roles = append(roles, &pb.Role{
+				Name:        role.Name,
+				Permissions: role.Routes,
+			})
+		}
+	}
+	return &pb.GetPrincipalPermissionsResponse{Roles: roles}, nil
 }
 
 // AddDomainRealm adds specific realm
@@ -92,6 +114,7 @@ func (s *UnifiedUserManagementService) UpdatePrincipal(ctx context.Context, in *
 		Username: in.Principal.Username,
 		Password: in.Principal.Password,
 		Roles:    in.Principal.Roles,
+		// TODO: Add principal detail in future
 	})
 
 	if err != nil {

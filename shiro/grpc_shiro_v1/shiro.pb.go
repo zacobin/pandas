@@ -37,7 +37,7 @@ func (m *Principal) Reset()         { *m = Principal{} }
 func (m *Principal) String() string { return proto.CompactTextString(m) }
 func (*Principal) ProtoMessage()    {}
 func (*Principal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{0}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{0}
 }
 func (m *Principal) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Principal.Unmarshal(m, b)
@@ -97,7 +97,7 @@ func (m *Role) Reset()         { *m = Role{} }
 func (m *Role) String() string { return proto.CompactTextString(m) }
 func (*Role) ProtoMessage()    {}
 func (*Role) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{1}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{1}
 }
 func (m *Role) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Role.Unmarshal(m, b)
@@ -132,17 +132,17 @@ func (m *Role) GetPermissions() []string {
 }
 
 type NotifyMFARequest struct {
-	UserName             string   `protobuf:"bytes,1,opt,name=UserName,proto3" json:"UserName,omitempty" bson:"UserName,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	Principal            *Principal `protobuf:"bytes,1,opt,name=Principal,proto3" json:"Principal,omitempty" bson:"Principal,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
 }
 
 func (m *NotifyMFARequest) Reset()         { *m = NotifyMFARequest{} }
 func (m *NotifyMFARequest) String() string { return proto.CompactTextString(m) }
 func (*NotifyMFARequest) ProtoMessage()    {}
 func (*NotifyMFARequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{2}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{2}
 }
 func (m *NotifyMFARequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NotifyMFARequest.Unmarshal(m, b)
@@ -162,11 +162,11 @@ func (m *NotifyMFARequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_NotifyMFARequest proto.InternalMessageInfo
 
-func (m *NotifyMFARequest) GetUserName() string {
+func (m *NotifyMFARequest) GetPrincipal() *Principal {
 	if m != nil {
-		return m.UserName
+		return m.Principal
 	}
-	return ""
+	return nil
 }
 
 type NotifyMFAResponse struct {
@@ -179,7 +179,7 @@ func (m *NotifyMFAResponse) Reset()         { *m = NotifyMFAResponse{} }
 func (m *NotifyMFAResponse) String() string { return proto.CompactTextString(m) }
 func (*NotifyMFAResponse) ProtoMessage()    {}
 func (*NotifyMFAResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{3}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{3}
 }
 func (m *NotifyMFAResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NotifyMFAResponse.Unmarshal(m, b)
@@ -199,48 +199,10 @@ func (m *NotifyMFAResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_NotifyMFAResponse proto.InternalMessageInfo
 
-type MFArgs struct {
-	SignName             string   `protobuf:"bytes,1,opt,name=SignName,proto3" json:"SignName,omitempty" bson:"SignName,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *MFArgs) Reset()         { *m = MFArgs{} }
-func (m *MFArgs) String() string { return proto.CompactTextString(m) }
-func (*MFArgs) ProtoMessage()    {}
-func (*MFArgs) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{4}
-}
-func (m *MFArgs) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_MFArgs.Unmarshal(m, b)
-}
-func (m *MFArgs) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_MFArgs.Marshal(b, m, deterministic)
-}
-func (dst *MFArgs) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MFArgs.Merge(dst, src)
-}
-func (m *MFArgs) XXX_Size() int {
-	return xxx_messageInfo_MFArgs.Size(m)
-}
-func (m *MFArgs) XXX_DiscardUnknown() {
-	xxx_messageInfo_MFArgs.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MFArgs proto.InternalMessageInfo
-
-func (m *MFArgs) GetSignName() string {
-	if m != nil {
-		return m.SignName
-	}
-	return ""
-}
-
 type AuthenticateRequest struct {
 	Username             string   `protobuf:"bytes,1,opt,name=Username,proto3" json:"Username,omitempty" bson:"Username,omitempty"`
 	Password             string   `protobuf:"bytes,2,opt,name=Password,proto3" json:"Password,omitempty" bson:"Password,omitempty"`
-	Mfa                  *MFArgs  `protobuf:"bytes,3,opt,name=mfa,proto3" json:"mfa,omitempty" bson:"mfa,omitempty"`
+	MFA                  string   `protobuf:"bytes,3,opt,name=MFA,proto3" json:"MFA,omitempty" bson:"MFA,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -250,7 +212,7 @@ func (m *AuthenticateRequest) Reset()         { *m = AuthenticateRequest{} }
 func (m *AuthenticateRequest) String() string { return proto.CompactTextString(m) }
 func (*AuthenticateRequest) ProtoMessage()    {}
 func (*AuthenticateRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{5}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{4}
 }
 func (m *AuthenticateRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AuthenticateRequest.Unmarshal(m, b)
@@ -284,11 +246,11 @@ func (m *AuthenticateRequest) GetPassword() string {
 	return ""
 }
 
-func (m *AuthenticateRequest) GetMfa() *MFArgs {
+func (m *AuthenticateRequest) GetMFA() string {
 	if m != nil {
-		return m.Mfa
+		return m.MFA
 	}
-	return nil
+	return ""
 }
 
 type AuthenticateResponse struct {
@@ -303,7 +265,7 @@ func (m *AuthenticateResponse) Reset()         { *m = AuthenticateResponse{} }
 func (m *AuthenticateResponse) String() string { return proto.CompactTextString(m) }
 func (*AuthenticateResponse) ProtoMessage()    {}
 func (*AuthenticateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{6}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{5}
 }
 func (m *AuthenticateResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AuthenticateResponse.Unmarshal(m, b)
@@ -337,6 +299,82 @@ func (m *AuthenticateResponse) GetRoles() []string {
 	return nil
 }
 
+type GetPrincipalPermissionsRequest struct {
+	Principal            *Principal `protobuf:"bytes,1,opt,name=Principal,proto3" json:"Principal,omitempty" bson:"Principal,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *GetPrincipalPermissionsRequest) Reset()         { *m = GetPrincipalPermissionsRequest{} }
+func (m *GetPrincipalPermissionsRequest) String() string { return proto.CompactTextString(m) }
+func (*GetPrincipalPermissionsRequest) ProtoMessage()    {}
+func (*GetPrincipalPermissionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{6}
+}
+func (m *GetPrincipalPermissionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetPrincipalPermissionsRequest.Unmarshal(m, b)
+}
+func (m *GetPrincipalPermissionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetPrincipalPermissionsRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetPrincipalPermissionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetPrincipalPermissionsRequest.Merge(dst, src)
+}
+func (m *GetPrincipalPermissionsRequest) XXX_Size() int {
+	return xxx_messageInfo_GetPrincipalPermissionsRequest.Size(m)
+}
+func (m *GetPrincipalPermissionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetPrincipalPermissionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetPrincipalPermissionsRequest proto.InternalMessageInfo
+
+func (m *GetPrincipalPermissionsRequest) GetPrincipal() *Principal {
+	if m != nil {
+		return m.Principal
+	}
+	return nil
+}
+
+type GetPrincipalPermissionsResponse struct {
+	Roles                []*Role  `protobuf:"bytes,1,rep,name=Roles,proto3" json:"Roles,omitempty" bson:"Roles,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetPrincipalPermissionsResponse) Reset()         { *m = GetPrincipalPermissionsResponse{} }
+func (m *GetPrincipalPermissionsResponse) String() string { return proto.CompactTextString(m) }
+func (*GetPrincipalPermissionsResponse) ProtoMessage()    {}
+func (*GetPrincipalPermissionsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{7}
+}
+func (m *GetPrincipalPermissionsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetPrincipalPermissionsResponse.Unmarshal(m, b)
+}
+func (m *GetPrincipalPermissionsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetPrincipalPermissionsResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetPrincipalPermissionsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetPrincipalPermissionsResponse.Merge(dst, src)
+}
+func (m *GetPrincipalPermissionsResponse) XXX_Size() int {
+	return xxx_messageInfo_GetPrincipalPermissionsResponse.Size(m)
+}
+func (m *GetPrincipalPermissionsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetPrincipalPermissionsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetPrincipalPermissionsResponse proto.InternalMessageInfo
+
+func (m *GetPrincipalPermissionsResponse) GetRoles() []*Role {
+	if m != nil {
+		return m.Roles
+	}
+	return nil
+}
+
 type AddDomainRealmRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -347,7 +385,7 @@ func (m *AddDomainRealmRequest) Reset()         { *m = AddDomainRealmRequest{} }
 func (m *AddDomainRealmRequest) String() string { return proto.CompactTextString(m) }
 func (*AddDomainRealmRequest) ProtoMessage()    {}
 func (*AddDomainRealmRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{7}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{8}
 }
 func (m *AddDomainRealmRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddDomainRealmRequest.Unmarshal(m, b)
@@ -377,7 +415,7 @@ func (m *AddDomainRealmResponse) Reset()         { *m = AddDomainRealmResponse{}
 func (m *AddDomainRealmResponse) String() string { return proto.CompactTextString(m) }
 func (*AddDomainRealmResponse) ProtoMessage()    {}
 func (*AddDomainRealmResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{8}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{9}
 }
 func (m *AddDomainRealmResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddDomainRealmResponse.Unmarshal(m, b)
@@ -407,7 +445,7 @@ func (m *GetRolesRequest) Reset()         { *m = GetRolesRequest{} }
 func (m *GetRolesRequest) String() string { return proto.CompactTextString(m) }
 func (*GetRolesRequest) ProtoMessage()    {}
 func (*GetRolesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{9}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{10}
 }
 func (m *GetRolesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetRolesRequest.Unmarshal(m, b)
@@ -438,7 +476,7 @@ func (m *GetRolesResponse) Reset()         { *m = GetRolesResponse{} }
 func (m *GetRolesResponse) String() string { return proto.CompactTextString(m) }
 func (*GetRolesResponse) ProtoMessage()    {}
 func (*GetRolesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{10}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{11}
 }
 func (m *GetRolesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetRolesResponse.Unmarshal(m, b)
@@ -477,7 +515,7 @@ func (m *UpdateRoleRequest) Reset()         { *m = UpdateRoleRequest{} }
 func (m *UpdateRoleRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateRoleRequest) ProtoMessage()    {}
 func (*UpdateRoleRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{11}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{12}
 }
 func (m *UpdateRoleRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateRoleRequest.Unmarshal(m, b)
@@ -521,7 +559,7 @@ func (m *UpdateRoleResponse) Reset()         { *m = UpdateRoleResponse{} }
 func (m *UpdateRoleResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdateRoleResponse) ProtoMessage()    {}
 func (*UpdateRoleResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{12}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{13}
 }
 func (m *UpdateRoleResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateRoleResponse.Unmarshal(m, b)
@@ -552,7 +590,7 @@ func (m *UpdatePrincipalRequest) Reset()         { *m = UpdatePrincipalRequest{}
 func (m *UpdatePrincipalRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdatePrincipalRequest) ProtoMessage()    {}
 func (*UpdatePrincipalRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{13}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{14}
 }
 func (m *UpdatePrincipalRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdatePrincipalRequest.Unmarshal(m, b)
@@ -589,7 +627,7 @@ func (m *UpdatePrincipalResponse) Reset()         { *m = UpdatePrincipalResponse
 func (m *UpdatePrincipalResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdatePrincipalResponse) ProtoMessage()    {}
 func (*UpdatePrincipalResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_shiro_477e3b5104b14ea2, []int{14}
+	return fileDescriptor_shiro_1b8f26c962ace9cd, []int{15}
 }
 func (m *UpdatePrincipalResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdatePrincipalResponse.Unmarshal(m, b)
@@ -614,9 +652,10 @@ func init() {
 	proto.RegisterType((*Role)(nil), "grpc.shiro.v1.Role")
 	proto.RegisterType((*NotifyMFARequest)(nil), "grpc.shiro.v1.NotifyMFARequest")
 	proto.RegisterType((*NotifyMFAResponse)(nil), "grpc.shiro.v1.NotifyMFAResponse")
-	proto.RegisterType((*MFArgs)(nil), "grpc.shiro.v1.MFArgs")
 	proto.RegisterType((*AuthenticateRequest)(nil), "grpc.shiro.v1.AuthenticateRequest")
 	proto.RegisterType((*AuthenticateResponse)(nil), "grpc.shiro.v1.AuthenticateResponse")
+	proto.RegisterType((*GetPrincipalPermissionsRequest)(nil), "grpc.shiro.v1.GetPrincipalPermissionsRequest")
+	proto.RegisterType((*GetPrincipalPermissionsResponse)(nil), "grpc.shiro.v1.GetPrincipalPermissionsResponse")
 	proto.RegisterType((*AddDomainRealmRequest)(nil), "grpc.shiro.v1.AddDomainRealmRequest")
 	proto.RegisterType((*AddDomainRealmResponse)(nil), "grpc.shiro.v1.AddDomainRealmResponse")
 	proto.RegisterType((*GetRolesRequest)(nil), "grpc.shiro.v1.GetRolesRequest")
@@ -643,6 +682,9 @@ type UnifiedUserManagementClient interface {
 	NotifyMFA(ctx context.Context, in *NotifyMFARequest, opts ...grpc.CallOption) (*NotifyMFAResponse, error)
 	// Authenticate authenticate the principal in specific domain realm
 	Authenticate(ctx context.Context, in *AuthenticateRequest, opts ...grpc.CallOption) (*AuthenticateResponse, error)
+	// GetPrincipalPermissions return principal's role's permissions used by
+	// dashboard
+	GetPrincipalPermissions(ctx context.Context, in *GetPrincipalPermissionsRequest, opts ...grpc.CallOption) (*GetPrincipalPermissionsResponse, error)
 	// AddDomainRealm adds specific realm
 	AddDomainRealm(ctx context.Context, in *AddDomainRealmRequest, opts ...grpc.CallOption) (*AddDomainRealmResponse, error)
 	// GetRoles return all roles's permissions
@@ -673,6 +715,15 @@ func (c *unifiedUserManagementClient) NotifyMFA(ctx context.Context, in *NotifyM
 func (c *unifiedUserManagementClient) Authenticate(ctx context.Context, in *AuthenticateRequest, opts ...grpc.CallOption) (*AuthenticateResponse, error) {
 	out := new(AuthenticateResponse)
 	err := c.cc.Invoke(ctx, "/grpc.shiro.v1.UnifiedUserManagement/Authenticate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *unifiedUserManagementClient) GetPrincipalPermissions(ctx context.Context, in *GetPrincipalPermissionsRequest, opts ...grpc.CallOption) (*GetPrincipalPermissionsResponse, error) {
+	out := new(GetPrincipalPermissionsResponse)
+	err := c.cc.Invoke(ctx, "/grpc.shiro.v1.UnifiedUserManagement/GetPrincipalPermissions", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -721,6 +772,9 @@ type UnifiedUserManagementServer interface {
 	NotifyMFA(context.Context, *NotifyMFARequest) (*NotifyMFAResponse, error)
 	// Authenticate authenticate the principal in specific domain realm
 	Authenticate(context.Context, *AuthenticateRequest) (*AuthenticateResponse, error)
+	// GetPrincipalPermissions return principal's role's permissions used by
+	// dashboard
+	GetPrincipalPermissions(context.Context, *GetPrincipalPermissionsRequest) (*GetPrincipalPermissionsResponse, error)
 	// AddDomainRealm adds specific realm
 	AddDomainRealm(context.Context, *AddDomainRealmRequest) (*AddDomainRealmResponse, error)
 	// GetRoles return all roles's permissions
@@ -767,6 +821,24 @@ func _UnifiedUserManagement_Authenticate_Handler(srv interface{}, ctx context.Co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UnifiedUserManagementServer).Authenticate(ctx, req.(*AuthenticateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UnifiedUserManagement_GetPrincipalPermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPrincipalPermissionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UnifiedUserManagementServer).GetPrincipalPermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.shiro.v1.UnifiedUserManagement/GetPrincipalPermissions",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UnifiedUserManagementServer).GetPrincipalPermissions(ctx, req.(*GetPrincipalPermissionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -856,6 +928,10 @@ var _UnifiedUserManagement_serviceDesc = grpc.ServiceDesc{
 			Handler:    _UnifiedUserManagement_Authenticate_Handler,
 		},
 		{
+			MethodName: "GetPrincipalPermissions",
+			Handler:    _UnifiedUserManagement_GetPrincipalPermissions_Handler,
+		},
+		{
 			MethodName: "AddDomainRealm",
 			Handler:    _UnifiedUserManagement_AddDomainRealm_Handler,
 		},
@@ -876,42 +952,43 @@ var _UnifiedUserManagement_serviceDesc = grpc.ServiceDesc{
 	Metadata: "shiro.proto",
 }
 
-func init() { proto.RegisterFile("shiro.proto", fileDescriptor_shiro_477e3b5104b14ea2) }
+func init() { proto.RegisterFile("shiro.proto", fileDescriptor_shiro_1b8f26c962ace9cd) }
 
-var fileDescriptor_shiro_477e3b5104b14ea2 = []byte{
-	// 537 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x54, 0x5d, 0x6f, 0xd3, 0x30,
-	0x14, 0x65, 0x69, 0x37, 0xad, 0xb7, 0xb0, 0xad, 0x6e, 0xbb, 0x85, 0x3c, 0xb0, 0x60, 0x36, 0x56,
-	0x5e, 0x22, 0x51, 0x24, 0x9e, 0xe0, 0xa1, 0xa8, 0x1a, 0xda, 0x43, 0xa7, 0x28, 0xa3, 0x12, 0x3c,
-	0xa1, 0xac, 0x71, 0x3b, 0x8b, 0xc6, 0x0e, 0x71, 0x36, 0xc4, 0x8f, 0xe2, 0x3f, 0x22, 0xdb, 0xf9,
-	0xaa, 0xdb, 0x6e, 0x6f, 0xb9, 0xd7, 0xe7, 0x9e, 0x73, 0x7d, 0x7c, 0x14, 0x68, 0x8b, 0x3b, 0x9a,
-	0x72, 0x2f, 0x49, 0x79, 0xc6, 0xd1, 0x8b, 0x45, 0x9a, 0xcc, 0x3c, 0xdd, 0x79, 0x78, 0x8f, 0x29,
-	0xb4, 0xfc, 0x94, 0xb2, 0x19, 0x4d, 0xc2, 0x25, 0x3a, 0x00, 0xeb, 0x6a, 0x6c, 0xef, 0xb8, 0x3b,
-	0x83, 0x56, 0x60, 0x5d, 0x8d, 0x91, 0x03, 0xfb, 0x53, 0x41, 0x52, 0x16, 0xc6, 0xc4, 0xb6, 0x54,
-	0xb7, 0xac, 0xe5, 0x99, 0x1f, 0x0a, 0xf1, 0x87, 0xa7, 0x91, 0xdd, 0xd0, 0x67, 0x45, 0x8d, 0x7a,
-	0xb0, 0x1b, 0xf0, 0x25, 0x11, 0x76, 0xd3, 0x6d, 0x0c, 0x5a, 0x81, 0x2e, 0xf0, 0x27, 0x68, 0xca,
-	0x0f, 0x84, 0xa0, 0x79, 0x2d, 0x19, 0xb5, 0x8e, 0xfa, 0x46, 0x2e, 0xb4, 0x7d, 0x92, 0xc6, 0x54,
-	0x08, 0xca, 0x99, 0xb0, 0x2d, 0x35, 0x57, 0x6f, 0x61, 0x0f, 0x8e, 0xae, 0x79, 0x46, 0xe7, 0x7f,
-	0x27, 0x97, 0xa3, 0x80, 0xfc, 0xbe, 0x27, 0x22, 0x2b, 0xf6, 0xab, 0xb1, 0x95, 0x35, 0xee, 0x42,
-	0xa7, 0x86, 0x17, 0x09, 0x67, 0x82, 0xe0, 0x33, 0xd8, 0x9b, 0x5c, 0x8e, 0xd2, 0x85, 0x90, 0xa3,
-	0x37, 0x74, 0xc1, 0xea, 0xa3, 0x45, 0x8d, 0x1f, 0xa0, 0x3b, 0xba, 0xcf, 0xee, 0x08, 0xcb, 0xe8,
-	0x2c, 0xcc, 0x88, 0xa1, 0xc6, 0x0c, 0xb5, 0x35, 0x37, 0x2c, 0xc3, 0x8d, 0x0b, 0x68, 0xc4, 0xf3,
-	0x50, 0x99, 0xd4, 0x1e, 0xf6, 0xbd, 0x15, 0xff, 0x3d, 0xbd, 0x4e, 0x20, 0x11, 0xf8, 0x0b, 0xf4,
-	0x56, 0x75, 0xf5, 0xd6, 0xd2, 0xce, 0x6f, 0xfc, 0x17, 0x61, 0xb9, 0xaa, 0x2e, 0x2a, 0x93, 0xad,
-	0xba, 0xc9, 0x27, 0xd0, 0x1f, 0x45, 0xd1, 0x98, 0xc7, 0x21, 0x65, 0x01, 0x09, 0x97, 0x71, 0xbe,
-	0x3d, 0xb6, 0xe1, 0xd8, 0x3c, 0xc8, 0x4d, 0xe9, 0xc0, 0xe1, 0x57, 0x92, 0xa9, 0xf1, 0x02, 0xfc,
-	0x19, 0x8e, 0xaa, 0x56, 0xbe, 0xc5, 0x3b, 0xd8, 0x4d, 0x95, 0xde, 0x8e, 0xdb, 0x18, 0xb4, 0x87,
-	0x5d, 0xe3, 0x22, 0x12, 0x1c, 0x68, 0x04, 0xfe, 0x0e, 0x9d, 0x69, 0x12, 0xc9, 0x2b, 0xc8, 0x66,
-	0x65, 0x9f, 0x2c, 0xeb, 0x8e, 0x17, 0x35, 0xba, 0xd0, 0xd1, 0x50, 0xd6, 0x6d, 0xa1, 0x56, 0x00,
-	0xdc, 0x03, 0x54, 0x67, 0xce, 0x6f, 0xe0, 0xc3, 0xb1, 0xee, 0x96, 0x51, 0x2e, 0x44, 0x3f, 0xd6,
-	0xe2, 0xad, 0x54, 0xdb, 0x43, 0xdb, 0x60, 0xaf, 0x66, 0x2a, 0x28, 0x7e, 0x09, 0x27, 0x6b, 0x8c,
-	0x5a, 0x6c, 0xf8, 0xaf, 0x09, 0xfd, 0x29, 0xa3, 0x73, 0x4a, 0x22, 0xf9, 0xfc, 0x93, 0x90, 0x85,
-	0x0b, 0x12, 0x13, 0x96, 0x21, 0x1f, 0x5a, 0x65, 0xe4, 0xd0, 0xa9, 0x21, 0x63, 0x86, 0xd7, 0x71,
-	0xb7, 0x03, 0xf2, 0x6b, 0x3d, 0x43, 0x3f, 0xe0, 0x79, 0x3d, 0x11, 0x08, 0x1b, 0x33, 0x1b, 0x62,
-	0xea, 0xbc, 0x79, 0x14, 0x53, 0x52, 0xff, 0x84, 0x83, 0xd5, 0x3c, 0xa0, 0x33, 0x73, 0x70, 0x53,
-	0x8e, 0x9c, 0xf3, 0x27, 0x50, 0xa5, 0xc0, 0x04, 0xf6, 0x8b, 0x0c, 0xa1, 0x57, 0xc6, 0x90, 0x91,
-	0x37, 0xe7, 0x74, 0xeb, 0x79, 0x49, 0x77, 0x03, 0x50, 0xbd, 0x3c, 0x32, 0xcd, 0x5b, 0x8b, 0x9b,
-	0xf3, 0xfa, 0x11, 0x44, 0x49, 0x7a, 0x0b, 0x87, 0xc6, 0x33, 0xa3, 0xf3, 0x8d, 0x73, 0x66, 0xb0,
-	0x9c, 0xb7, 0x4f, 0xc1, 0x0a, 0x8d, 0xdb, 0x3d, 0xf5, 0xdf, 0xfd, 0xf0, 0x3f, 0x00, 0x00, 0xff,
-	0xff, 0x92, 0xa8, 0xae, 0xc2, 0x86, 0x05, 0x00, 0x00,
+var fileDescriptor_shiro_1b8f26c962ace9cd = []byte{
+	// 553 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x55, 0x5d, 0x6f, 0xd3, 0x30,
+	0x14, 0xa5, 0x69, 0x87, 0xd6, 0x5b, 0xd8, 0x5a, 0xb7, 0x5b, 0x43, 0x1e, 0xd6, 0x12, 0x18, 0x94,
+	0x07, 0x2a, 0x51, 0x24, 0x9e, 0xe0, 0xa1, 0xa8, 0xda, 0x34, 0x44, 0xa7, 0x28, 0x50, 0x09, 0x9e,
+	0xa6, 0xac, 0xf1, 0x36, 0x8b, 0xc6, 0x0e, 0x71, 0x06, 0x82, 0x7f, 0xc4, 0xbf, 0x44, 0xce, 0x87,
+	0xe3, 0xba, 0x4d, 0x3b, 0x69, 0x6f, 0xbe, 0x1f, 0x3e, 0xf7, 0xf8, 0xdc, 0x13, 0x05, 0x1a, 0xfc,
+	0x86, 0x44, 0x6c, 0x18, 0x46, 0x2c, 0x66, 0xe8, 0xf1, 0x75, 0x14, 0xce, 0x87, 0x69, 0xe6, 0xd7,
+	0x1b, 0x9b, 0x40, 0xdd, 0x89, 0x08, 0x9d, 0x93, 0xd0, 0x5b, 0xa0, 0x3d, 0x30, 0xce, 0x26, 0x66,
+	0xa5, 0x5f, 0x19, 0xd4, 0x5d, 0xe3, 0x6c, 0x82, 0x2c, 0xd8, 0x9d, 0x71, 0x1c, 0x51, 0x2f, 0xc0,
+	0xa6, 0x91, 0x64, 0x65, 0x2c, 0x6a, 0x8e, 0xc7, 0xf9, 0x6f, 0x16, 0xf9, 0x66, 0x35, 0xad, 0xe5,
+	0x31, 0xea, 0xc0, 0x8e, 0xcb, 0x16, 0x98, 0x9b, 0xb5, 0x7e, 0x75, 0x50, 0x77, 0xd3, 0xc0, 0x7e,
+	0x0f, 0x35, 0x71, 0x40, 0x08, 0x6a, 0xe7, 0x02, 0x31, 0x9d, 0x93, 0x9c, 0x51, 0x1f, 0x1a, 0x0e,
+	0x8e, 0x02, 0xc2, 0x39, 0x61, 0x94, 0x9b, 0x46, 0x72, 0x4f, 0x4d, 0xd9, 0x9f, 0xa0, 0x79, 0xce,
+	0x62, 0x72, 0xf5, 0x67, 0x7a, 0x32, 0x76, 0xf1, 0xcf, 0x5b, 0xcc, 0x63, 0xf4, 0x4e, 0x21, 0x9f,
+	0xc0, 0x35, 0x46, 0xe6, 0x70, 0xe9, 0x7d, 0x43, 0x59, 0x77, 0x8b, 0x56, 0xbb, 0x0d, 0x2d, 0x05,
+	0x8b, 0x87, 0x8c, 0x72, 0x6c, 0x5f, 0x40, 0x7b, 0x7c, 0x1b, 0xdf, 0x60, 0x1a, 0x93, 0xb9, 0x17,
+	0xe3, 0x7c, 0x86, 0xaa, 0x41, 0x65, 0x83, 0x06, 0x86, 0xa6, 0x41, 0x13, 0xaa, 0xd3, 0x93, 0x71,
+	0x26, 0x8d, 0x38, 0xda, 0x1f, 0xa1, 0xb3, 0x3c, 0x20, 0x1d, 0x2c, 0xd4, 0xfa, 0xca, 0x7e, 0x60,
+	0x9a, 0xc1, 0xa7, 0x41, 0xa1, 0xa1, 0xa1, 0x6a, 0xf8, 0x0d, 0x8e, 0x4e, 0x71, 0x2c, 0x5f, 0xa2,
+	0x08, 0x74, 0x5f, 0x4d, 0x3e, 0x43, 0xaf, 0x14, 0x39, 0x23, 0xfa, 0x2a, 0xa7, 0x54, 0xe9, 0x57,
+	0x07, 0x8d, 0x51, 0x5b, 0x83, 0x15, 0xb5, 0x9c, 0x67, 0x17, 0x0e, 0xc6, 0xbe, 0x3f, 0x61, 0x81,
+	0x47, 0xa8, 0x8b, 0xbd, 0x45, 0x90, 0xd1, 0xb3, 0x4d, 0x38, 0xd4, 0x0b, 0x99, 0xfe, 0x2d, 0xd8,
+	0x3f, 0xc5, 0x71, 0x72, 0x3d, 0x6f, 0xfe, 0x00, 0xcd, 0x22, 0x55, 0x90, 0x88, 0xb6, 0x92, 0x88,
+	0x32, 0xb1, 0x5a, 0xb3, 0xd0, 0x17, 0x52, 0x8b, 0x64, 0xb1, 0x4f, 0x11, 0x2a, 0x0e, 0x94, 0x31,
+	0x7a, 0x99, 0x3a, 0x34, 0xd9, 0x65, 0x09, 0x74, 0xd2, 0x60, 0x77, 0x00, 0xa9, 0xc8, 0xd9, 0x0b,
+	0x1c, 0x38, 0x4c, 0xb3, 0x85, 0xc0, 0xf7, 0x5c, 0xca, 0x13, 0xe8, 0xae, 0x20, 0xa6, 0xc3, 0x46,
+	0xff, 0x76, 0xe0, 0x60, 0x46, 0xc9, 0x15, 0xc1, 0xbe, 0xf0, 0xe3, 0xd4, 0xa3, 0xde, 0x35, 0x0e,
+	0x30, 0x8d, 0x91, 0x03, 0x75, 0xe9, 0x6e, 0xd4, 0xd3, 0xc6, 0xe8, 0xdf, 0x90, 0xd5, 0x2f, 0x6f,
+	0xc8, 0x9e, 0xf5, 0x00, 0x7d, 0x87, 0x47, 0xaa, 0x73, 0x91, 0xad, 0xdd, 0x59, 0xf3, 0xdd, 0x58,
+	0xcf, 0x36, 0xf6, 0x48, 0xe8, 0xbf, 0xd0, 0x2d, 0xb1, 0x1d, 0x7a, 0xad, 0x21, 0x6c, 0x36, 0xbe,
+	0x35, 0xbc, 0x6b, 0xbb, 0x9c, 0x7d, 0x01, 0x7b, 0xcb, 0x5e, 0x44, 0xcf, 0x75, 0xd2, 0xeb, 0x3c,
+	0x6c, 0x1d, 0x6f, 0xe9, 0x92, 0x03, 0xa6, 0xb0, 0x9b, 0xfb, 0x17, 0x1d, 0xad, 0xd2, 0x53, 0xbd,
+	0x6e, 0xf5, 0x4a, 0xeb, 0x12, 0xee, 0x0b, 0x40, 0xe1, 0x3a, 0xa4, 0x2f, 0x6e, 0xc5, 0xea, 0xd6,
+	0xd3, 0x0d, 0x1d, 0x12, 0xf4, 0x12, 0xf6, 0x35, 0x8b, 0xa1, 0xe3, 0xb5, 0xf7, 0x74, 0x53, 0x5b,
+	0x2f, 0xb6, 0xb5, 0xe5, 0x33, 0x2e, 0x1f, 0x26, 0xbf, 0x9e, 0xb7, 0xff, 0x03, 0x00, 0x00, 0xff,
+	0xff, 0xec, 0xe4, 0x70, 0xc4, 0x89, 0x06, 0x00, 0x00,
 }

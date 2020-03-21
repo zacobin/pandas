@@ -27,12 +27,14 @@ import (
 // SecurityManager is responsible for authenticate and simple authorization
 type SecurityManager interface {
 	UseAdaptor(Adaptor)
+	LaunchMFANotification(principal Principal)
 	AddDomainRealm(realms.Realm)
 	Authenticate(principal *Principal, factor ...string) error
 	Authorize(principal Principal, object *Object, action string) error
 	GetAuthzDefinitions(principal Principal) ([]*AuthzDefinition, error)
 	GetPrincipalDefinition(principal Principal) (*PrincipalDefinition, error)
 	GetAllRoles() []*Role
+	GetRole(roleName string) *Role
 	UpdateRole(r *Role) error
 	UpdatePrincipal(principal Principal) error
 }
@@ -46,6 +48,7 @@ func NewSecurityManager(servingOptions *options.ServingOptions, backstoreManager
 // defaultSecuriityManager
 type defaultSecurityManager struct {
 	mutex            sync.RWMutex
+	adaptor          Adaptor
 	servingOptions   *options.ServingOptions
 	backstoreManager *backstoreManager
 	realms           []realms.Realm
@@ -70,7 +73,10 @@ func newDefaultSecurityManager(servingOptions *options.ServingOptions, backstore
 }
 
 // UseAdaptor use synchronization adaptor between shiro nodes
-func (s *defaultSecurityManager) UseAdaptor(Adaptor) {}
+func (s *defaultSecurityManager) UseAdaptor(adaptor Adaptor) { s.adaptor = adaptor }
+
+// LaunchMFA will lauch a mfa notification to principal
+func (s *defaultSecurityManager) LaunchMFANotification(principal Principal) { s.mfa.Notify(&principal) }
 
 // AddDomainRealm adds domain's specific realm
 //realm is only a kind of interface you can initliaze it with ldaprealm so it will be a ldaprealm
@@ -121,6 +127,17 @@ func (s *defaultSecurityManager) Authenticate(principal *Principal, factor ...st
 }
 
 func (s *defaultSecurityManager) Authorize(principal Principal, object *Object, action string) error {
+	return nil
+}
+
+// GetRole return specified role's permissions
+func (s *defaultSecurityManager) GetRole(roleName string) *Role {
+	roles := s.backstoreManager.getAllRoles()
+	for _, role := range roles {
+		if role.Name == roleName {
+			return role
+		}
+	}
 	return nil
 }
 

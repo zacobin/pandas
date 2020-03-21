@@ -25,11 +25,13 @@ const (
 	MFADuration = 45
 )
 
+// MFAuthenticator is multiple factor authenticator
 type MFAuthenticator interface {
 	Notify(principal *realms.Principal) error
 	Authenticate(principal *realms.Principal) error
 }
 
+// NewMFAuthenticator returns MFA instance with specified serving options
 func NewMFAuthenticator(servingOptions *options.ServingOptions, backstoreManager *backstoreManager) MFAuthenticator {
 	switch servingOptions.MFA {
 	default:
@@ -37,6 +39,7 @@ func NewMFAuthenticator(servingOptions *options.ServingOptions, backstoreManager
 	}
 }
 
+// defaultMFA is default MFA implement using short message mechanism
 type defaultMFA struct {
 	smsClient        sms.Client
 	backstoreManager *backstoreManager
@@ -51,6 +54,7 @@ func newDefaultMFA(servingOptions *options.ServingOptions, backstoreManager *bac
 	}
 }
 
+// Notify send client a mfa notification used in later authentication
 func (mfa *defaultMFA) Notify(principal *realms.Principal) error {
 	signName := xid.New().String() // TODO: we should provide a readable text
 	smsOptions := mfa.servingOptions.SmsOptions
@@ -63,6 +67,7 @@ func (mfa *defaultMFA) Notify(principal *realms.Principal) error {
 	return nil
 }
 
+// Authenticate will login the user in shiro
 func (mfa *defaultMFA) Authenticate(principal *realms.Principal) error {
 	lastMFA := principal.LastMFA
 	if err := mfa.backstoreManager.getPrincipal(principal); err != nil {

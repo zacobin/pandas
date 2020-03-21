@@ -18,35 +18,47 @@ message Role {
 service UnifiedUserManagement {
     // NotifyMFA will post a mfa code to client
     rpc NotifyMFA(NotifyMFARequest) returns (NotifyMFAResponse) {}
+
     // Authenticate authenticate the principal in specific domain realm
     rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse) {}
+
+    // GetPrincipalPermissions return principal's role's permissions used by
+    // dashboard
+    rpc GetPrincipalPermissions(GetPrincipalPermissionsRequest) returns (GetPrincipalPermissionsResponse) {}
+
     // AddDomainRealm adds specific realm
     rpc AddDomainRealm(AddDomainRealmRequest) returns (AddDomainRealmResponse) {}
+
     // GetRoles return all roles's permissions
     rpc GetRoles(GetRolesRequest) returns (GetRolesResponse) {}
+
     // UpdateRole update principal's role
     rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse) {}
+
     // UpdatePrincipal update principal detail
     rpc UpdatePrincipal(UpdatePrincipalRequest) returns (UpdatePrincipalResponse) {}
 }
 
 message NotifyMFARequest {
-    string UserName = 1;
+    Principal Principal = 1;
 }
 message NotifyMFAResponse {}
-
-message MFArgs {
-    string SignName = 1;
-}
 
 message AuthenticateRequest{ 
     string Username = 1;
     string Password = 2;
-    MFArgs mfa = 3;
+    string MFA = 3;
 }
 message AuthenticateResponse { 
     string Token = 1;
     repeated string Roles  = 2;
+}
+
+message GetPrincipalPermissionsRequest {
+    Principal Principal = 1;
+}
+message GetPrincipalPermissionsResponse {
+    repeated Role Roles = 1;
 }
 
 message AddDomainRealmRequest {}
