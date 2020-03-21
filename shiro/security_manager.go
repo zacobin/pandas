@@ -40,7 +40,7 @@ type SecurityManager interface {
 // NewSecurityManager create security manager to hold all realms for
 // authenticate
 func NewSecurityManager(servingOptions *options.ServingOptions, backstoreManager *backstoreManager, mfa MFAuthenticator) SecurityManager {
-	return nil
+	return newDefaultSecurityManager(servingOptions, backstoreManager, mfa)
 }
 
 // defaultSecuriityManager
@@ -68,6 +68,9 @@ func newDefaultSecurityManager(servingOptions *options.ServingOptions, backstore
 		mfa:              mfa,
 	}
 }
+
+// UseAdaptor use synchronization adaptor between shiro nodes
+func (s *defaultSecurityManager) UseAdaptor(Adaptor) {}
 
 // AddDomainRealm adds domain's specific realm
 //realm is only a kind of interface you can initliaze it with ldaprealm so it will be a ldaprealm
@@ -127,6 +130,17 @@ func (s *defaultSecurityManager) GetAllRoles() []*Role {
 }
 
 // UpdateRole update a role's definition
-func (s *defaultSecurityManager) UpdateRole(r *Role) {
-	s.backstoreManager.updateRole(r)
+func (s *defaultSecurityManager) UpdateRole(r *Role) error {
+	return s.backstoreManager.updateRole(r)
+}
+
+func (s *defaultSecurityManager) GetAuthzDefinitions(principal Principal) ([]*AuthzDefinition, error) {
+	return nil, nil
+}
+func (s *defaultSecurityManager) GetPrincipalDefinition(principal Principal) (*PrincipalDefinition, error) {
+	return nil, nil
+}
+
+func (s *defaultSecurityManager) UpdatePrincipal(principal Principal) error {
+	return s.backstoreManager.updatePrincipal(&principal)
 }
