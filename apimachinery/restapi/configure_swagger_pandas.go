@@ -44,7 +44,7 @@ func configureAPI(api *operations.SwaggerPandasAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	api.RoleAuthAuth = func(token string, scopes []string) (*models.Principal, error) {
-		return nil, errors.NotImplemented("oauth2 bearer auth (roleAuth) has not yet been implemented")
+		return middlewares.CheckRole(token, scopes)
 	}
 
 	// Set your custom authorizer if needed. Default one is security.Authorized()

@@ -11,12 +11,17 @@
 //  under the License.
 package realms
 
+import "time"
+
 type Principal struct {
-	ID       string
-	Token    string
-	Username string
-	Password string
-	Roles    []string
+	ID             string
+	Token          string
+	Username       string
+	Password       string
+	Roles          []string
+	PhoneNumbers   string
+	LastMFA        string
+	LastMFAUpdated time.Time
 }
 
 func NewPrincipal(username, pwd string) *Principal {

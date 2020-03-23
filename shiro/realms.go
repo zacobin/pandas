@@ -20,31 +20,42 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func NewRealm(realmOptions *realms.RealmOptions) realms.Realm {
+// NewReal create a realm from specific options
+func NewRealm(realmOptions *realms.RealmOptions) (realms.Realm, error) {
 	switch realmOptions.Name {
 	case ldap.AdaptorName:
 		realm, err := ldap.NewLdapRealm(realmOptions)
 		if err != nil {
-			logrus.WithError(err).Fatalf("invalid realm '%s' options", ldap.AdaptorName)
+			logrus.WithError(err).Errorf("invalid realm '%s' options", ldap.AdaptorName)
+			return nil, err
 		}
-		return realm
-	default:
-		logrus.Fatalf("invalid realm names")
+		return realm, nil
 	}
-	return nil
+	logrus.Fatalf("invalid realm names")
+	return nil, nil
 }
 
-func NewRealmOptionsWithFile(fullFilePath string) []*realms.RealmOptions {
+// NewRealmsWithFile create realms from realms config file
+func NewRealmsWithFile(fullFilePath string) ([]realms.Realm, error) {
 	buf, err := ioutil.ReadFile(fullFilePath)
 	if err != nil {
 		logrus.WithError(err).Fatalf("open realms config file failed")
+		return nil, err
 	}
 	realmOptions := []*realms.RealmOptions{}
 	if err := json.Unmarshal(buf, &realmOptions); err != nil {
 		logrus.WithError(err).Fatalf("illegal realm config file")
+		return nil, err
 	}
-	if len(realmOptions) == 0 {
-		logrus.Fatalf("no realms are specified")
+
+	realms := []realms.Realm{}
+	for _, option := range realmOptions {
+		if realm, err := NewRealm(option); err != nil {
+			logrus.WithError(err)
+			continue
+		} else {
+			realms = append(realms, realm)
+		}
 	}
-	return realmOptions
+	return realms, nil
 }

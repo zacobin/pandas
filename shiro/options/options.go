@@ -14,6 +14,7 @@ package options
 import (
 	broadcast_options "github.com/cloustone/pandas/pkg/broadcast"
 	genericoptions "github.com/cloustone/pandas/pkg/server/options"
+	"github.com/cloustone/pandas/pkg/sms"
 	"github.com/rs/xid"
 	"github.com/spf13/pflag"
 )
@@ -25,14 +26,20 @@ type ServingOptions struct {
 	InitFile         string
 	RealmConfigFile  string
 	MFA              string
+	SmsOptions       *sms.ServingOptions
+	RolesFile        string
+	BackstorePath    string
 }
 
 func NewServingOptions() *ServingOptions {
 	s := ServingOptions{
 		SecureServing:    genericoptions.NewSecureServingOptions("dmms"),
 		BroadcastServing: broadcast_options.NewServingOptions(),
+		SmsOptions:       sms.NewServingOptions(),
 		ServiceID:        xid.New().String(),
 		RealmConfigFile:  "./shiro-realms.json",
+		RolesFile:        "./shiro-roles.json",
+		BackstorePath:    "localhost:27017",
 	}
 	return &s
 }
@@ -40,8 +47,11 @@ func NewServingOptions() *ServingOptions {
 func (s *ServingOptions) AddFlags(fs *pflag.FlagSet) {
 	s.SecureServing.AddFlags(fs)
 	s.BroadcastServing.AddFlags(fs)
+	s.SmsOptions.AddFlags(fs)
 	fs.StringVar(&s.ServiceID, "service-id", s.ServiceID, "shiro service ID")
 	fs.StringVar(&s.InitFile, "init-file", s.InitFile, "initial shiro config file")
 	fs.StringVar(&s.RealmConfigFile, "realm-config-file", s.RealmConfigFile, "realm config file")
 	fs.StringVar(&s.MFA, "mfa", s.MFA, "multiple factor authentication")
+	fs.StringVar(&s.RolesFile, "roles-file", s.RolesFile, "builtin roles definitions")
+	fs.StringVar(&s.BackstorePath, "backstore-path", s.BackstorePath, "backstore path for postgres")
 }

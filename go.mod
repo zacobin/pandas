@@ -41,6 +41,7 @@ require (
 	github.com/justinas/nosurf v1.1.0 // indirect
 	github.com/meatballhat/negroni-logrus v1.1.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
+	github.com/pborman/uuid v1.2.0
 	github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029 // indirect
 	github.com/rogpeppe/godef v1.1.2 // indirect
 	github.com/rs/xid v1.2.1

@@ -3,27 +3,81 @@ syntax = "proto3";
 
 package grpc.shiro.v1;
 
+message Principal {
+    string ID = 1;
+    string Username = 2;
+    string Password = 3;
+    repeated string Roles = 4;
+}
+
+message Role {
+    string Name = 1;
+    repeated string Permissions = 2;
+}
+
 service UnifiedUserManagement {
+    // NotifyMFA will post a mfa code to client
+    rpc NotifyMFA(NotifyMFARequest) returns (NotifyMFAResponse) {}
+
     // Authenticate authenticate the principal in specific domain realm
     rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse) {}
+
+    // GetPrincipalPermissions return principal's role's permissions used by
+    // dashboard
+    rpc GetPrincipalPermissions(GetPrincipalPermissionsRequest) returns (GetPrincipalPermissionsResponse) {}
+
     // AddDomainRealm adds specific realm
     rpc AddDomainRealm(AddDomainRealmRequest) returns (AddDomainRealmResponse) {}
-    // GetRolePermissions return role's dynamica route path
-    rpc GetRolePermissions(GetRolePermissionsRequest) returns (GetRolePermissionsResponse) {}
+
+    // GetRoles return all roles's permissions
+    rpc GetRoles(GetRolesRequest) returns (GetRolesResponse) {}
+
+    // UpdateRole update principal's role
+    rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse) {}
+
+    // UpdatePrincipal update principal detail
+    rpc UpdatePrincipal(UpdatePrincipalRequest) returns (UpdatePrincipalResponse) {}
 }
+
+message NotifyMFARequest {
+    Principal Principal = 1;
+}
+message NotifyMFAResponse {}
 
 message AuthenticateRequest{ 
     string Username = 1;
     string Password = 2;
+    string MFA = 3;
 }
 message AuthenticateResponse { 
     string Token = 1;
     repeated string Roles  = 2;
 }
 
+message GetPrincipalPermissionsRequest {
+    Principal Principal = 1;
+}
+message GetPrincipalPermissionsResponse {
+    repeated Role Roles = 1;
+}
+
 message AddDomainRealmRequest {}
 message AddDomainRealmResponse {}
 
-message GetRolePermissionsRequest {}
-message GetRolePermissionsResponse {}
+message GetRolesRequest {}
+message GetRolesResponse {
+    repeated Role roles = 1;
+}
 
+message UpdateRoleRequest {
+    string RoleName = 1;
+    Role Role = 2;
+}
+message UpdateRoleResponse {}
+
+
+message UpdatePrincipalRequest {
+    Principal Principal = 1;
+}
+message UpdatePrincipalResponse {
+}

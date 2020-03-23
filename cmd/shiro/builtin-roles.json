@@ -1,0 +1,21 @@
+{
+  "version": "v1",
+  "roles": [ 
+          {
+              "name": "employe",
+              "routes": [
+                "/users",
+                "/users/sample",
+                "/users/list"
+              ]
+          },
+          {
+              "name": "admin",
+              "routes": [
+                "/user/info",
+                "/users/sample",
+                "/users/list"
+              ]
+          }
+        ]
+}
