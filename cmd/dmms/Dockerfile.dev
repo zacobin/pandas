@@ -7,7 +7,7 @@ LABEL product=pandas
 ADD pandas/cmd/dmms/bin/* /
 ADD pandas/models /models
 RUN chmod 755 /main
-# RUN chmod 755 /dockerize
+RUN chmod 755 /dockerize
 
 USER root
 
