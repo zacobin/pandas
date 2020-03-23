@@ -82,12 +82,12 @@ apimachinery:
 .PHONY: dmms 
 dmms: cmd/dmms 
 	@echo "building device management server (dmms)..."
-	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/dmms
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/dmms
 
 .PHONY: pms 
 pms: cmd/pms 
 	@echo "building project management server (pms)..."
-	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/pms
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/pms
 
 .PHONY: rulechain 
 rulechain: cmd/rulechain
@@ -107,7 +107,7 @@ headmast: cmd/headmast
 .PHONY: shiro 
 shiro: cmd/shiro
 	@echo "building unified user manager center service (shiro)..."
-	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/shiro
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/shiro
 
 
 .PHONY: test

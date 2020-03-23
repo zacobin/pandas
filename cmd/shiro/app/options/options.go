@@ -24,6 +24,7 @@ type ServerRunOptions struct {
 
 func NewServerRunOptions() *ServerRunOptions {
 	s := ServerRunOptions{
+		SecureServing:       genericoptions.NewSecureServingOptions("shiro"),
 		ShiroServingOptions: shiro_options.NewServingOptions(),
 	}
 	return &s

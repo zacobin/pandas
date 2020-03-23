@@ -1,0 +1,22 @@
+{
+    "realmoptions":[ 
+        {
+            "name": "ldap",
+            "certFile": "chuqiaoli",
+            "keyFile": "123123",
+            "username": "li",
+            "password": "123456",
+            "serviceConnectURL": "www.baidu.com",
+            "searchDN": "123"
+        },
+        {
+            "name": "ldap",
+            "certFile": "chuqiaoli",
+            "keyFile": "123123",
+            "username": "li",
+            "password": "123456",
+            "serviceConnectURL": "www.baidu.com",
+            "searchDN": "123"
+        }
+    ]
+}
