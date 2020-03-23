@@ -49,15 +49,7 @@ services:
       - etcd 
     environment:
       PANDAS_PORT: 30001
-      PANDAS_DNS_SERVER: "docker-compose"# apiserver:
-    image: cloustone/pandas-apimachinery
-    ports:
-      - "30001:30001"
-    restart: always
-    depends_on:
-      - etcd 
-    environment:
-      PANDAS_PORT: 30001
+      PANDAS_DNS_SERVER: "docker-compose"
     command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
 
   dmms:
@@ -80,7 +72,7 @@ services:
     depends_on:
       - etcd 
     environment:
-      PANDAS_PORT: 30011
+      PANDAS_PORT: 30012
       PANDAS_DNS_SERVER: "docker-compose"
     command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
 
@@ -122,5 +114,3 @@ services:
     environment:
       PANDAS_PORT: 30016
       PANDAS_DNS_SERVER: "docker-compose"
-
-
