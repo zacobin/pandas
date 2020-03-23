@@ -60,7 +60,7 @@ pandas-base:
 
 .PHONY: deploy
 deploy:
-	@cd deploy/helm && helm install .
+	@helm install .
 
 .PHONY: upgrade
 upgrade:
