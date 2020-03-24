@@ -38,10 +38,8 @@ func NewServingOptions() *ServingOptions {
 		BroadcastServing: broadcast_options.NewServingOptions(),
 		SmsOptions:       sms.NewServingOptions(),
 		ServiceID:        xid.New().String(),
-		//RealmConfigFile:  "$GOPATH/src/github.com/cloustone/pandas/shiro/shiro-realms.json",
-		//RolesFile:        "$GOPATH/src/github.com/cloustone/pandas/shiro/shiro-roles.json",
-		RealmConfigFile: "/home/li/go/src/github.com/cloustone/pandas/shiro/shiro-realms.json",
-		RolesFile:       "/home/li/go/src/github.com/cloustone/pandas/shiro/shiro-roles.json",
+		RealmConfigFile:  "./shiro/shiro-realms.json",
+		RolesFile:        "./shiro/shiro-roles.json",
 		//BackstorePath:    "localhost:27017",
 		BackstorePath: "sqlite3",
 	}

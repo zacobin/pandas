@@ -4,10 +4,10 @@
             "name": "ldap",
             "certFile": "chuqiaoli",
             "keyFile": "123123",
-            "username": "li",
-            "password": "123456",
-            "serviceConnectURL": "www.baidu.com",
-            "searchDN": "123"
+            "username": "cn=admin,dc=example,dc=com",
+            "password": "password",
+            "serviceConnectURL": "ldap://ldap.example.com:389",
+            "searchDN": "dc=example,dc=com"
         },
         {
             "name": "ldap",
