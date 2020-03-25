@@ -6,7 +6,7 @@ LABEL product=pandas
 # ADD certs/* /etc/ssl/pandas
 ADD pandas/cmd/pms/bin/* /
 RUN chmod 755 /main
-# RUN chmod 755 /dockerize
+RUN chmod 755 /dockerize
 
 USER root
 

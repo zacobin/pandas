@@ -1,27 +1,25 @@
-#!/bin/sh
+#!/bin/bash
 set -e -o pipefail
 
-: "${WORKDIR:=dashboard/}"
+: "${WORKDIR:=./dashboard/}"
 : "${NOCOMPRESS:=false}"
-: "${pushd:=cd}"
-: "${popd:=cd ..}"
 
-YARN_INSTALL="${pushd} ${WORKDIR} && \
+YARN_INSTALL="pushd ${WORKDIR} && \
                 yarn && \
-                ${popd}"
+                popd"
 
-YARN_BUILD_PROD="${pushd} ${WORKDIR} && \
+YARN_BUILD_PROD="pushd ${WORKDIR} && \
                 yarn build:prod && \
-                ${popd}"
+                popd"
 
-YARN_BUILD_SIT="${pushd} ${WORKDIR} && \
+YARN_BUILD_SIT="pushd ${WORKDIR} && \
                 yarn build:stage && \
-                ${popd}"
+                popd"
 
-GO_BINDATA="${pushd} ${WORKDIR} && \
+GO_BINDATA="pushd ${WORKDIR} && \
                 go-bindata-assetfs -pkg dashboard -nocompress=${NOCOMPRESS} dist/... && \
-                ${popd}"
+                popd"
 
-sh -c "${YARN_INSTALL}"
-sh -c "${YARN_BUILD_PROD}"
-sh -c "${GO_BINDATA}"
+bash -c "${YARN_INSTALL}"
+bash -c "${YARN_BUILD_PROD}"
+bash -c "${GO_BINDATA}"
