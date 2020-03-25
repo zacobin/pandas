@@ -1,18 +1,18 @@
 namespace: 
   name: namespace 
-  deploy: false
+  deploy: true
 env: dev
 services:
   expose_node_port: true
 docker:
-  registry: 192.168.1.192:5000
+  registry: 10.4.47.129:5000
   namespace: cloustone 
   image_prefix: pandas-
   pullPolicy: Always
 public:
   namespace: kube-public
   ingress:
-    deploy: true
+    deploy: false
   prometheus: 
     address: prometheus.kube-public:9090
   etcd:
@@ -69,6 +69,9 @@ lbs:
   port: 0
   cpus: 100m
   memory: 64Mi
+  baidu:
+    service_id: pandas
+    ak: xxxxxxxxxx
 shiro:
   deploy: true
   version: latest
@@ -76,7 +79,7 @@ shiro:
   cpus: 100m
   memory: 256Mi
 dashboard:
-  deploy: true
+  deploy: false
   version: latest
   port: 30880
   cpus: 100m

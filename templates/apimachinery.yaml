@@ -1,16 +1,20 @@
 {{ if .Values.apimachinery.deploy }}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pandas-apimachinery
   namespace: {{.Values.namespace.name}}
+  labels:
+    service: pandas-apimachinery
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      service: pandas-apimachinery
   template:
     metadata:
       labels:
         service: pandas-apimachinery
-        version: {{.Values.apimachinery.version}}
     spec:
       containers:
       - name: pandas-apimachinery

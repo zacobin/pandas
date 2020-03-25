@@ -22,18 +22,22 @@ subjects:
 
 ---
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pandas-pms
   namespace: {{.Values.namespace.name}}
+  labels:
+    service: pandas-pms
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      service: pandas-pms
   template:
     metadata:
       labels:
         service: pandas-pms
-        version: {{.Values.pms.version}}
     spec:
       serviceAccount: {{.Values.docker.image_prefix}}pms
       serviceAccountName: {{.Values.docker.image_prefix}}pms
@@ -58,10 +62,6 @@ spec:
               fieldPath: metadata.namespace
         - name: PANDAS_SERVICE_DISCOVERY_PATH
           value: /pandas
-        - name: PANDAS_SERVICE_DISCOVERY_TYPE
-          value: zookeeper
-        - name: PANDAS_SERVICE_DISCOVERY_SERVER
-          value: {{ .Values.public.zookeeper.address }}
         - name: PANDAS_DEPLOY_MODE
           value: kubernetes
         - name: PANDAS_PRODUCT_REGISTRY
@@ -80,14 +80,14 @@ spec:
           limits:
             cpu: {{.Values.pms.cpus}}
             memory: {{.Values.pms.memory}}
+        readinessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:4430"]
+          initialDelaySeconds: 5
         livenessProbe:
           exec:
-            command:
-              - /bin/sh
-              - -c
-              - "grpc-health-checker --port 8080 --tls"
-          initialDelaySeconds: 15
-          timeoutSeconds: 2
+            command: ["/bin/grpc_health_probe", "-addr=:4430"]
+          initialDelaySeconds: 10
             
 ---
 
