@@ -13,7 +13,7 @@ package shiro
 
 type Role struct {
 	Name   string   `json:"name"`
-	Routes []string `json:"routes"`
+	Routes []string `json:"routes" gorm:"type:string[]"`
 }
 
 func NewRole(name string) *Role {

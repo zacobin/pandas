@@ -20,6 +20,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type realmoptions struct {
+	Realmoptions []realms.RealmOptions `json: realmoptions`
+}
+
 // NewReal create a realm from specific options
 func NewRealm(realmOptions *realms.RealmOptions) (realms.Realm, error) {
 	switch realmOptions.Name {
@@ -42,15 +46,15 @@ func NewRealmsWithFile(fullFilePath string) ([]realms.Realm, error) {
 		logrus.WithError(err).Fatalf("open realms config file failed")
 		return nil, err
 	}
-	realmOptions := []*realms.RealmOptions{}
-	if err := json.Unmarshal(buf, &realmOptions); err != nil {
+	var realmop realmoptions
+	if err := json.Unmarshal(buf, &realmop); err != nil {
 		logrus.WithError(err).Fatalf("illegal realm config file")
 		return nil, err
 	}
 
 	realms := []realms.Realm{}
-	for _, option := range realmOptions {
-		if realm, err := NewRealm(option); err != nil {
+	for _, option := range realmop.Realmoptions {
+		if realm, err := NewRealm(&option); err != nil {
 			logrus.WithError(err)
 			continue
 		} else {

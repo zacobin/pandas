@@ -18,7 +18,7 @@ type Principal struct {
 	Token          string
 	Username       string
 	Password       string
-	Roles          []string
+	Roles          []string `gorm:"type:string[]"`
 	PhoneNumbers   string
 	LastMFA        string
 	LastMFAUpdated time.Time

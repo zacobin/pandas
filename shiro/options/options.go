@@ -15,6 +15,7 @@ import (
 	broadcast_options "github.com/cloustone/pandas/pkg/broadcast"
 	genericoptions "github.com/cloustone/pandas/pkg/server/options"
 	"github.com/cloustone/pandas/pkg/sms"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/rs/xid"
 	"github.com/spf13/pflag"
 )
@@ -37,15 +38,15 @@ func NewServingOptions() *ServingOptions {
 		BroadcastServing: broadcast_options.NewServingOptions(),
 		SmsOptions:       sms.NewServingOptions(),
 		ServiceID:        xid.New().String(),
-		RealmConfigFile:  "./shiro-realms.json",
-		RolesFile:        "./shiro-roles.json",
-		BackstorePath:    "localhost:27017",
+		RealmConfigFile:  "./shiro/shiro-realms.json",
+		RolesFile:        "./shiro/shiro-roles.json",
+		//BackstorePath:    "localhost:27017",
+		BackstorePath: "sqlite3",
 	}
 	return &s
 }
 
 func (s *ServingOptions) AddFlags(fs *pflag.FlagSet) {
-	s.SecureServing.AddFlags(fs)
 	s.BroadcastServing.AddFlags(fs)
 	s.SmsOptions.AddFlags(fs)
 	fs.StringVar(&s.ServiceID, "service-id", s.ServiceID, "shiro service ID")
