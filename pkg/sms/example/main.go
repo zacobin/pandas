@@ -21,7 +21,7 @@ import (
 
 var (
 	gatewayUrl      = "http://dysmsapi.aliyuncs.com/"
-	accessKeyId     = "LTAIbTnPbawglLIQ"
+	accessKeyID     = "LTAIbTnPbawglLIQ"
 	accessKeySecret = ""
 	phoneNumbers    = "13544285**2"
 	signName        = "jenson"
@@ -30,12 +30,12 @@ var (
 )
 
 func main() {
-	sevingOptons := &sms.ServingOptions{
-		SmsAccessURL:       gatewayUrl,
-		SmsAccessKeyID:     accessKeyID,
-		SmsAccessKeySecret: accessKeySecret,
+	servingOptions := &sms.ServingOptions{
+		AccessURL:       gatewayUrl,
+		AccessKeyID:     accessKeyID,
+		AccessKeySecret: accessKeySecret,
 	}
-	client := sms.NewSmsClient(servingOptions)
+	client := sms.NewClient(servingOptions)
 	result, err := client.Execute(phoneNumbers, signName, templateCode, templateParam)
 	fmt.Println("Got raw response from server:", string(result.RawResponse))
 	if err != nil {
