@@ -5,6 +5,7 @@ LABEL product=pandas
 
 # ADD certs/* /etc/ssl/pandas
 ADD pandas/cmd/shiro/bin/* /
+ADD pandas/shiro /shiro
 RUN chmod 755 /main
 RUN chmod 755 /dockerize
 
