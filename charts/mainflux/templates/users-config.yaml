@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: users-config
+  namespace: {{.Values.namespace.name}}
+data:
+  email.tmpl: |
+    To: {{.To}}
+    From: {{.From}}
+    Subject: {{.Subject}}
+    {{.Header}}
+    You have initiated password reset.
+    Follow the link below to reset password.
+    {{.Content}}
+    {{.Footer}}

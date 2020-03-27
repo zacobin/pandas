@@ -1,0 +1,57 @@
+{{ if .Values.coap_adapter.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}coap-adapter
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}coap-adapter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}coap-adapter 
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}coap-adapter 
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}coap-adapter
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/mainflux/coap:latest
+{{ else }}
+          image: mainflux/coap:latest
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{.Values.coap_adapter.port }}
+            protocal: UDP
+          env:
+          - name: MF_COAP_ADAPTER_LOG_LEVEL
+            value: {{.Values.coap_adapter.log_level }}
+          - name: MF_COAP_ADAPTER_PORT
+            value: "5683"
+          - name: MF_JAEGER_URL
+            value: {{.Values.jaeger.url }}
+          - name: MF_NATS_URL
+            value: {{.Values.nats.url }}
+          - name: MF_THINGS_URL
+            value: {{.Values.things.url }}
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}coap-adapter
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.coap_adapter.port }}
+    protocal: UDP
+    targetPort: {{ .Values.coap_adapter.targetport }}
+  selector:
+    service: {{.Values.docker.image_prefix}}coap-adapter
+{{ end }}

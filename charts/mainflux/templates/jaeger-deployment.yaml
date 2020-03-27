@@ -1,0 +1,67 @@
+{{ if .Values.jaeger.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}jaeger
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}jaeger 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}jaeger
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}jaeger 
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}jaeger
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/jaegertracing/all-in-one:1.13
+{{ else }}
+          image: jaegertracing/all-in-one:1.13
+{{ end }}
+          ports:
+            - name: pod
+              containerPort: {{.Values.jaeger.port.pod}}
+              protocol: UDP
+            - name: frontend
+              containerPort: {{.Values.jaeger.port.frontend}}
+            - name: collect
+              containerPort: {{.Values.jaeger.port.collect}}
+            - name: configs
+              containerPort: {{.Values.jaeger.port.configs}}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    service: {{.Values.docker.image_prefix}}jaeger 
+  name: jaeger
+  namespace: {{.Values.namespace.name}}
+spec:
+  type: NodePort
+  ports:
+  - name: pod
+    port: {{ .Values.jaeger.port.pod }}
+    targetPort: pod
+  - name: frontend
+    port: {{ .Values.jaeger.port.frontend }}
+    targetPort: frontend
+  - name: collect
+    port: {{ .Values.jaeger.port.collect }}
+    targetPort: collect
+    nodePort: {{.Values.jaeger.port.node }}
+  - name: configs
+    port: {{ .Values.jaeger.port.configs }}
+    targetPort: configs
+  selector:
+    service: {{.Values.docker.image_prefix}}jaeger  
+status:
+  loadBalancer: {}
+{{ end }}

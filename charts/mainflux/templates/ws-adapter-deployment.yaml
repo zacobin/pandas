@@ -1,0 +1,55 @@
+{{ if .Values.ws_adapter.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}ws-adapter 
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}ws-adapter 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}ws-adapter 
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}ws-adapter 
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}ws-adapter 
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/mainflux/ws:latest
+{{ else }}
+          image: mainflux/ws:latest
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{.Values.ws_adapter.port }}
+          env:
+          - name: MF_JAEGER_URL
+            value: {{.Values.jaeger.url }}
+          - name: MF_NATS_URL
+            value: {{.Values.nats.url }}
+          - name: MF_WS_ADAPTER_LOG_LEVEL
+            value: {{.Values.ws_adapter.log_level }}
+          - name: MF_WS_ADAPTER_PORT
+            value: "8186"
+          - name: MF_THINGS_URL
+            value: {{.Values.things.url }}
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}ws-adapter
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.ws_adapter.port }}
+    targetPort: {{ .Values.ws_adapter.targetport }}
+  selector:
+    service: {{.Values.docker.image_prefix}}ws-adapter
+{{ end }}

@@ -1,0 +1,68 @@
+{{ if .Values.vernemq.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}vernemq 
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}vernemq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}vernemq 
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}vernemq 
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}vernemq
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/mainflux/vernemq:1.10.1-alpine
+{{ else }}
+          image: mainflux/vernemq:1.10.1-alpine
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: port1
+              containerPort: {{ .Values.vernemq.port.port1 }}
+            - name: port2
+              containerPort: {{ .Values.vernemq.port.port2 }}
+            - name: port3
+              containerPort: {{ .Values.vernemq.port.port3 }}
+          volumeMounts:
+          - name: mainflux-mqtt-broker-volume
+            mountPath: /var/lib/vernemq
+          env:
+          - name: DOCKER_VERNEMQ_ALLOW_ANONYMOUS
+            value: {{.Values.vernemq.anonymous }}
+          - name: DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL
+            value: {{.Values.vernemq.log_level }}
+      restartPolicy: Always
+      volumes:
+      - name: mainflux-mqtt-broker-volume
+        persistentVolumeClaim:
+          claimName: mainflux-mqtt-broker-volume
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}vernemq
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+    - name: port1
+      port: {{ .Values.vernemq.port.port1 }}
+      targetPort: port1
+    - name: port2
+      port: {{ .Values.vernemq.port.port2 }}
+      targetPort: port2
+    - name: port3
+      port: {{ .Values.vernemq.port.port3 }}
+      targetPort: port3
+  selector:
+    service: {{.Values.docker.image_prefix}}vernemq
+{{ end }}
