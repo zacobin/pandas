@@ -50,8 +50,8 @@ type Factory interface {
 
 // NewFactory create and return model factory
 func NewFactory(obj interface{}) Factory {
-	name := obj.(string)
-	//name := reflect.TypeOf(obj).Name()
+	//name := obj.(string)
+	name := reflect.TypeOf(obj).Name()
 	//fmt.Println(obj)
 	//fmt.Println(reflect.TypeOf(obj))
 	if factory, found := factories[name]; found {
@@ -81,7 +81,7 @@ func Initialize(servingOptions *modeloptions.ServingOptions) {
 }
 
 func Error(db *gorm.DB) error {
-	if errs := db.GetErrors(); len(errs) >= 0 {
+	if errs := db.GetErrors(); len(errs) > 0 {
 		switch errs[0] {
 		case gorm.ErrRecordNotFound:
 			return ErrObjectNotFound

@@ -45,7 +45,7 @@ func newProjectFactory(servingOptions *modelsoptions.ServingOptions) factory.Fac
 
 func (pf *projectFactory) Save(owner factory.Owner, model models.Model) (models.Model, error) {
 	project := model.(*models.Project)
-	project.CreatedAt = time.Now()
+	project.ProjectCreatedAt = time.Now()
 	project.LastUpdatedAt = time.Now()
 
 	pf.modelDB.Save(project)
@@ -57,8 +57,7 @@ func (pf *projectFactory) Save(owner factory.Owner, model models.Model) (models.
 
 func (pf *projectFactory) List(owner factory.Owner, query *models.Query) ([]models.Model, error) {
 	values := []*models.Project{}
-
-	pf.modelDB.Where("userId = ?", owner.User()).Find(values)
+	pf.modelDB.Where("user_id = ?", owner.User()).Find(&values)
 	if err := factory.Error(pf.modelDB); err != nil {
 		return nil, err
 	}

@@ -45,7 +45,7 @@ func newViewFactory(servingOptions *modelsoptions.ServingOptions) factory.Factor
 
 func (pf *viewFactory) Save(owner factory.Owner, obj models.Model) (models.Model, error) {
 	view := obj.(*models.View)
-	view.CreatedAt = time.Now()
+	view.ViewCreatedAt = time.Now()
 	pf.modelDB.Save(view)
 
 	if err := factory.Error(pf.modelDB); err != nil {

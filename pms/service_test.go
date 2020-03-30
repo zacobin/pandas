@@ -31,12 +31,12 @@ func TestInitialize(t *testing.T) {
 }
 
 func TestCreateProject(t *testing.T) {
-	Convey("TestCreateProject should return ok when project metainfo is nil", t, func() {
-		servingOptions := modelsoptions.NewServingOptions()
-		pm := NewProjectManagementService(servingOptions)
-		_, err := pm.CreateProject(context.TODO(), &pb.CreateProjectRequest{})
-		So(err, ShouldNotBeNil)
-	})
+	// Convey("TestCreateProject should return ok when project metainfo is nil", t, func() {
+	// 	servingOptions := modelsoptions.NewServingOptions()
+	// 	pm := NewProjectManagementService(servingOptions)
+	// 	_, err := pm.CreateProject(context.TODO(), &pb.CreateProjectRequest{})
+	// 	So(err, ShouldNotBeNil)
+	// })
 	Convey("TestCreateProject should return ok when project not exist", t, func() {
 		servingOptions := modelsoptions.NewServingOptions()
 		pm := NewProjectManagementService(servingOptions)

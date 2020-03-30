@@ -45,7 +45,7 @@ func newWorkshopFactory(servingOptions *modelsoptions.ServingOptions) factory.Fa
 
 func (pf *workshopFactory) Save(owner factory.Owner, model models.Model) (models.Model, error) {
 	workshop := model.(*models.Workshop)
-	workshop.CreatedAt = time.Now()
+	workshop.WorkshopCreatedAt = time.Now()
 	workshop.LastUpdatedAt = time.Now()
 
 	pf.modelDB.Save(workshop)

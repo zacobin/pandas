@@ -19,8 +19,8 @@ import (
 
 // NewProject return a grpc pms object converted from projec model
 func NewProject(m interface{}) *grpc_pms_v1.Project {
-	objectModel := m.(models.Project)
-	createdAt, _ := ptypes.TimestampProto(objectModel.CreatedAt)
+	objectModel := m.(*models.Project)
+	createdAt, _ := ptypes.TimestampProto(objectModel.ProjectCreatedAt)
 	lastUpdatedAt, _ := ptypes.TimestampProto(objectModel.LastUpdatedAt)
 
 	object := &grpc_pms_v1.Project{
@@ -74,7 +74,7 @@ func NewProjectModels(objects []*grpc_pms_v1.Project) []*models.Project {
 // NewWorkshop return grpc workshop object
 func NewWorkshop(m models.Model) *grpc_pms_v1.Workshop {
 	ws := m.(*models.Workshop)
-	createdAt, _ := ptypes.TimestampProto(ws.CreatedAt)
+	createdAt, _ := ptypes.TimestampProto(ws.WorkshopCreatedAt)
 	lastUpdatedAt, _ := ptypes.TimestampProto(ws.LastUpdatedAt)
 
 	return &grpc_pms_v1.Workshop{
@@ -104,14 +104,14 @@ func NewWorkshopModel(ws *grpc_pms_v1.Workshop) *models.Workshop {
 	lastUpdatedAt, _ := ptypes.Timestamp(ws.LastUpdatedAt)
 
 	return &models.Workshop{
-		WorkshopID:    ws.ID,
-		Name:          ws.Name,
-		UserID:        ws.UserID,
-		Description:   ws.Description,
-		CreatedAt:     createdAt,
-		LastUpdatedAt: lastUpdatedAt,
-		Status:        ws.Status,
-		ViewIDs:       ws.ViewIDs,
+		WorkshopID:        ws.ID,
+		Name:              ws.Name,
+		UserID:            ws.UserID,
+		Description:       ws.Description,
+		WorkshopCreatedAt: createdAt,
+		LastUpdatedAt:     lastUpdatedAt,
+		Status:            ws.Status,
+		ViewIDs:           ws.ViewIDs,
 	}
 }
 
@@ -128,7 +128,7 @@ func NeworskhopModels(workshops []*grpc_pms_v1.Workshop) []*models.Workshop {
 // NewView return grpc view object
 func NewView(m models.Model) *grpc_pms_v1.View {
 	v := m.(*models.View)
-	createdAt, _ := ptypes.TimestampProto(v.CreatedAt)
+	createdAt, _ := ptypes.TimestampProto(v.ViewCreatedAt)
 	lastUpdatedAt, _ := ptypes.TimestampProto(v.LastUpdatedAt)
 
 	return &grpc_pms_v1.View{
@@ -163,7 +163,7 @@ func NewViewModel(v *grpc_pms_v1.View) *models.View {
 		Name:          v.Name,
 		ProjectID:     v.ProjectID,
 		WorkshopID:    v.WorkshopID,
-		CreatedAt:     createdAt,
+		ViewCreatedAt: createdAt,
 		LastUpdatedAt: lastUpdatedAt,
 		Status:        v.Status,
 		Variables:     v.Variables,

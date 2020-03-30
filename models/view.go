@@ -29,7 +29,7 @@ type View struct {
 	Name          string    `json:"name"`
 	ProjectID     string    `json:"projectID"`
 	WorkshopID    string    `json:"workshopID"`
-	CreatedAt     time.Time `json:"createdAt"`
+	ViewCreatedAt time.Time `json:"view_createdAt"`
 	LastUpdatedAt time.Time `json:"lastUpdatedAt"`
 	Payload       []byte    `json:"payload" gorm:"type:byte[]"`
 	Status        string    `json:"status"`
