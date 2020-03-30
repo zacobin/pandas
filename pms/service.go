@@ -30,25 +30,23 @@ type ProjectManagementService struct{}
 
 // NewProjectManagementService return service instance used in main server
 func NewProjectManagementService(servingOptions *modeloptions.ServingOptions) *ProjectManagementService {
-	factory.RegisterFactory(models.Project{}, newProjectFactory(servingOptions))
-	factory.RegisterFactory(models.Workshop{}, newWorkshopFactory(servingOptions))
-	factory.RegisterFactory(models.View{}, newViewFactory(servingOptions))
-	factory.RegisterFactory(models.DeviceInProject{}, newDeviceInProjectFactory(servingOptions))
+	factory.Add(newProjectFactory(servingOptions))
+	factory.Add(newWorkshopFactory(servingOptions))
+	factory.Add(newViewFactory(servingOptions))
+	factory.Add(newDeviceInProjectFactory(servingOptions))
 	return &ProjectManagementService{}
 }
 
 // grpcError return grpc error according to models errors
 func grpcError(err error) error {
-	if errors.Is(err, factory.ErrObjectNotFound) {
+	switch {
+	case errors.As(err, factory.ErrObjectNotFound):
 		return status.Errorf(codes.NotFound, "%w", err)
-
-	} else if errors.Is(err, factory.ErrObjectAlreadyExist) {
+	case errors.As(err, factory.ErrObjectAlreadyExist):
 		return status.Errorf(codes.AlreadyExists, "%w", err)
-
-	} else if errors.Is(err, factory.ErrObjectInvalidArg) {
+	case errors.As(err, factory.ErrObjectInvalidArg):
 		return status.Errorf(codes.InvalidArgument, "%w", err)
-
-	} else {
+	default:
 		return status.Errorf(codes.Internal, "%s", err)
 	}
 }

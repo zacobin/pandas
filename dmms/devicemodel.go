@@ -41,6 +41,7 @@ func newDeviceModelFactory(servingOptions *modelsoptions.ServingOptions) factory
 	}
 }
 
+func (pf *deviceModelFactory) Model() models.Model { return &models.DeviceModel{} }
 func (pf *deviceModelFactory) Save(owner factory.Owner, model models.Model) (models.Model, error) {
 	devicemodel := model.(*models.DeviceModel)
 	devicemodel.CreatedAt = time.Now()

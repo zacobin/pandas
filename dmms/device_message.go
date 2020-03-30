@@ -41,6 +41,7 @@ func newDeviceMessageFactory(servingOptions *modelsoptions.ServingOptions) facto
 	}
 }
 
+func (pf *deviceMessageFactory) Model() models.Model { return &models.DeviceMessage{} }
 func (pf *deviceMessageFactory) Save(owner factory.Owner, obj models.Model) (models.Model, error) {
 	view := obj.(*models.DeviceMessage)
 	view.CreatedAt = time.Now()

@@ -41,6 +41,7 @@ func newDeviceMetricsFactory(servingOptions *modelsoptions.ServingOptions) facto
 	}
 }
 
+func (pf *deviceMetricsFactory) Model() models.Model { return &models.DeviceMetrics{} }
 func (pf *deviceMetricsFactory) Save(owner factory.Owner, obj models.Model) (models.Model, error) {
 	deviceMetrics := obj.(*models.DeviceMetrics)
 	deviceMetrics.CreatedAt = time.Now()

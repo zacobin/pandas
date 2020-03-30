@@ -41,6 +41,8 @@ func newRuleChainFactory(servingOptions *modelsoptions.ServingOptions) factory.F
 	}
 }
 
+func (pf *rulechainFactory) Model() models.Model { return &models.RuleChain{} }
+
 func (pf *rulechainFactory) Save(owner factory.Owner, obj models.Model) (models.Model, error) {
 	rulechain := obj.(*models.RuleChain)
 	rulechain.CreatedAt = time.Now()

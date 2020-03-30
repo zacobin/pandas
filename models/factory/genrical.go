@@ -21,6 +21,8 @@ type genericalFactory struct {
 	modelDB *gorm.DB
 }
 
+func (pf *genericalFactory) Model() models.Model { return nil }
+
 func (pf *genericalFactory) initialize(factoryServingOptions *modeloptions.ServingOptions) error {
 	modelDB, err := gorm.Open(factoryServingOptions.StorePath, "pandas.db")
 	if err != nil {

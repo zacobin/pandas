@@ -36,6 +36,8 @@ var (
 
 // Factory will create and manage object
 type Factory interface {
+	// Model return the model managed by factory
+	Model() models.Model
 	// Save a newly created object into factory
 	Save(Owner, models.Model) (models.Model, error)
 	// List return object sets accoroding to query
@@ -61,10 +63,11 @@ func NewFactory(obj interface{}) Factory {
 	return nil
 }
 
-// RegisterFactory will add model factory. user can also add customized model factory
-func RegisterFactory(model interface{}, f Factory) {
-	factories[reflect.TypeOf(model).Name()] = f
-	fmt.Println(reflect.TypeOf(model).Name())
+// Add will add model factory. user can also add customized model factory
+func Add(f Factory) {
+	factoryName := reflect.TypeOf(f.Model()).Name()
+	factories[factoryName] = f
+	logrus.Infof("model '%s' factory added", factoryName)
 }
 
 // Initialize will be called in startup to initialize all internal model factory
@@ -77,7 +80,6 @@ func Initialize(servingOptions *modeloptions.ServingOptions) {
 		logrus.Fatalf("factory failed to open database")
 	}
 	defer db.Close()
-
 }
 
 func Error(db *gorm.DB) error {

@@ -47,14 +47,12 @@ func NewDeviceManagementService() *DeviceManagementService {
 
 // Prerun initialize and load builtin devices models
 func (s *DeviceManagementService) Initialize(servingOptions *ServingOptions) {
-	factory.RegisterFactory(models.DeviceModel{}, newDeviceModelFactory(servingOptions.ServingOptions))
+	factory.Add(newDeviceModelFactory(servingOptions.ServingOptions))
 	s.servingOptions = servingOptions
 	s.loadPresetDeviceModels(s.servingOptions.DeviceModelPath)
 	b := broadcast_util.NewBroadcast(broadcast.NewServingOptions())
 	b.RegisterObserver(nameOfDeviceModel, s)
 	b.RegisterObserver(nameOfDeviceNotification, s)
-	//broadcast_util.RegisterObserver(s, nameOfDeviceModel)
-	//broadcast_util.RegisterObserver(s, nameOfDeviceNotification)
 
 }
 

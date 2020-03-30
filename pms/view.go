@@ -31,7 +31,6 @@ type viewFactory struct {
 func newViewFactory(servingOptions *modelsoptions.ServingOptions) factory.Factory {
 	servingOptions = modelsoptions.NewServingOptions()
 	modelDB, err := gorm.Open(servingOptions.StorePath, "pandas-projects.db")
-	//modelDB, err := gorm.Open("sqlite3", "pandas-projects.db")
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -42,6 +41,8 @@ func newViewFactory(servingOptions *modelsoptions.ServingOptions) factory.Factor
 		servingOptions: servingOptions,
 	}
 }
+
+func (pf *viewFactory) Model() models.Model { return &models.View{} }
 
 func (pf *viewFactory) Save(owner factory.Owner, obj models.Model) (models.Model, error) {
 	view := obj.(*models.View)

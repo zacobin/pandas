@@ -237,8 +237,6 @@ func (s *standaloneService) GetNodeConfigs(ctx context.Context, in *pb.GetNodeCo
 // xerror return grpc error according to models errors
 func xerror(err error) error {
 	switch {
-	// case errors.As(err, nil):
-	// 	return nil
 	case errors.As(err, &factory.ErrObjectNotFound):
 		return status.Errorf(codes.NotFound, "%w", err)
 	case errors.As(err, &factory.ErrObjectAlreadyExist):

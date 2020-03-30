@@ -31,7 +31,6 @@ type projectFactory struct {
 func newProjectFactory(servingOptions *modelsoptions.ServingOptions) factory.Factory {
 	servingOptions = modelsoptions.NewServingOptions()
 	modelDB, err := gorm.Open(servingOptions.StorePath, "pandas-workshops.db")
-	//modelDB, err := gorm.Open("sqlite3", "pandas-workshops.db")
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -42,6 +41,8 @@ func newProjectFactory(servingOptions *modelsoptions.ServingOptions) factory.Fac
 		servingOptions: servingOptions,
 	}
 }
+
+func (pf *projectFactory) Model() models.Model { return &models.Project{} }
 
 func (pf *projectFactory) Save(owner factory.Owner, model models.Model) (models.Model, error) {
 	project := model.(*models.Project)
