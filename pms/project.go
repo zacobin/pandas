@@ -58,11 +58,10 @@ func (pf *projectFactory) Save(owner factory.Owner, model models.Model) (models.
 func (pf *projectFactory) List(owner factory.Owner, query *models.Query) ([]models.Model, error) {
 	values := []*models.Project{}
 
-	pf.modelDB.Where("userId = ?", owner.User()).Find(values)
+	pf.modelDB.Where("user_id = ?", owner.User()).Find(&values)
 	if err := factory.Error(pf.modelDB); err != nil {
 		return nil, err
 	}
-
 	projects := []models.Model{}
 	for _, project := range values {
 		projects = append(projects, project)

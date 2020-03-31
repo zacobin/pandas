@@ -20,11 +20,13 @@ type ServingOptions struct {
 	User     string
 	Password string
 	Hosts    string
+	NatsUrl  string
 }
 
 func NewServingOptions() *ServingOptions {
 	s := ServingOptions{
-		Method: "inproc",
+		Method:  "nats",
+		NatsUrl: "nats://127.0.0.1:4222",
 	}
 	return &s
 }

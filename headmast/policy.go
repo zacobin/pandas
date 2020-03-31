@@ -60,7 +60,7 @@ func (r *roundbinPolicy) DeterminWithWorkerChanged(ctx *ScheduleContext, affecte
 		// affected worker
 		leftWorkers := []*Worker{}
 		for _, worker := range allWorkers {
-			if worker.ID == affectedWorker.ID {
+			if worker.ID != affectedWorker.ID {
 				leftWorkers = append(leftWorkers, worker)
 				break
 			}

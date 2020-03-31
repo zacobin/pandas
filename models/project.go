@@ -31,7 +31,7 @@ const (
 type Project struct {
 	ModelTypeInfo
 	gorm.Model
-	ProjectID        string    `json:"id"`
+	ProjectID        string    `json:"id" gorm:"primary_key"`
 	Name             string    `json:"name"`
 	UserID           string    `json:"user_id"`
 	Description      string    `json:"description"`

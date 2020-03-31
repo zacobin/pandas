@@ -25,15 +25,15 @@ import (
 type Workshop struct {
 	ModelTypeInfo
 	gorm.Model
-	WorkshopID    string    `json:"id"`
-	Name          string    `json:"name"`
-	Description   string    `json:"description"`
-	UserID        string    `json:"userID"`
-	ProjectID     string    `json:"projectId"`
-	CreatedAt     time.Time `json:"createdAt"`
-	LastUpdatedAt time.Time `json:"lastUpdatedAt"`
-	Status        string    `json:"status"`
-	ViewIDs       []string  `json:"views" gorm:"type:string[]"`
+	WorkshopID        string    `json:"id"`
+	Name              string    `json:"name"`
+	Description       string    `json:"description"`
+	UserID            string    `json:"userID"`
+	ProjectID         string    `json:"projectId"`
+	WorkshopCreatedAt time.Time `json:"createdAt"`
+	LastUpdatedAt     time.Time `json:"lastUpdatedAt"`
+	Status            string    `json:"status"`
+	ViewIDs           []string  `json:"views" gorm:"type:string[]"`
 }
 
 // Validate validates this deployment

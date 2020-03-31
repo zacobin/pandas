@@ -15,6 +15,7 @@ import (
 	"github.com/cloustone/pandas/models"
 	"github.com/cloustone/pandas/pkg/broadcast"
 	"github.com/cloustone/pandas/pkg/broadcast/inproc"
+	"github.com/cloustone/pandas/pkg/broadcast/nats"
 	"github.com/cloustone/pandas/pkg/broadcast/rabbitmq"
 )
 
@@ -29,6 +30,8 @@ func NewBroadcast(options *broadcast.ServingOptions) broadcast.Broadcast {
 		return rabbitmq.NewBroadcast(options.User, options.Password, options.Hosts)
 	case inproc.NAME:
 		return inproc.NewBroadcast()
+	case nats.NAME:
+		return nats.NewBroadcast(options.NatsUrl)
 	}
 	return nil
 }

@@ -58,8 +58,7 @@ func (s *ProjectManagementService) CreateProject(ctx context.Context, in *pb.Cre
 	pf := factory.NewFactory(models.Project{})
 	owner := factory.NewOwner(in.UserID)
 	query := models.NewQuery().WithQuery("projectName", in.Project.Name)
-
-	if _, err := pf.List(owner, query); err == nil {
+	if _, err := pf.List(owner, query); err != nil {
 		return nil, grpcError(err)
 	}
 	project, err := pf.Save(owner, converter.NewProjectModel(in.Project))

@@ -19,7 +19,7 @@ import (
 
 // NewProject return a grpc pms object converted from projec model
 func NewProject(m interface{}) *grpc_pms_v1.Project {
-	objectModel := m.(models.Project)
+	objectModel := m.(*models.Project)
 	createdAt, _ := ptypes.TimestampProto(objectModel.CreatedAt)
 	lastUpdatedAt, _ := ptypes.TimestampProto(objectModel.LastUpdatedAt)
 
@@ -104,14 +104,14 @@ func NewWorkshopModel(ws *grpc_pms_v1.Workshop) *models.Workshop {
 	lastUpdatedAt, _ := ptypes.Timestamp(ws.LastUpdatedAt)
 
 	return &models.Workshop{
-		WorkshopID:    ws.ID,
-		Name:          ws.Name,
-		UserID:        ws.UserID,
-		Description:   ws.Description,
-		CreatedAt:     createdAt,
-		LastUpdatedAt: lastUpdatedAt,
-		Status:        ws.Status,
-		ViewIDs:       ws.ViewIDs,
+		WorkshopID:        ws.ID,
+		Name:              ws.Name,
+		UserID:            ws.UserID,
+		Description:       ws.Description,
+		WorkshopCreatedAt: createdAt,
+		LastUpdatedAt:     lastUpdatedAt,
+		Status:            ws.Status,
+		ViewIDs:           ws.ViewIDs,
 	}
 }
 
@@ -163,7 +163,7 @@ func NewViewModel(v *grpc_pms_v1.View) *models.View {
 		Name:          v.Name,
 		ProjectID:     v.ProjectID,
 		WorkshopID:    v.WorkshopID,
-		CreatedAt:     createdAt,
+		ViewCreatedAt: createdAt,
 		LastUpdatedAt: lastUpdatedAt,
 		Status:        v.Status,
 		Variables:     v.Variables,
