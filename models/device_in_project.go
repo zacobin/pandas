@@ -25,7 +25,7 @@ type DeviceInProject struct {
 	DeviceID      string    `json:"deviceID"`
 	DeviceName    string    `json:"deviceName"`
 	ProjectID     string    `json:"projectID"`
-	UserID        string    `json:"userDd"`
+	UserID        string    `json:"userID"`
 	CreatedAt     time.Time `json:"createdAt"`
 	LastUpdatedAt time.Time `json:"lastUpdatedAt"`
 	Status        string    `json:"status"`

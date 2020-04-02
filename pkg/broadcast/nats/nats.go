@@ -27,7 +27,8 @@ func NewBroadcast(natsurl string) broadcast.Broadcast {
 		log.Fatal(err)
 	}
 	return &NatsBroadcast{
-		nc: natsconn,
+		nc:          natsconn,
+		subscribers: make(map[string]subscriber),
 	}
 }
 
@@ -56,7 +57,7 @@ func (n *NatsBroadcast) RegisterObserver(path string, obs broadcast.Observer) {
 func async(n *NatsBroadcast, nc *nats.Conn, path string, sub subscriber) {
 	nc.Subscribe(path, func(msg *nats.Msg) {
 		no := broadcast.Notification{}
-		if err := json.Unmarshal(msg.Data, &n); err != nil {
+		if err := json.Unmarshal(msg.Data, &no); err != nil {
 			logrus.WithError(err)
 		}
 		sub.observer.Onbroadcast(n, no)
