@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.network/mainflux-base-net: "true"
+    io.kompose.service: mqtt-adapter
+  name: mqtt-adapter
+spec:
+  containers:
+  - env:
+    - name: MF_JAEGER_URL
+    - name: MF_MQTT_ADAPTER_ES_URL
+      value: 'es-redis:'
+    - name: MF_MQTT_ADAPTER_LOG_LEVEL
+    - name: MF_MQTT_ADAPTER_MQTT_TARGET_HOST
+      value: vernemq
+    - name: MF_MQTT_ADAPTER_MQTT_TARGET_PORT
+    - name: MF_MQTT_ADAPTER_PORT
+    - name: MF_MQTT_ADAPTER_WS_PORT
+    - name: MF_NATS_URL
+    - name: MF_THINGS_URL
+      value: 'things:'
+    image: mainflux/mqtt:latest
+    name: mainflux-mqtt
+    ports:
+    - containerPort: 8882
+    resources: {}
+  restartPolicy: OnFailure
+status: {}

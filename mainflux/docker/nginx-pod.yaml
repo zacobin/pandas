@@ -1,0 +1,867 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.network/mainflux-base-net: "true"
+    io.kompose.service: nginx
+  name: nginx
+spec:
+  containers:
+  - args:
+    - /entrypoint.sh
+    env:
+    - name: MF_AUTHN_DB
+      valueFrom:
+        configMapKeyRef:
+          key: MF_AUTHN_DB
+          name: env
+    - name: MF_AUTHN_DB_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_AUTHN_DB_PASS
+          name: env
+    - name: MF_AUTHN_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_AUTHN_DB_PORT
+          name: env
+    - name: MF_AUTHN_DB_USER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_AUTHN_DB_USER
+          name: env
+    - name: MF_AUTHN_GRPC_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_AUTHN_GRPC_PORT
+          name: env
+    - name: MF_AUTHN_HTTP_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_AUTHN_HTTP_PORT
+          name: env
+    - name: MF_AUTHN_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_AUTHN_LOG_LEVEL
+          name: env
+    - name: MF_AUTHN_SECRET
+      valueFrom:
+        configMapKeyRef:
+          key: MF_AUTHN_SECRET
+          name: env
+    - name: MF_BOOTSTRAP_DB
+      valueFrom:
+        configMapKeyRef:
+          key: MF_BOOTSTRAP_DB
+          name: env
+    - name: MF_BOOTSTRAP_DB_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_BOOTSTRAP_DB_PASS
+          name: env
+    - name: MF_BOOTSTRAP_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_BOOTSTRAP_DB_PORT
+          name: env
+    - name: MF_BOOTSTRAP_DB_SSL_MODE
+      valueFrom:
+        configMapKeyRef:
+          key: MF_BOOTSTRAP_DB_SSL_MODE
+          name: env
+    - name: MF_BOOTSTRAP_DB_USER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_BOOTSTRAP_DB_USER
+          name: env
+    - name: MF_BOOTSTRAP_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_BOOTSTRAP_LOG_LEVEL
+          name: env
+    - name: MF_BOOTSTRAP_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_BOOTSTRAP_PORT
+          name: env
+    - name: MF_CASSANDRA_READER_DB_CLUSTER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_READER_DB_CLUSTER
+          name: env
+    - name: MF_CASSANDRA_READER_DB_KEYSPACE
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_READER_DB_KEYSPACE
+          name: env
+    - name: MF_CASSANDRA_READER_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_READER_DB_PORT
+          name: env
+    - name: MF_CASSANDRA_READER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_READER_LOG_LEVEL
+          name: env
+    - name: MF_CASSANDRA_READER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_READER_PORT
+          name: env
+    - name: MF_CASSANDRA_READER_SERVER_CERT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_READER_SERVER_CERT
+          name: env
+    - name: MF_CASSANDRA_READER_SERVER_KEY
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_READER_SERVER_KEY
+          name: env
+    - name: MF_CASSANDRA_WRITER_DB_CLUSTER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_WRITER_DB_CLUSTER
+          name: env
+    - name: MF_CASSANDRA_WRITER_DB_KEYSPACE
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_WRITER_DB_KEYSPACE
+          name: env
+    - name: MF_CASSANDRA_WRITER_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_WRITER_DB_PORT
+          name: env
+    - name: MF_CASSANDRA_WRITER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_WRITER_LOG_LEVEL
+          name: env
+    - name: MF_CASSANDRA_WRITER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_CASSANDRA_WRITER_PORT
+          name: env
+    - name: MF_COAP_ADAPTER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_COAP_ADAPTER_LOG_LEVEL
+          name: env
+    - name: MF_COAP_ADAPTER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_COAP_ADAPTER_PORT
+          name: env
+    - name: MF_EMAIL_DRIVER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_EMAIL_DRIVER
+          name: env
+    - name: MF_EMAIL_FROM_ADDRESS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_EMAIL_FROM_ADDRESS
+          name: env
+    - name: MF_EMAIL_FROM_NAME
+      valueFrom:
+        configMapKeyRef:
+          key: MF_EMAIL_FROM_NAME
+          name: env
+    - name: MF_EMAIL_HOST
+      valueFrom:
+        configMapKeyRef:
+          key: MF_EMAIL_HOST
+          name: env
+    - name: MF_EMAIL_PASSWORD
+      valueFrom:
+        configMapKeyRef:
+          key: MF_EMAIL_PASSWORD
+          name: env
+    - name: MF_EMAIL_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_EMAIL_PORT
+          name: env
+    - name: MF_EMAIL_TEMPLATE
+      valueFrom:
+        configMapKeyRef:
+          key: MF_EMAIL_TEMPLATE
+          name: env
+    - name: MF_EMAIL_USERNAME
+      valueFrom:
+        configMapKeyRef:
+          key: MF_EMAIL_USERNAME
+          name: env
+    - name: MF_GRAFANA_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_GRAFANA_PORT
+          name: env
+    - name: MF_HTTP_ADAPTER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_HTTP_ADAPTER_PORT
+          name: env
+    - name: MF_INFLUX_READER_DB_NAME
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_READER_DB_NAME
+          name: env
+    - name: MF_INFLUX_READER_DB_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_READER_DB_PASS
+          name: env
+    - name: MF_INFLUX_READER_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_READER_DB_PORT
+          name: env
+    - name: MF_INFLUX_READER_DB_USER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_READER_DB_USER
+          name: env
+    - name: MF_INFLUX_READER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_READER_LOG_LEVEL
+          name: env
+    - name: MF_INFLUX_READER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_READER_PORT
+          name: env
+    - name: MF_INFLUX_READER_SERVER_CERT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_READER_SERVER_CERT
+          name: env
+    - name: MF_INFLUX_READER_SERVER_KEY
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_READER_SERVER_KEY
+          name: env
+    - name: MF_INFLUX_WRITER_BATCH_SIZE
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_WRITER_BATCH_SIZE
+          name: env
+    - name: MF_INFLUX_WRITER_BATCH_TIMEOUT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_WRITER_BATCH_TIMEOUT
+          name: env
+    - name: MF_INFLUX_WRITER_DB_NAME
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_WRITER_DB_NAME
+          name: env
+    - name: MF_INFLUX_WRITER_DB_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_WRITER_DB_PASS
+          name: env
+    - name: MF_INFLUX_WRITER_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_WRITER_DB_PORT
+          name: env
+    - name: MF_INFLUX_WRITER_DB_USER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_WRITER_DB_USER
+          name: env
+    - name: MF_INFLUX_WRITER_GRAFANA_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_WRITER_GRAFANA_PORT
+          name: env
+    - name: MF_INFLUX_WRITER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_WRITER_LOG_LEVEL
+          name: env
+    - name: MF_INFLUX_WRITER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_INFLUX_WRITER_PORT
+          name: env
+    - name: MF_JAEGER_COLLECTOR
+      valueFrom:
+        configMapKeyRef:
+          key: MF_JAEGER_COLLECTOR
+          name: env
+    - name: MF_JAEGER_CONFIGS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_JAEGER_CONFIGS
+          name: env
+    - name: MF_JAEGER_FRONTEND
+      valueFrom:
+        configMapKeyRef:
+          key: MF_JAEGER_FRONTEND
+          name: env
+    - name: MF_JAEGER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_JAEGER_PORT
+          name: env
+    - name: MF_JAEGER_URL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_JAEGER_URL
+          name: env
+    - name: MF_LORA_ADAPTER_HTTP_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_LORA_ADAPTER_HTTP_PORT
+          name: env
+    - name: MF_LORA_ADAPTER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_LORA_ADAPTER_LOG_LEVEL
+          name: env
+    - name: MF_LORA_ADAPTER_MESSAGES_URL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_LORA_ADAPTER_MESSAGES_URL
+          name: env
+    - name: MF_LORA_ADAPTER_ROUTE_MAP_DB
+      valueFrom:
+        configMapKeyRef:
+          key: MF_LORA_ADAPTER_ROUTE_MAP_DB
+          name: env
+    - name: MF_LORA_ADAPTER_ROUTE_MAP_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_LORA_ADAPTER_ROUTE_MAP_PASS
+          name: env
+    - name: MF_LORA_ADAPTER_ROUTE_MAP_URL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_LORA_ADAPTER_ROUTE_MAP_URL
+          name: env
+    - name: MF_MONGO_READER_DB_NAME
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MONGO_READER_DB_NAME
+          name: env
+    - name: MF_MONGO_READER_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MONGO_READER_DB_PORT
+          name: env
+    - name: MF_MONGO_READER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MONGO_READER_LOG_LEVEL
+          name: env
+    - name: MF_MONGO_READER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MONGO_READER_PORT
+          name: env
+    - name: MF_MONGO_READER_SERVER_CERT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MONGO_READER_SERVER_CERT
+          name: env
+    - name: MF_MONGO_READER_SERVER_KEY
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MONGO_READER_SERVER_KEY
+          name: env
+    - name: MF_MONGO_WRITER_DB_NAME
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MONGO_WRITER_DB_NAME
+          name: env
+    - name: MF_MONGO_WRITER_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MONGO_WRITER_DB_PORT
+          name: env
+    - name: MF_MONGO_WRITER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MONGO_WRITER_LOG_LEVEL
+          name: env
+    - name: MF_MONGO_WRITER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MONGO_WRITER_PORT
+          name: env
+    - name: MF_MQTT_ADAPTER_ES_DB
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MQTT_ADAPTER_ES_DB
+          name: env
+    - name: MF_MQTT_ADAPTER_ES_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MQTT_ADAPTER_ES_PASS
+          name: env
+    - name: MF_MQTT_ADAPTER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MQTT_ADAPTER_LOG_LEVEL
+          name: env
+    - name: MF_MQTT_ADAPTER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MQTT_ADAPTER_PORT
+          name: env
+    - name: MF_MQTT_ADAPTER_WS_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MQTT_ADAPTER_WS_PORT
+          name: env
+    - name: MF_MQTT_BROKER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MQTT_BROKER_PORT
+          name: env
+    - name: MF_MQTT_BROKER_WS_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_MQTT_BROKER_WS_PORT
+          name: env
+    - name: MF_NATS_URL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_NATS_URL
+          name: env
+    - name: MF_NGINX_HTTP_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_NGINX_HTTP_PORT
+          name: env
+    - name: MF_NGINX_MQTTS_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_NGINX_MQTTS_PORT
+          name: env
+    - name: MF_NGINX_MQTT_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_NGINX_MQTT_PORT
+          name: env
+    - name: MF_NGINX_SSL_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_NGINX_SSL_PORT
+          name: env
+    - name: MF_OPCUA_ADAPTER_CERT_FILE
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_CERT_FILE
+          name: env
+    - name: MF_OPCUA_ADAPTER_EVENT_CONSUMER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_EVENT_CONSUMER
+          name: env
+    - name: MF_OPCUA_ADAPTER_HTTP_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_HTTP_PORT
+          name: env
+    - name: MF_OPCUA_ADAPTER_KEY_FILE
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_KEY_FILE
+          name: env
+    - name: MF_OPCUA_ADAPTER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_LOG_LEVEL
+          name: env
+    - name: MF_OPCUA_ADAPTER_MODE
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_MODE
+          name: env
+    - name: MF_OPCUA_ADAPTER_NODE_IDENTIFIER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_NODE_IDENTIFIER
+          name: env
+    - name: MF_OPCUA_ADAPTER_NODE_NAMESPACE
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_NODE_NAMESPACE
+          name: env
+    - name: MF_OPCUA_ADAPTER_POLICY
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_POLICY
+          name: env
+    - name: MF_OPCUA_ADAPTER_ROUTE_MAP_DB
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_ROUTE_MAP_DB
+          name: env
+    - name: MF_OPCUA_ADAPTER_ROUTE_MAP_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_ROUTE_MAP_PASS
+          name: env
+    - name: MF_OPCUA_ADAPTER_ROUTE_MAP_URL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_ROUTE_MAP_URL
+          name: env
+    - name: MF_OPCUA_ADAPTER_SERVER_URI
+      valueFrom:
+        configMapKeyRef:
+          key: MF_OPCUA_ADAPTER_SERVER_URI
+          name: env
+    - name: MF_POSTGRES_READER_CA_CERTS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_CA_CERTS
+          name: env
+    - name: MF_POSTGRES_READER_CLIENT_TLS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_CLIENT_TLS
+          name: env
+    - name: MF_POSTGRES_READER_DB_NAME
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_DB_NAME
+          name: env
+    - name: MF_POSTGRES_READER_DB_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_DB_PASS
+          name: env
+    - name: MF_POSTGRES_READER_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_DB_PORT
+          name: env
+    - name: MF_POSTGRES_READER_DB_SSL_CERT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_DB_SSL_CERT
+          name: env
+    - name: MF_POSTGRES_READER_DB_SSL_KEY
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_DB_SSL_KEY
+          name: env
+    - name: MF_POSTGRES_READER_DB_SSL_MODE
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_DB_SSL_MODE
+          name: env
+    - name: MF_POSTGRES_READER_DB_SSL_ROOT_CERT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_DB_SSL_ROOT_CERT
+          name: env
+    - name: MF_POSTGRES_READER_DB_USER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_DB_USER
+          name: env
+    - name: MF_POSTGRES_READER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_LOG_LEVEL
+          name: env
+    - name: MF_POSTGRES_READER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_READER_PORT
+          name: env
+    - name: MF_POSTGRES_WRITER_DB_NAME
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_WRITER_DB_NAME
+          name: env
+    - name: MF_POSTGRES_WRITER_DB_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_WRITER_DB_PASS
+          name: env
+    - name: MF_POSTGRES_WRITER_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_WRITER_DB_PORT
+          name: env
+    - name: MF_POSTGRES_WRITER_DB_SSL_CERT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_WRITER_DB_SSL_CERT
+          name: env
+    - name: MF_POSTGRES_WRITER_DB_SSL_KEY
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_WRITER_DB_SSL_KEY
+          name: env
+    - name: MF_POSTGRES_WRITER_DB_SSL_MODE
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_WRITER_DB_SSL_MODE
+          name: env
+    - name: MF_POSTGRES_WRITER_DB_SSL_ROOT_CERT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_WRITER_DB_SSL_ROOT_CERT
+          name: env
+    - name: MF_POSTGRES_WRITER_DB_USER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_WRITER_DB_USER
+          name: env
+    - name: MF_POSTGRES_WRITER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_WRITER_LOG_LEVEL
+          name: env
+    - name: MF_POSTGRES_WRITER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_POSTGRES_WRITER_PORT
+          name: env
+    - name: MF_REDIS_TCP_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_REDIS_TCP_PORT
+          name: env
+    - name: MF_THINGS_AUTH_GRPC_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_AUTH_GRPC_PORT
+          name: env
+    - name: MF_THINGS_AUTH_HTTP_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_AUTH_HTTP_PORT
+          name: env
+    - name: MF_THINGS_DB
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_DB
+          name: env
+    - name: MF_THINGS_DB_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_DB_PASS
+          name: env
+    - name: MF_THINGS_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_DB_PORT
+          name: env
+    - name: MF_THINGS_DB_USER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_DB_USER
+          name: env
+    - name: MF_THINGS_ES_DB
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_ES_DB
+          name: env
+    - name: MF_THINGS_ES_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_ES_PASS
+          name: env
+    - name: MF_THINGS_ES_URL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_ES_URL
+          name: env
+    - name: MF_THINGS_HTTP_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_HTTP_PORT
+          name: env
+    - name: MF_THINGS_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_LOG_LEVEL
+          name: env
+    - name: MF_THINGS_SECRET
+      valueFrom:
+        configMapKeyRef:
+          key: MF_THINGS_SECRET
+          name: env
+    - name: MF_TOKEN_RESET_ENDPOINT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TOKEN_RESET_ENDPOINT
+          name: env
+    - name: MF_TWINS_CA_CERTS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_CA_CERTS
+          name: env
+    - name: MF_TWINS_CHANNEL_ID
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_CHANNEL_ID
+          name: env
+    - name: MF_TWINS_CLIENT_TLS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_CLIENT_TLS
+          name: env
+    - name: MF_TWINS_DB_HOST
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_DB_HOST
+          name: env
+    - name: MF_TWINS_DB_NAME
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_DB_NAME
+          name: env
+    - name: MF_TWINS_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_DB_PORT
+          name: env
+    - name: MF_TWINS_HTTP_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_HTTP_PORT
+          name: env
+    - name: MF_TWINS_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_LOG_LEVEL
+          name: env
+    - name: MF_TWINS_MQTT_URL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_MQTT_URL
+          name: env
+    - name: MF_TWINS_SERVER_CERT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_SERVER_CERT
+          name: env
+    - name: MF_TWINS_SERVER_KEY
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_SERVER_KEY
+          name: env
+    - name: MF_TWINS_SINGLE_USER_EMAIL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_SINGLE_USER_EMAIL
+          name: env
+    - name: MF_TWINS_SINGLE_USER_TOKEN
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_SINGLE_USER_TOKEN
+          name: env
+    - name: MF_TWINS_THING_ID
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_THING_ID
+          name: env
+    - name: MF_TWINS_THING_KEY
+      valueFrom:
+        configMapKeyRef:
+          key: MF_TWINS_THING_KEY
+          name: env
+    - name: MF_USERS_DB
+      valueFrom:
+        configMapKeyRef:
+          key: MF_USERS_DB
+          name: env
+    - name: MF_USERS_DB_PASS
+      valueFrom:
+        configMapKeyRef:
+          key: MF_USERS_DB_PASS
+          name: env
+    - name: MF_USERS_DB_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_USERS_DB_PORT
+          name: env
+    - name: MF_USERS_DB_USER
+      valueFrom:
+        configMapKeyRef:
+          key: MF_USERS_DB_USER
+          name: env
+    - name: MF_USERS_HTTP_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_USERS_HTTP_PORT
+          name: env
+    - name: MF_USERS_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_USERS_LOG_LEVEL
+          name: env
+    - name: MF_WS_ADAPTER_LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          key: MF_WS_ADAPTER_LOG_LEVEL
+          name: env
+    - name: MF_WS_ADAPTER_PORT
+      valueFrom:
+        configMapKeyRef:
+          key: MF_WS_ADAPTER_PORT
+          name: env
+    image: nginx:1.16.0-alpine
+    name: mainflux-nginx
+    ports:
+    - containerPort: 80
+    resources: {}
+    volumeMounts:
+    - mountPath: /etc/nginx/nginx.conf.template
+      name: nginx-claim0
+    - mountPath: /entrypoint.sh
+      name: nginx-claim1
+    - mountPath: /etc/nginx/snippets
+      name: nginx-claim2
+    - mountPath: /etc/nginx/authorization.js
+      name: nginx-claim3
+    - mountPath: /etc/ssl/certs/mainflux-server.crt
+      name: nginx-claim4
+    - mountPath: /etc/ssl/certs/ca.crt
+      name: nginx-claim5
+    - mountPath: /etc/ssl/private/mainflux-server.key
+      name: nginx-claim6
+    - mountPath: /etc/ssl/certs/dhparam.pem
+      name: nginx-claim7
+  restartPolicy: OnFailure
+  volumes:
+  - name: nginx-claim0
+    persistentVolumeClaim:
+      claimName: nginx-claim0
+  - name: nginx-claim1
+    persistentVolumeClaim:
+      claimName: nginx-claim1
+  - name: nginx-claim2
+    persistentVolumeClaim:
+      claimName: nginx-claim2
+  - name: nginx-claim3
+    persistentVolumeClaim:
+      claimName: nginx-claim3
+  - name: nginx-claim4
+    persistentVolumeClaim:
+      claimName: nginx-claim4
+  - name: nginx-claim5
+    persistentVolumeClaim:
+      claimName: nginx-claim5
+  - name: nginx-claim6
+    persistentVolumeClaim:
+      claimName: nginx-claim6
+  - name: nginx-claim7
+    persistentVolumeClaim:
+      claimName: nginx-claim7
+status: {}
