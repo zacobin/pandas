@@ -15,24 +15,23 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cloustone/pandas/mainflux/internal/email"
-	"github.com/cloustone/pandas/mainflux/users"
-	"github.com/cloustone/pandas/mainflux/users/emailer"
-	"github.com/cloustone/pandas/mainflux/users/tracing"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-
 	"github.com/cloustone/pandas/mainflux"
 	authapi "github.com/cloustone/pandas/mainflux/authn/api/grpc"
+	"github.com/cloustone/pandas/mainflux/internal/email"
 	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/mainflux/users"
 	"github.com/cloustone/pandas/mainflux/users/api"
 	"github.com/cloustone/pandas/mainflux/users/bcrypt"
+	"github.com/cloustone/pandas/mainflux/users/emailer"
 	"github.com/cloustone/pandas/mainflux/users/postgres"
+	"github.com/cloustone/pandas/mainflux/users/tracing"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/jmoiron/sqlx"
 	opentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	jconfig "github.com/uber/jaeger-client-go/config"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 const (

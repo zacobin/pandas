@@ -9,12 +9,12 @@ import (
 	"strconv"
 	"time"
 
-	opcuaGopcua "github.com/gopcua/opcua"
-	uaGopcua "github.com/gopcua/opcua/ua"
 	"github.com/cloustone/pandas/mainflux/broker"
 	"github.com/cloustone/pandas/mainflux/errors"
 	"github.com/cloustone/pandas/mainflux/logger"
 	"github.com/cloustone/pandas/mainflux/opcua"
+	opcuaGopcua "github.com/gopcua/opcua"
+	uaGopcua "github.com/gopcua/opcua/ua"
 )
 
 const protocol = "opcua"
@@ -108,7 +108,7 @@ func (c client) Subscribe(cfg opcua.Config) error {
 
 	sub, err := oc.Subscribe(&opcuaGopcua.SubscriptionParameters{
 		Interval: time.Duration(i) * time.Millisecond,
-	})
+	}, nil) // TODO
 	if err != nil {
 		return errors.Wrap(errFailedSub, err)
 	}
