@@ -27,7 +27,7 @@ import (
 	"github.com/cloustone/pandas/apimachinery/restapi/operations/project"
 	"github.com/cloustone/pandas/apimachinery/restapi/operations/rulechain"
 	"github.com/cloustone/pandas/apimachinery/restapi/operations/user"
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 )
 
 // NewSwaggerPandasAPI creates a new SwaggerPandas instance

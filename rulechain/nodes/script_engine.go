@@ -11,7 +11,7 @@
 //  under the License.
 package nodes
 
-import "github.com/cloustone/pandas/models"
+import "github.com/cloustone/pandas/apimachinery/models"
 
 type ScriptEngine interface {
 	ScriptOnMessage(msg models.Message, script string) (models.Message, error)

@@ -12,7 +12,7 @@
 package converter
 
 import (
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/rulechain/grpc_rulechain_v1"
 )
 

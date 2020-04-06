@@ -12,7 +12,7 @@
 package nodes
 
 import (
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/rulechain/runtime"
 
 	"github.com/sirupsen/logrus"

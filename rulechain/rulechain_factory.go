@@ -14,7 +14,7 @@ package rulechain
 import (
 	"time"
 
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/pkg/cache"
 	"github.com/cloustone/pandas/pkg/factory"
 	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"

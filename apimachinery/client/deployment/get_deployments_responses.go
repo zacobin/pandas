@@ -14,7 +14,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 )
 
 // GetDeploymentsReader is a Reader for the GetDeployments structure.

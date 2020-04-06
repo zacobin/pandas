@@ -20,7 +20,7 @@ import (
 	"github.com/cloustone/pandas/apimachinery/restapi/operations/user"
 	"github.com/cloustone/pandas/apimachinery/server"
 
-	models "github.com/cloustone/pandas/models"
+	models "github.com/cloustone/pandas/apimachinery/models"
 )
 
 //go:generate swagger generate server --target .. --name  --spec ../swagger.yaml --principal models.Principal --exclude-main

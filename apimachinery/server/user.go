@@ -13,7 +13,7 @@ package server
 
 import (
 	"github.com/cloustone/pandas/apimachinery/restapi/operations/user"
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/shiro/grpc_shiro_v1"
 	"github.com/go-openapi/runtime/middleware"
 	"google.golang.org/grpc"

@@ -10,7 +10,7 @@ import (
 
 	middleware "github.com/go-openapi/runtime/middleware"
 
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 )
 
 // GetProjectsProjectIDHandlerFunc turns a function with the right signature into a get projects project ID handler

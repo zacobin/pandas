@@ -12,7 +12,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	swag "github.com/go-openapi/swag"
 
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 )
 
 // ChangeUserPasswordHandlerFunc turns a function with the right signature into a change user password handler

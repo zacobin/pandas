@@ -4080,7 +4080,7 @@ func init() {
           "x-go-name": "WorkshopNumber"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "dataModel": {
       "type": "object",
@@ -4106,7 +4106,7 @@ func init() {
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "dataModelField": {
       "type": "object",
@@ -4129,7 +4129,7 @@ func init() {
           "x-go-name": "Value"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "dataSource": {
       "type": "object",
@@ -4175,7 +4175,7 @@ func init() {
           "x-go-name": "ServicePort"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "deployment": {
       "description": "Deployment Deployment",
@@ -4238,7 +4238,7 @@ func init() {
           "x-go-name": "UserID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "deploymentControl": {
       "description": "DeploymentControl DeploymentControl",
@@ -4249,7 +4249,7 @@ func init() {
           "x-go-name": "Action"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "device": {
       "description": "Device Device",
@@ -4321,7 +4321,7 @@ func init() {
           "x-go-name": "UserID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "deviceData": {
       "description": "DeviceData DeviceData",
@@ -4332,7 +4332,7 @@ func init() {
           "x-go-name": "ID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "deviceLog": {
       "description": "DeviceLog DeviceLog",
@@ -4343,7 +4343,7 @@ func init() {
           "x-go-name": "ID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "deviceModel": {
       "description": "DeviceModel DeviceModel",
@@ -4441,7 +4441,7 @@ func init() {
           "x-go-name": "Version"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "endpoint": {
       "description": "Endpoint Endpoint",
@@ -4463,7 +4463,7 @@ func init() {
           "x-go-name": "Path"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "project": {
       "description": "Project Project",
@@ -4520,12 +4520,12 @@ func init() {
           "x-go-name": "UserID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "projectSummary": {
       "description": "ProjectSummary ProjectSummary",
       "type": "object",
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "ruleChain": {
       "description": "RuleChain RuleChain",
@@ -4609,7 +4609,7 @@ func init() {
           "x-go-name": "UserID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     }
   },
   "securityDefinitions": {

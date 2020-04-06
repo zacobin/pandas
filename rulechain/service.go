@@ -13,7 +13,7 @@ package rulechain
 
 import (
 	"github.com/cloustone/pandas/headmast"
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/rulechain/options"
 	"github.com/sirupsen/logrus"
 )

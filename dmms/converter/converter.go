@@ -13,7 +13,7 @@ package converter
 
 import (
 	"github.com/cloustone/pandas/dmms/grpc_dmms_v1"
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/golang/protobuf/ptypes"
 )
 

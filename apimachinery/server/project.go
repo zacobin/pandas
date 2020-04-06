@@ -13,7 +13,7 @@ package server
 
 import (
 	"github.com/cloustone/pandas/apimachinery/restapi/operations/project"
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	serverconverter "github.com/cloustone/pandas/pms/converter"
 	pb "github.com/cloustone/pandas/pms/grpc_pms_v1"
 

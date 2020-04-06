@@ -16,7 +16,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/pkg/factory"
 	"github.com/sirupsen/logrus"
 )

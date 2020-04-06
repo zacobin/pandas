@@ -14,7 +14,7 @@ package cache
 import (
 	"time"
 
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 )
 

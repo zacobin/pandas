@@ -26,7 +26,7 @@ type ServingOptions struct {
 
 func NewServingOptions() *ServingOptions {
 	return &ServingOptions{
-		//DeviceModelPath: "./pandas/models",
+		//DeviceModelPath: "./pandas/apimachinery/models",
 		ServingOptions:  modeloptions.NewServingOptions(),
 		DeviceModelPath: "./models",
 	}

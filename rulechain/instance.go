@@ -15,7 +15,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/rulechain/adaptors"
 	"github.com/cloustone/pandas/rulechain/manifest"
 	"github.com/cloustone/pandas/rulechain/nodes"

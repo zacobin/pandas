@@ -43,7 +43,7 @@
           "x-go-name": "WorkshopNumber"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "DataModel": {
       "type": "object",
@@ -69,7 +69,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "DataModelField": {
       "type": "object",
@@ -92,7 +92,7 @@
           "x-go-name": "Value"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "DataSource": {
       "type": "object",
@@ -138,7 +138,7 @@
           "x-go-name": "ServicePort"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "Deployment": {
       "description": "Deployment Deployment",
@@ -201,7 +201,7 @@
           "x-go-name": "UserID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "DeploymentControl": {
       "description": "DeploymentControl DeploymentControl",
@@ -212,7 +212,7 @@
           "x-go-name": "Action"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "Device": {
       "description": "Device Device",
@@ -284,7 +284,7 @@
           "x-go-name": "UserID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "DeviceData": {
       "description": "DeviceData DeviceData",
@@ -295,7 +295,7 @@
           "x-go-name": "ID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "DeviceLog": {
       "description": "DeviceLog DeviceLog",
@@ -306,7 +306,7 @@
           "x-go-name": "ID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "DeviceModel": {
       "description": "DeviceModel DeviceModel",
@@ -404,7 +404,7 @@
           "x-go-name": "Version"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "Endpoint": {
       "description": "Endpoint Endpoint",
@@ -426,7 +426,7 @@
           "x-go-name": "Path"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "Error": {
       "description": "Error Error",
@@ -442,7 +442,7 @@
           "x-go-name": "Description"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "LogData": {
       "type": "object",
@@ -467,7 +467,7 @@
           "x-go-name": "Result"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "LogMetaInfo": {
       "type": "object",
@@ -508,7 +508,7 @@
           "x-go-name": "Type"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "LoginToken": {
       "description": "LoginToken login token",
@@ -525,7 +525,7 @@
           "x-go-name": "TokenType"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "ModelTypeInfo": {
       "description": "ModelTypeInfo is added to model which should be saved into factory",
@@ -536,7 +536,7 @@
           "x-go-name": "ModelTypeName"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "Principal": {
       "description": "Principal Principal",
@@ -558,7 +558,7 @@
           "x-go-name": "Roles"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "Project": {
       "description": "Project Project",
@@ -615,12 +615,12 @@
           "x-go-name": "UserID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "ProjectSummary": {
       "description": "ProjectSummary ProjectSummary",
       "type": "object",
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "RuleChain": {
       "description": "RuleChain RuleChain",
@@ -704,7 +704,7 @@
           "x-go-name": "UserID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "Search": {
       "type": "object",
@@ -730,12 +730,12 @@
           "$ref": "#/definitions/SearchType"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "SearchType": {
       "type": "integer",
       "format": "int64",
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "Timedef": {
       "description": "Timedef timedef",
@@ -754,7 +754,7 @@
           "readOnly": true
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "User": {
       "description": "User user",
@@ -819,7 +819,7 @@
           "x-go-name": "Username"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "UserLoginRecord": {
       "description": "UserLoginRecord user login record",
@@ -840,7 +840,7 @@
           "x-go-name": "Number"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "UserOverview": {
       "description": "UserOverview user overview",
@@ -877,7 +877,7 @@
           "x-go-name": "TotalNum"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "Variable": {
       "description": "Variable Variable",
@@ -946,7 +946,7 @@
           "x-go-name": "Value"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "View": {
       "description": "View View",
@@ -1018,7 +1018,7 @@
           "x-go-name": "WorkshopID"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "Widget": {
       "description": "Widget Widget",
@@ -1091,7 +1091,7 @@
           "x-go-name": "Version"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     },
     "Workshop": {
       "description": "Workshop Workshop",
@@ -1159,7 +1159,7 @@
           "x-go-name": "ViewIDs"
         }
       },
-      "x-go-package": "github.com/cloustone/pandas/models"
+      "x-go-package": "github.com/cloustone/pandas/apimachinery/models"
     }
   }
 }

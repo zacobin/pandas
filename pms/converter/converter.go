@@ -12,7 +12,7 @@
 package converter
 
 import (
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/pms/grpc_pms_v1"
 	"github.com/golang/protobuf/ptypes"
 )

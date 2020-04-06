@@ -26,7 +26,7 @@ FROM alpine
 LABEL MAINTAINER="kaisawind <wind.kaisa@gmail.com>"
 
 COPY --from=go-builder /go/src/github.com/cloustone/pandas/bin/main /main
-COPY --from=go-builder /go/src/github.com/cloustone/pandas/models /models
+COPY --from=go-builder /go/src/github.com/cloustone/pandas/apimachinery/models /models
 
 USER root
 

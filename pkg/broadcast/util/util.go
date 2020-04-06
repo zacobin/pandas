@@ -12,7 +12,7 @@
 package util
 
 import (
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/pkg/broadcast"
 	"github.com/cloustone/pandas/pkg/broadcast/inproc"
 	"github.com/cloustone/pandas/pkg/broadcast/rabbitmq"

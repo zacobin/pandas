@@ -13,7 +13,7 @@ package server
 
 import (
 	"github.com/cloustone/pandas/apimachinery/restapi/operations/deployment"
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 
 	"github.com/go-openapi/runtime/middleware"
 )

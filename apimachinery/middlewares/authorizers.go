@@ -4,7 +4,7 @@ import (
 	"crypto/rsa"
 	"io/ioutil"
 
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	jwt "github.com/dgrijalva/jwt-go"
 	errors "github.com/go-openapi/errors"
 )

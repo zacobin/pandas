@@ -16,7 +16,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cloustone/pandas/models"
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/sirupsen/logrus"
 )
 
