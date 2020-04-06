@@ -11,3 +11,4 @@ security
 templates
 tools
 vendor
+!dashboard/bindata.go
