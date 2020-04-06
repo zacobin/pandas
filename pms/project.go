@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/models"
-	"github.com/cloustone/pandas/models/cache"
+	"github.com/cloustone/pandas/pkg/cache"
 	"github.com/cloustone/pandas/models/factory"
 	modelsoptions "github.com/cloustone/pandas/models/options"
 	"github.com/jinzhu/gorm"
