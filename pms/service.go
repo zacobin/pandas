@@ -13,80 +13,63 @@ package pms
 
 import (
 	"context"
-	"errors"
-
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"time"
 
 	"github.com/cloustone/pandas/apimachinery/models"
-	"github.com/cloustone/pandas/pkg/factory"
+	"github.com/cloustone/pandas/pkg/cache"
 	modeloptions "github.com/cloustone/pandas/pkg/factory/options"
 	"github.com/cloustone/pandas/pms/converter"
 	pb "github.com/cloustone/pandas/pms/grpc_pms_v1"
+	"github.com/cloustone/pandas/pms/repository"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // ProjectManagementService implement grpc service for pms
-type ProjectManagementService struct{}
+type ProjectManagementService struct {
+	servingOptions *modeloptions.ServingOptions
+	repo           *repository.Repository
+}
 
 // NewProjectManagementService return service instance used in main server
 func NewProjectManagementService(servingOptions *modeloptions.ServingOptions) *ProjectManagementService {
-	factory.Add(newProjectFactory(servingOptions))
-	factory.Add(newWorkshopFactory(servingOptions))
-	factory.Add(newViewFactory(servingOptions))
-	factory.Add(newDeviceInProjectFactory(servingOptions))
-	return &ProjectManagementService{}
-}
-
-// grpcError return grpc error according to models errors
-func grpcError(err error) error {
-	switch {
-	case errors.As(err, factory.ErrObjectNotFound):
-		return status.Errorf(codes.NotFound, "%w", err)
-	case errors.As(err, factory.ErrObjectAlreadyExist):
-		return status.Errorf(codes.AlreadyExists, "%w", err)
-	case errors.As(err, factory.ErrObjectInvalidArg):
-		return status.Errorf(codes.InvalidArgument, "%w", err)
-	default:
-		return status.Errorf(codes.Internal, "%s", err)
+	cache := cache.NewCache(servingOptions)
+	return &ProjectManagementService{
+		repo: repository.New(servingOptions, cache),
 	}
 }
 
 // CreateProject create a new project
 func (s *ProjectManagementService) CreateProject(ctx context.Context, in *pb.CreateProjectRequest) (*pb.CreateProjectResponse, error) {
-	pf := factory.NewFactory(models.Project{})
-	owner := factory.NewOwner(in.UserID)
+	principal := models.NewPrincipal(in.UserID)
 	query := models.NewQuery().WithQuery("projectName", in.Project.Name)
 
-	if _, err := pf.List(owner, query); err == nil {
-		return nil, grpcError(err)
+	if _, err := s.repo.GetProjects(principal, query); err == nil {
+		return nil, status.Errorf(codes.AlreadyExists, "project '%s'", in.Project.Name)
 	}
-	project, err := pf.Save(owner, converter.NewProjectModel(in.Project))
+	project, err := s.repo.AddProject(principal, converter.NewProjectModel(in.Project))
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.CreateProjectResponse{Project: converter.NewProject(project)}, nil
 }
 
 // GetProject return specified project detail
 func (s *ProjectManagementService) GetProject(ctx context.Context, in *pb.GetProjectRequest) (*pb.GetProjectResponse, error) {
-	pf := factory.NewFactory(models.Project{})
-	owner := factory.NewOwner(in.UserID)
-
-	project, err := pf.Get(owner, in.ProjectID)
+	principal := models.NewPrincipal(in.UserID)
+	project, err := s.repo.GetProject(principal, in.ProjectID)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.NotFound, "%w", err)
 	}
 	return &pb.GetProjectResponse{Project: converter.NewProject(project)}, nil
 }
 
 // GetProjects return user's all projects
 func (s *ProjectManagementService) GetProjects(ctx context.Context, in *pb.GetProjectsRequest) (*pb.GetProjectsResponse, error) {
-	pf := factory.NewFactory(models.Project{})
-	owner := factory.NewOwner(in.UserID)
-
-	projects, err := pf.List(owner, models.NewQuery())
+	principal := models.NewPrincipal(in.UserID)
+	projects, err := s.repo.GetProjects(principal, models.NewQuery())
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 
 	return &pb.GetProjectsResponse{Projects: converter.NewProjects(projects)}, nil
@@ -94,69 +77,63 @@ func (s *ProjectManagementService) GetProjects(ctx context.Context, in *pb.GetPr
 
 // DeleteProject delete specified project
 func (s *ProjectManagementService) DeleteProject(ctx context.Context, in *pb.DeleteProjectRequest) (*pb.DeleteProjectResponse, error) {
-	pf := factory.NewFactory(models.Project{})
-	owner := factory.NewOwner(in.UserID)
-
-	if err := pf.Delete(owner, in.ProjectID); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	if err := s.repo.DeleteProject(principal, in.ProjectID); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.DeleteProjectResponse{}, nil
 }
 
 // UpdateProject update specified project
 func (s *ProjectManagementService) UpdateProject(ctx context.Context, in *pb.UpdateProjectRequest) (*pb.UpdateProjectResponse, error) {
-	pf := factory.NewFactory(models.Project{})
-	owner := factory.NewOwner(in.UserID)
-
-	if _, err := pf.Get(owner, in.Project.ID); err != nil {
-		return nil, grpcError(err)
-	}
-	if err := pf.Update(owner, converter.NewProjectModel(in.Project)); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	if err := s.repo.UpdateProject(principal, converter.NewProjectModel(in.Project)); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.UpdateProjectResponse{}, nil
 }
 
 // AddDevice add a device into the project
 func (s *ProjectManagementService) AddDevice(ctx context.Context, in *pb.AddDeviceRequest) (*pb.AddDeviceResponse, error) {
-	pf := factory.NewFactory(models.DeviceInProject{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
-	device := models.DeviceInProject{
-		UserID:    in.UserID,
-		ProjectID: in.ProjectID,
-		DeviceID:  in.DeviceID,
+	principal := models.NewPrincipal(in.UserID)
+	device := &models.Device{
+		UserID:        in.UserID,
+		ProjectID:     in.ProjectID,
+		ID:            in.DeviceID,
+		CreatedAt:     time.Now(),
+		LastUpdatedAt: time.Now(),
 	}
-	if _, err := pf.Save(owner, &device); err != nil {
-		return nil, grpcError(err)
+	if _, err := s.repo.AddDevice(principal, device); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.AddDeviceResponse{}, nil
 }
 
 // AddDevices add a batch of devices into the project
 func (s *ProjectManagementService) AddDevices(ctx context.Context, in *pb.AddDevicesRequest) (*pb.AddDevicesResponse, error) {
-	pf := factory.NewFactory(models.DeviceInProject{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
+	principal := models.NewPrincipal(in.UserID)
 
 	for _, deviceID := range in.DeviceIDs {
-		device := models.DeviceInProject{
-			UserID:    in.UserID,
-			ProjectID: in.ProjectID,
-			DeviceID:  deviceID,
+		device := &models.Device{
+			UserID:        in.UserID,
+			ProjectID:     in.ProjectID,
+			ID:            deviceID,
+			CreatedAt:     time.Now(),
+			LastUpdatedAt: time.Now(),
 		}
-		if _, err := pf.Save(owner, &device); err != nil {
-			return nil, grpcError(err)
+		if _, err := s.repo.AddDevice(principal, device); err != nil {
+			return nil, status.Errorf(codes.Internal, "%w", err)
 		}
 	}
-
 	return &pb.AddDevicesResponse{}, nil
 }
 
 // DeleteDevice remove a device from project
 func (s *ProjectManagementService) DeleteDevice(ctx context.Context, in *pb.DeleteDeviceRequest) (*pb.DeleteDeviceResponse, error) {
-	pf := factory.NewFactory(models.DeviceInProject{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
-	if err := pf.Delete(owner, in.DeviceID); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	query := models.NewQuery().WithQuery("ProjectID", in.ProjectID)
+	if err := s.repo.DeleteDevice(principal, in.DeviceID, query); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 
 	return &pb.DeleteDeviceResponse{}, nil
@@ -164,12 +141,11 @@ func (s *ProjectManagementService) DeleteDevice(ctx context.Context, in *pb.Dele
 
 // DeleteDevices remove a batch of devices from project
 func (s *ProjectManagementService) DeleteDevices(ctx context.Context, in *pb.DeleteDevicesRequest) (*pb.DeleteDevicesResponse, error) {
-	pf := factory.NewFactory(models.DeviceInProject{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
+	principal := models.NewPrincipal(in.UserID)
 
 	for _, deviceID := range in.DeviceIDs {
-		if err := pf.Delete(owner, deviceID); err != nil {
-			return nil, grpcError(err)
+		if err := s.repo.DeleteDevice(principal, deviceID, nil); err != nil {
+			return nil, status.Errorf(codes.Internal, "%w", err)
 		}
 	}
 	return &pb.DeleteDevicesResponse{}, nil
@@ -177,18 +153,16 @@ func (s *ProjectManagementService) DeleteDevices(ctx context.Context, in *pb.Del
 
 // GetDevices return a project's all devices
 func (s *ProjectManagementService) GetDevices(ctx context.Context, in *pb.GetDevicesRequest) (*pb.GetDevicesResponse, error) {
-	pf := factory.NewFactory(models.DeviceInProject{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
-
-	devices, err := pf.List(owner, models.NewQuery())
+	principal := models.NewPrincipal(in.UserID)
+	devices, err := s.repo.GetDevices(principal, models.NewQuery())
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	resp := &pb.GetDevicesResponse{
 		DeviceIDs: []string{},
 	}
 	for _, device := range devices {
-		resp.DeviceIDs = append(resp.DeviceIDs, device.(*models.DeviceInProject).DeviceID)
+		resp.DeviceIDs = append(resp.DeviceIDs, device.ID)
 	}
 	return resp, nil
 }
@@ -196,22 +170,18 @@ func (s *ProjectManagementService) GetDevices(ctx context.Context, in *pb.GetDev
 // Workshop
 // AddWorkshop add a workshop into the project
 func (s *ProjectManagementService) AddWorkshop(ctx context.Context, in *pb.AddWorkshopRequest) (*pb.AddWorkshopResponse, error) {
-	pf := factory.NewFactory(models.Workshop{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
-	if _, err := pf.Save(owner, converter.NewWorkshopModel(in.Workshop)); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	if _, err := s.repo.AddWorkshop(principal, converter.NewWorkshopModel(in.Workshop)); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.AddWorkshopResponse{}, nil
-
 }
 
 // DeleteWorkshop remove a workshop from project
 func (s *ProjectManagementService) DeleteWorkshop(ctx context.Context, in *pb.DeleteWorkshopRequest) (*pb.DeleteWorkshopResponse, error) {
-	pf := factory.NewFactory(models.Workshop{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
-
-	if err := pf.Delete(owner, in.WorkshopID); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	if err := s.repo.DeleteWorkshop(principal, in.WorkshopID); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 
 	return &pb.DeleteWorkshopResponse{}, nil
@@ -219,35 +189,32 @@ func (s *ProjectManagementService) DeleteWorkshop(ctx context.Context, in *pb.De
 
 // GetWorkshops return a project's all workshops
 func (s *ProjectManagementService) GetWorkshops(ctx context.Context, in *pb.GetWorkshopsRequest) (*pb.GetWorkshopsResponse, error) {
-	pf := factory.NewFactory(models.Workshop{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
+	principal := models.NewPrincipal(in.UserID)
 
-	workshopModels, err := pf.List(owner, models.NewQuery())
+	workshopModels, err := s.repo.GetWorkshops(principal, models.NewQuery())
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.GetWorkshopsResponse{Workshops: converter.NewWorkshops(workshopModels)}, nil
 }
 
 // GetWorkshop return specified workshop
 func (s *ProjectManagementService) GetWorkshop(ctx context.Context, in *pb.GetWorkshopRequest) (*pb.GetWorkshopResponse, error) {
-	pf := factory.NewFactory(models.Workshop{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
+	principal := models.NewPrincipal(in.UserID)
 
-	workshopModel, err := pf.Get(owner, in.WorkshopID)
+	workshopModel, err := s.repo.GetWorkshop(principal, in.WorkshopID)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.GetWorkshopResponse{Workshop: converter.NewWorkshop(workshopModel)}, nil
 }
 
 // UpdateWorkshop update specified workshop
 func (s *ProjectManagementService) UpdateWorkshop(ctx context.Context, in *pb.UpdateWorkshopRequest) (*pb.UpdateWorkshopResponse, error) {
-	pf := factory.NewFactory(models.Workshop{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
+	principal := models.NewPrincipal(in.UserID)
 
-	if err := pf.Update(owner, converter.NewWorkshopModel(in.Workshop)); err != nil {
-		return nil, grpcError(err)
+	if _, err := s.repo.UpdateWorkshop(principal, converter.NewWorkshopModel(in.Workshop)); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.UpdateWorkshopResponse{}, nil
 
@@ -255,11 +222,9 @@ func (s *ProjectManagementService) UpdateWorkshop(ctx context.Context, in *pb.Up
 
 // CreateView create a new project's view
 func (s *ProjectManagementService) CreateView(ctx context.Context, in *pb.CreateViewRequest) (*pb.CreateViewResponse, error) {
-	pf := factory.NewFactory(models.Workshop{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
-
-	if _, err := pf.Save(owner, converter.NewViewModel(in.View)); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	if _, err := s.repo.AddView(principal, converter.NewViewModel(in.View)); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.CreateViewResponse{}, nil
 
@@ -267,13 +232,9 @@ func (s *ProjectManagementService) CreateView(ctx context.Context, in *pb.Create
 
 // DeleteView delete a project's view
 func (s *ProjectManagementService) DeleteView(ctx context.Context, in *pb.DeleteViewRequest) (*pb.DeleteViewResponse, error) {
-	pf := factory.NewFactory(models.Workshop{})
-	owner := factory.NewOwner(in.UserID).
-		WithProject(in.ProjectID).
-		WithWorkshop(in.WorkshopID)
-
-	if err := pf.Delete(owner, in.ViewID); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	if err := s.repo.DeleteView(principal, in.ViewID); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 
 	return &pb.DeleteViewResponse{}, nil
@@ -281,39 +242,30 @@ func (s *ProjectManagementService) DeleteView(ctx context.Context, in *pb.Delete
 
 // GetViews return a project's all views
 func (s *ProjectManagementService) GetViews(ctx context.Context, in *pb.GetViewsRequest) (*pb.GetViewsResponse, error) {
-	pf := factory.NewFactory(models.Workshop{})
-	owner := factory.NewOwner(in.UserID).
-		WithProject(in.ProjectID).
-		WithWorkshop(in.WorkshopID)
-
-	viewModels, err := pf.List(owner, models.NewQuery())
+	principal := models.NewPrincipal(in.UserID)
+	query := models.NewQuery().WithQuery("projectID", in.ProjectID).WithQuery("workshopID", in.WorkshopID)
+	viewModels, err := s.repo.GetViews(principal, query)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.GetViewsResponse{Views: converter.NewViews(viewModels)}, nil
 }
 
 // GetView return a view's detail informaiton
 func (s *ProjectManagementService) GetView(ctx context.Context, in *pb.GetViewRequest) (*pb.GetViewResponse, error) {
-	pf := factory.NewFactory(models.Workshop{})
-	owner := factory.NewOwner(in.UserID).
-		WithProject(in.ProjectID).
-		WithWorkshop(in.WorkshopID)
-
-	viewModel, err := pf.Get(owner, in.ViewID)
+	principal := models.NewPrincipal(in.UserID)
+	viewModel, err := s.repo.GetView(principal, in.ViewID)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.GetViewResponse{View: converter.NewView(viewModel)}, nil
 }
 
 // UpdateView update a specified view
 func (s *ProjectManagementService) UpdateView(ctx context.Context, in *pb.UpdateViewRequest) (*pb.UpdateViewResponse, error) {
-	pf := factory.NewFactory(models.Workshop{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
-
-	if err := pf.Update(owner, converter.NewViewModel(in.View)); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	if _, err := s.repo.UpdateView(principal, converter.NewViewModel(in.View)); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.UpdateViewResponse{}, nil
 }
@@ -321,68 +273,50 @@ func (s *ProjectManagementService) UpdateView(ctx context.Context, in *pb.Update
 // Variables
 // CreateVariable create a new variable in view or project
 func (s *ProjectManagementService) CreateVariable(ctx context.Context, in *pb.CreateVariableRequest) (*pb.CreateVariableResponse, error) {
-	pf := factory.NewFactory(models.Variable{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
-
-	if _, err := pf.Save(owner, converter.NewVariableModel(in.Variable)); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	if _, err := s.repo.AddVariable(principal, converter.NewVariableModel(in.Variable)); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.CreateVariableResponse{}, nil
 }
 
 // GetVariable return a variable's detail information
 func (s *ProjectManagementService) GetVariable(ctx context.Context, in *pb.GetVariableRequest) (*pb.GetVariableResponse, error) {
-	pf := factory.NewFactory(models.Variable{})
-	owner := factory.NewOwner(in.UserID).
-		WithProject(in.ProjectID).
-		WithWorkshop(in.WorkshopID)
-
-	variableModel, err := pf.Get(owner, in.VariableID)
+	principal := models.NewPrincipal(in.UserID)
+	//query := models.NewQuery().WithQuery("projectID", in.ProjectID).WithQuery("workshopID", in.WorkshopID)
+	variable, err := s.repo.GetVariable(principal, in.VariableID)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
-	return &pb.GetVariableResponse{Variable: converter.NewVariable(variableModel)}, nil
+	return &pb.GetVariableResponse{Variable: converter.NewVariable(variable)}, nil
 }
 
 // GetVariables return all variables in a view or project
 func (s *ProjectManagementService) GetVariables(ctx context.Context, in *pb.GetVariablesRequest) (*pb.GetVariablesResponse, error) {
-	pf := factory.NewFactory(models.Variable{})
-	owner := factory.NewOwner(in.UserID).
-		WithProject(in.ProjectID).
-		WithWorkshop(in.WorkshopID)
-	query := models.NewQuery()
-
-	variableModels, err := pf.List(owner, query)
+	principal := models.NewPrincipal(in.UserID)
+	query := models.NewQuery().WithQuery("projectID", in.ProjectID).WithQuery("workshopID", in.WorkshopID)
+	variables, err := s.repo.GetVariables(principal, query)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.NotFound, "%w", err)
 	}
-	return &pb.GetVariablesResponse{Variables: converter.NewVariables(variableModels)}, nil
+	return &pb.GetVariablesResponse{Variables: converter.NewVariables(variables)}, nil
 }
 
 // DeleteVariable delete a variable in view or project
 func (s *ProjectManagementService) DeleteVariable(ctx context.Context, in *pb.DeleteVariableRequest) (*pb.DeleteVariableResponse, error) {
-	pf := factory.NewFactory(models.View{})
-	owner := factory.NewOwner(in.UserID).
-		WithProject(in.ProjectID).
-		WithWorkshop(in.WorkshopID)
-
-	if err := pf.Delete(owner, in.VariableID); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	if err := s.repo.DeleteVariable(principal, in.VariableID); err != nil {
+		return nil, status.Errorf(codes.NotFound, "%w", err)
 	}
-
 	return &pb.DeleteVariableResponse{}, nil
 }
 
 // DeleteVariables delete a batch of variables
 func (s *ProjectManagementService) DeleteVariables(ctx context.Context, in *pb.DeleteVariablesRequest) (*pb.DeleteVariablesResponse, error) {
-	pf := factory.NewFactory(models.View{})
-	owner := factory.NewOwner(in.UserID).
-		WithProject(in.ProjectID).
-		WithWorkshop(in.WorkshopID)
-
+	principal := models.NewPrincipal(in.UserID)
 	for _, variableID := range in.VariableIDs {
-		if err := pf.Delete(owner, variableID); err != nil {
-			return nil, grpcError(err)
+		if err := s.repo.DeleteVariable(principal, variableID); err != nil {
+			return nil, status.Errorf(codes.NotFound, "%w", err)
 		}
 	}
 	return &pb.DeleteVariablesResponse{}, nil
@@ -390,11 +324,9 @@ func (s *ProjectManagementService) DeleteVariables(ctx context.Context, in *pb.D
 
 // UpdateVariable update a specified variable in view or project
 func (s *ProjectManagementService) UpdateVariable(ctx context.Context, in *pb.UpdateVariableRequest) (*pb.UpdateVariableResponse, error) {
-	pf := factory.NewFactory(models.View{})
-	owner := factory.NewOwner(in.UserID).WithProject(in.ProjectID)
-
-	if err := pf.Update(owner, converter.NewVariableModel(in.Variable)); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	if _, err := s.repo.UpdateVariable(principal, converter.NewVariableModel(in.Variable)); err != nil {
+		return nil, status.Errorf(codes.NotFound, "%w", err)
 	}
 	return &pb.UpdateVariableResponse{}, nil
 }

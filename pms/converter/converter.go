@@ -37,7 +37,7 @@ func NewProject(m interface{}) *grpc_pms_v1.Project {
 }
 
 // NewProjects return pms grpc objects that converted from project object models
-func NewProjects(objectModels []models.Model) []*grpc_pms_v1.Project {
+func NewProjects(objectModels []*models.Project) []*grpc_pms_v1.Project {
 	projects := []*grpc_pms_v1.Project{}
 	for _, objectModel := range objectModels {
 		projects = append(projects, NewProject(objectModel))
@@ -90,7 +90,7 @@ func NewWorkshop(m models.Model) *grpc_pms_v1.Workshop {
 }
 
 // NewWorkshops return grpc workshop objects
-func NewWorkshops(workshopModels []models.Model) []*grpc_pms_v1.Workshop {
+func NewWorkshops(workshopModels []*models.Workshop) []*grpc_pms_v1.Workshop {
 	workshops := []*grpc_pms_v1.Workshop{}
 	for _, ws := range workshopModels {
 		workshops = append(workshops, NewWorkshop(ws))
@@ -144,7 +144,7 @@ func NewView(m models.Model) *grpc_pms_v1.View {
 }
 
 // NewView return grpc view objects
-func NewViews(viewModels []models.Model) []*grpc_pms_v1.View {
+func NewViews(viewModels []*models.View) []*grpc_pms_v1.View {
 	views := []*grpc_pms_v1.View{}
 
 	for _, viewModel := range viewModels {
@@ -199,7 +199,7 @@ func NewVariable(m interface{}) *grpc_pms_v1.Variable {
 }
 
 // NewVariables return grpc view objects
-func NewVariables(variableModels []models.Model) []*grpc_pms_v1.Variable {
+func NewVariables(variableModels []*models.Variable) []*grpc_pms_v1.Variable {
 	variables := []*grpc_pms_v1.Variable{}
 	for _, variableModel := range variableModels {
 		variables = append(variables, NewVariable(variableModel))
