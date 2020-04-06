@@ -19,13 +19,16 @@ import (
 	"path/filepath"
 	"reflect"
 
+	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/dmms/converter"
 	pb "github.com/cloustone/pandas/dmms/grpc_dmms_v1"
-	"github.com/cloustone/pandas/apimachinery/models"
-	"github.com/cloustone/pandas/pkg/factory"
+	"github.com/cloustone/pandas/dmms/repository"
 	"github.com/cloustone/pandas/pkg/broadcast"
 	broadcast_util "github.com/cloustone/pandas/pkg/broadcast/util"
+	"github.com/cloustone/pandas/pkg/cache"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var (
@@ -39,6 +42,7 @@ var (
 // store into backend storage.
 type DeviceManagementService struct {
 	servingOptions *ServingOptions
+	repo           *repository.Repository
 }
 
 func NewDeviceManagementService() *DeviceManagementService {
@@ -47,7 +51,8 @@ func NewDeviceManagementService() *DeviceManagementService {
 
 // Prerun initialize and load builtin devices models
 func (s *DeviceManagementService) Initialize(servingOptions *ServingOptions) {
-	factory.Add(newDeviceModelFactory(servingOptions.ServingOptions))
+	cache := cache.NewCache(servingOptions.ServingOptions)
+	s.repo = repository.New(servingOptions.ServingOptions, cache)
 	s.servingOptions = servingOptions
 	s.loadPresetDeviceModels(s.servingOptions.DeviceModelPath)
 	b := broadcast_util.NewBroadcast(broadcast.NewServingOptions())
@@ -112,10 +117,8 @@ func (s *DeviceManagementService) loadPresetDeviceModels(path string) error {
 		return err
 	}
 	// These models should be upload to backend database after getting models
-	pf := factory.NewFactory(reflect.TypeOf(models.DeviceModel{}).Name())
-	owner := factory.NewOwner("-") // builtin owner
 	for _, deviceModel := range deviceModels {
-		pf.Save(owner, deviceModel)
+		s.repo.LoadDeviceModel(nil, deviceModel)
 	}
 	return nil
 }
@@ -127,28 +130,25 @@ func (s *DeviceManagementService) loadPresetDeviceModels(path string) error {
 // User can also using the method to create device model with inmemory
 // bundle, for this case, the device should also be save to repo
 func (s *DeviceManagementService) CreateDeviceModel(ctx context.Context, in *pb.CreateDeviceModelRequest) (*pb.CreateDeviceModelResponse, error) {
-	pf := factory.NewFactory(models.DeviceModel{})
-	owner := factory.NewOwner(in.UserID)
 	deviceModel := converter.NewDeviceModel2Model(in.DeviceModel)
-	updatedDeviceModel, err := pf.Save(owner, deviceModel)
+	deviceModel, err := s.repo.LoadDeviceModel(nil, deviceModel)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 
 	return &pb.CreateDeviceModelResponse{
-		DeviceModel: converter.NewDeviceModel2(updatedDeviceModel),
+		DeviceModel: converter.NewDeviceModel2(deviceModel),
 	}, nil
 }
 
 // GetDeviceModel return specifed device model's detail
 func (s *DeviceManagementService) GetDeviceModel(ctx context.Context, in *pb.GetDeviceModelRequest) (*pb.GetDeviceModelResponse, error) {
-	pf := factory.NewFactory(models.DeviceModel{})
-	owner := factory.NewOwner(in.UserID)
-
-	deviceModel, err := pf.Get(owner, in.DeviceModelID)
+	principal := models.NewPrincipal(in.UserID)
+	deviceModel, err := s.repo.GetDeviceModel(principal, in.DeviceModelID)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.NotFound, "%s", err)
 	}
+
 	return &pb.GetDeviceModelResponse{
 		DeviceModel: converter.NewDeviceModel2(deviceModel),
 	}, nil
@@ -157,18 +157,15 @@ func (s *DeviceManagementService) GetDeviceModel(ctx context.Context, in *pb.Get
 
 // GetDeviceModelWithName return device model specified with model name
 func (s *DeviceManagementService) GetDeviceModelWithName(ctx context.Context, in *pb.GetDeviceModelWithNameRequest) (*pb.GetDeviceModelWithNameResponse, error) {
-	pf := factory.NewFactory(models.DeviceModel{})
-	owner := factory.NewOwner(in.UserID)
-	query := models.NewQuery().
-		WithQuery("name", in.DeviceModelName).
-		WithQuery("userID", in.UserID)
+	principal := models.NewPrincipal(in.UserID)
+	query := models.NewQuery().WithQuery("name", in.DeviceModelName).WithQuery("userID", in.UserID)
 
-	deviceModels, err := pf.List(owner, query)
+	deviceModels, err := s.repo.GetDeviceModels(principal, query)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	if len(deviceModels) == 0 {
-		return nil, grpcError(factory.ErrObjectNotFound)
+		return nil, status.Errorf(codes.NotFound, "%w", err)
 	}
 
 	return &pb.GetDeviceModelWithNameResponse{
@@ -178,36 +175,36 @@ func (s *DeviceManagementService) GetDeviceModelWithName(ctx context.Context, in
 
 // DeleteDeviceModel delete specified device model
 func (s *DeviceManagementService) DeleteDeviceModel(ctx context.Context, in *pb.DeleteDeviceModelRequest) (*pb.DeleteDeviceModelResponse, error) {
-	pf := factory.NewFactory(models.DeviceModel{})
-	owner := factory.NewOwner(in.UserID)
-
-	err := pf.Delete(owner, in.DeviceModelID)
-	return &pb.DeleteDeviceModelResponse{}, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	err := s.repo.DeleteDeviceModel(principal, in.DeviceModelID)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "%w", err)
+	}
+	return &pb.DeleteDeviceModelResponse{}, nil
 }
 
 // UpdateDeviceModel is called when model presentation is changed using web
 // console, the model definition can not be changed without using
 // presentation in web console
 func (s *DeviceManagementService) UpdateDeviceModel(ctx context.Context, in *pb.UpdateDeviceModelRequest) (*pb.UpdateDeviceModelResponse, error) {
-	pf := factory.NewFactory(models.DeviceModel{})
-	owner := factory.NewOwner(in.UserID)
+	principal := models.NewPrincipal(in.UserID)
 
-	if _, err := pf.Get(owner, in.DeviceModelID); err != nil {
-		return nil, grpcError(err)
-	}
 	deviceModel := converter.NewDeviceModel2Model(in.DeviceModel)
-	err := pf.Update(owner, deviceModel)
-	return &pb.UpdateDeviceModelResponse{}, grpcError(err)
+	err := s.repo.UpdateDeviceModel(principal, deviceModel)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
+	}
+	return &pb.UpdateDeviceModelResponse{}, nil
 }
 
 // GetDeviceModels return user's all device models
 func (s *DeviceManagementService) GetDeviceModels(ctx context.Context, in *pb.GetDeviceModelsRequest) (*pb.GetDeviceModelsResponse, error) {
-	pf := factory.NewFactory(models.DeviceModel{})
-	owner := factory.NewOwner(in.UserID)
+	principal := models.NewPrincipal(in.UserID)
+	query := models.NewQuery()
 
-	deviceModels, err := pf.List(owner, models.NewQuery())
+	deviceModels, err := s.repo.GetDeviceModels(principal, query)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.GetDeviceModelsResponse{
 		DeviceModels: converter.NewDeviceModels2(deviceModels),
@@ -218,57 +215,51 @@ func (s *DeviceManagementService) GetDeviceModels(ctx context.Context, in *pb.Ge
 
 // AddDevice add new device into dmms and broadcast the action
 func (s *DeviceManagementService) AddDevice(ctx context.Context, in *pb.AddDeviceRequest) (*pb.AddDeviceResponse, error) {
-	pf := factory.NewFactory(models.Device{})
-	owner := factory.NewOwner(in.UserID)
-
-	device, err := pf.Save(owner, converter.NewDeviceModel(in.Device))
+	principal := models.NewPrincipal(in.UserID)
+	device, err := s.repo.LoadDevice(principal, converter.NewDeviceModel(in.Device))
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.AddDeviceResponse{Device: converter.NewDevice(device)}, nil
 }
 
 // GetDevice return specified device
 func (s *DeviceManagementService) GetDevice(ctx context.Context, in *pb.GetDeviceRequest) (*pb.GetDeviceResponse, error) {
-	pf := factory.NewFactory(models.Device{})
-	owner := factory.NewOwner(in.UserID)
-
-	deviceModel, err := pf.Get(owner, in.DeviceID)
+	principal := models.NewPrincipal(in.UserID)
+	device, err := s.repo.GetDevice(principal, in.DeviceID)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.NotFound, "%w", err)
 	}
-	return &pb.GetDeviceResponse{Device: converter.NewDevice(deviceModel)}, nil
+	return &pb.GetDeviceResponse{Device: converter.NewDevice(device)}, nil
 }
 
 // UpdateDevice update specified device
 func (s *DeviceManagementService) UpdateDevice(ctx context.Context, in *pb.UpdateDeviceRequest) (*pb.UpdateDeviceResponse, error) {
-	pf := factory.NewFactory(models.Device{})
-	owner := factory.NewOwner(in.UserID)
-
-	if err := pf.Update(owner, converter.NewDeviceModel(in.Device)); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	_, err := s.repo.UpdateDevice(principal, converter.NewDeviceModel(in.Device))
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "%w", err)
 	}
+
 	return &pb.UpdateDeviceResponse{}, nil
 }
 
 // GetDevices return user's all devices
 func (s *DeviceManagementService) GetDevices(ctx context.Context, in *pb.GetDevicesRequest) (*pb.GetDevicesResponse, error) {
-	pf := factory.NewFactory(models.Device{})
-	owner := factory.NewOwner(in.UserID)
-
-	deviceModels, err := pf.List(owner, models.NewQuery())
+	principal := models.NewPrincipal(in.UserID)
+	devices, err := s.repo.GetDevices(principal, nil)
 	if err != nil {
-		return nil, grpcError(err)
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
-	return &pb.GetDevicesResponse{Devices: converter.NewDevices(deviceModels)}, nil
+	return &pb.GetDevicesResponse{Devices: converter.NewDevices(devices)}, nil
 }
 
 // DeleteDevice will remove specified device from dmms
 func (s *DeviceManagementService) DeleteDevice(ctx context.Context, in *pb.DeleteDeviceRequest) (*pb.DeleteDeviceResponse, error) {
-	pf := factory.NewFactory(models.Device{})
-	owner := factory.NewOwner(in.UserID)
-	if err := pf.Delete(owner, in.DeviceID); err != nil {
-		return nil, grpcError(err)
+	principal := models.NewPrincipal(in.UserID)
+	err := s.repo.DeleteDevice(principal, in.DeviceID)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "%w", err)
 	}
 
 	return &pb.DeleteDeviceResponse{}, nil
