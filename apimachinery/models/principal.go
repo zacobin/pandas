@@ -25,6 +25,10 @@ type Principal struct {
 	Roles []string `json:"roles"`
 }
 
+func NewPrincipal(id string) *Principal {
+	return &Principal{ID: id}
+}
+
 // Validate validates this deployment
 func (m *Principal) Validate(formats strfmt.Registry) error {
 	return nil

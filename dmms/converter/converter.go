@@ -12,8 +12,8 @@
 package converter
 
 import (
-	"github.com/cloustone/pandas/dmms/grpc_dmms_v1"
 	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/dmms/grpc_dmms_v1"
 	"github.com/golang/protobuf/ptypes"
 )
 
@@ -56,7 +56,7 @@ func NewDevice(obj models.Model) *grpc_dmms_v1.Device {
 	}
 }
 
-func NewDevices(deviceModels []models.Model) []*grpc_dmms_v1.Device {
+func NewDevices(deviceModels []*models.Device) []*grpc_dmms_v1.Device {
 	devices := []*grpc_dmms_v1.Device{}
 	for _, deviceModel := range deviceModels {
 		devices = append(devices, NewDevice(deviceModel))
@@ -156,7 +156,7 @@ func NewDeviceModel2(obj models.Model) *grpc_dmms_v1.DeviceModel {
 	}
 }
 
-func NewDeviceModels2(model2s []models.Model) []*grpc_dmms_v1.DeviceModel {
+func NewDeviceModels2(model2s []*models.DeviceModel) []*grpc_dmms_v1.DeviceModel {
 	model2models := []*grpc_dmms_v1.DeviceModel{}
 	for _, model := range model2s {
 		model2models = append(model2models, NewDeviceModel2(model))
