@@ -17,7 +17,7 @@ import (
 	"reflect"
 
 	"github.com/cloustone/pandas/models"
-	"github.com/cloustone/pandas/models/factory"
+	"github.com/cloustone/pandas/pkg/factory"
 	"github.com/cloustone/pandas/rulechain/converter"
 	pb "github.com/cloustone/pandas/rulechain/grpc_rulechain_v1"
 	"github.com/cloustone/pandas/rulechain/nodes"

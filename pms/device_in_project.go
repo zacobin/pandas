@@ -16,8 +16,8 @@ import (
 
 	"github.com/cloustone/pandas/models"
 	"github.com/cloustone/pandas/pkg/cache"
-	"github.com/cloustone/pandas/models/factory"
-	modelsoptions "github.com/cloustone/pandas/models/options"
+	"github.com/cloustone/pandas/pkg/factory"
+	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 )

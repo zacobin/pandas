@@ -22,7 +22,7 @@ import (
 	"github.com/cloustone/pandas/dmms/converter"
 	pb "github.com/cloustone/pandas/dmms/grpc_dmms_v1"
 	"github.com/cloustone/pandas/models"
-	"github.com/cloustone/pandas/models/factory"
+	"github.com/cloustone/pandas/pkg/factory"
 	"github.com/cloustone/pandas/pkg/broadcast"
 	broadcast_util "github.com/cloustone/pandas/pkg/broadcast/util"
 	"github.com/sirupsen/logrus"

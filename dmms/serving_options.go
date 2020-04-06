@@ -14,7 +14,7 @@ package dmms
 import (
 	"fmt"
 
-	modeloptions "github.com/cloustone/pandas/models/options"
+	modeloptions "github.com/cloustone/pandas/pkg/factory/options"
 	"github.com/spf13/pflag"
 )
 

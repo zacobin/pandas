@@ -15,7 +15,7 @@ import (
 	"github.com/cloustone/pandas/cmd/dmms/app/options"
 	"github.com/cloustone/pandas/dmms"
 	"github.com/cloustone/pandas/dmms/grpc_dmms_v1"
-	"github.com/cloustone/pandas/models/factory"
+	"github.com/cloustone/pandas/pkg/factory"
 	"github.com/cloustone/pandas/pkg/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"

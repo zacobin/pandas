@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/models"
-	modelsoptions "github.com/cloustone/pandas/models/options"
+	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 )
 
 // Cache is simple wrapper of redis or memcahed client

@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/models"
-	"github.com/cloustone/pandas/models/factory"
+	"github.com/cloustone/pandas/pkg/factory"
 	"github.com/sirupsen/logrus"
 )
 

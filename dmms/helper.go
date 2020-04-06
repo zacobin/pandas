@@ -14,7 +14,7 @@ package dmms
 import (
 	"errors"
 
-	"github.com/cloustone/pandas/models/factory"
+	"github.com/cloustone/pandas/pkg/factory"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

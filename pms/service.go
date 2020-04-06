@@ -19,8 +19,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/cloustone/pandas/models"
-	"github.com/cloustone/pandas/models/factory"
-	modeloptions "github.com/cloustone/pandas/models/options"
+	"github.com/cloustone/pandas/pkg/factory"
+	modeloptions "github.com/cloustone/pandas/pkg/factory/options"
 	"github.com/cloustone/pandas/pms/converter"
 	pb "github.com/cloustone/pandas/pms/grpc_pms_v1"
 )

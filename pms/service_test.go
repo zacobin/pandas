@@ -15,7 +15,7 @@ import (
 	"context"
 	"testing"
 
-	modelsoptions "github.com/cloustone/pandas/models/options"
+	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 	pb "github.com/cloustone/pandas/pms/grpc_pms_v1"
 	. "github.com/smartystreets/goconvey/convey"
 )

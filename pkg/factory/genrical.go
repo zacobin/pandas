@@ -13,7 +13,7 @@ package factory
 
 import (
 	"github.com/cloustone/pandas/models"
-	modeloptions "github.com/cloustone/pandas/models/options"
+	modeloptions "github.com/cloustone/pandas/pkg/factory/options"
 	"github.com/jinzhu/gorm"
 )
 

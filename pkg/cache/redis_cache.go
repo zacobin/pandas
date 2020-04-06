@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/models"
-	modelsoptions "github.com/cloustone/pandas/models/options"
+	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 	"github.com/garyburd/redigo/redis"
 	"github.com/sirupsen/logrus"
 )

@@ -12,7 +12,7 @@
 package options
 
 import (
-	modeloptions "github.com/cloustone/pandas/models/options"
+	modeloptions "github.com/cloustone/pandas/pkg/factory/options"
 	genericoptions "github.com/cloustone/pandas/pkg/server/options"
 	"github.com/spf13/pflag"
 )

@@ -17,7 +17,7 @@ import (
 	"reflect"
 
 	"github.com/cloustone/pandas/models"
-	modeloptions "github.com/cloustone/pandas/models/options"
+	modeloptions "github.com/cloustone/pandas/pkg/factory/options"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/sirupsen/logrus"

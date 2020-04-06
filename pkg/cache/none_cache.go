@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/models"
-	modelsoptions "github.com/cloustone/pandas/models/options"
+	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 )
 
 // noneCache is just a simple helper to making source code unified when no
