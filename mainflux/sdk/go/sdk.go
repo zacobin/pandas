@@ -8,8 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-
-	"github.com/cloustone/pandas/mainflux/users"
 )
 
 const (
@@ -74,7 +72,13 @@ type ContentType string
 var _ SDK = (*mfSDK)(nil)
 
 // User represents mainflux user its credentials.
-type User users.User
+// User represents a Mainflux user account. Each user is identified given its
+// email and password.
+type User struct {
+	Email    string
+	Password string
+	Metadata map[string]interface{}
+}
 
 // Validate returns an error if user representation is invalid.
 func (u User) validate() error {
@@ -98,7 +102,7 @@ type Thing struct {
 	Owner    string
 	Name     string
 	Key      string
-	Metadata Metadata
+	Metadata map[string]interface{}
 }
 
 // Channel represents mainflux channel.
