@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cloustone/pandas/mainflux/things"
 	"github.com/cloustone/pandas/mainflux/users"
 )
 
@@ -92,10 +91,25 @@ func (u User) validate() error {
 }
 
 // Thing represents mainflux thing.
-type Thing things.Thing
+// Thing represents a Mainflux thing. Each thing is owned by one user, and
+// it is assigned with the unique identifier and (temporary) access key.
+type Thing struct {
+	ID       string
+	Owner    string
+	Name     string
+	Key      string
+	Metadata Metadata
+}
 
 // Channel represents mainflux channel.
-type Channel things.Channel
+// Channel represents a Mainflux "communication group". This group contains the
+// things that can exchange messages between eachother.
+type Channel struct {
+	ID       string
+	Owner    string
+	Name     string
+	Metadata map[string]interface{}
+}
 
 // SDK contains Mainflux API.
 type SDK interface {

@@ -13,14 +13,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-zoo/bone"
-	"github.com/gorilla/websocket"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
 	log "github.com/cloustone/pandas/mainflux/logger"
-	"github.com/cloustone/pandas/mainflux/things"
 	"github.com/cloustone/pandas/mainflux/transformers/senml"
 	"github.com/cloustone/pandas/mainflux/ws"
+	"github.com/go-zoo/bone"
+	"github.com/gorilla/websocket"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -72,7 +71,7 @@ func handshake(svc ws.Service) http.HandlerFunc {
 		sub, err := authorize(r)
 		if err != nil {
 			switch err {
-			case things.ErrUnauthorizedAccess:
+			case mainflux.ErrUnauthorizedAccess:
 				w.WriteHeader(http.StatusForbidden)
 				return
 			default:
@@ -161,7 +160,7 @@ func authorize(r *http.Request) (subscription, error) {
 		authKeys := bone.GetQuery(r, "authorization")
 		if len(authKeys) == 0 {
 			logger.Debug("Missing authorization key.")
-			return subscription{}, things.ErrUnauthorizedAccess
+			return subscription{}, mainflux.ErrUnauthorizedAccess
 		}
 		authKey = authKeys[0]
 	}
@@ -175,7 +174,7 @@ func authorize(r *http.Request) (subscription, error) {
 	if err != nil {
 		e, ok := status.FromError(err)
 		if ok && e.Code() == codes.PermissionDenied {
-			return subscription{}, things.ErrUnauthorizedAccess
+			return subscription{}, mainflux.ErrUnauthorizedAccess
 		}
 		return subscription{}, err
 	}

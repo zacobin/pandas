@@ -15,14 +15,13 @@ import (
 	"syscall"
 	"time"
 
-	gocoap "github.com/dustin/go-coap"
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
 	"github.com/cloustone/pandas/mainflux/coap"
 	"github.com/cloustone/pandas/mainflux/coap/api"
 	logger "github.com/cloustone/pandas/mainflux/logger"
-	thingsapi "github.com/cloustone/pandas/mainflux/things/api/auth/grpc"
+	gocoap "github.com/dustin/go-coap"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	opentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	jconfig "github.com/uber/jaeger-client-go/config"
@@ -75,10 +74,11 @@ func main() {
 	conn := connectToThings(cfg, logger)
 	defer conn.Close()
 
-	thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
-	defer thingsCloser.Close()
+	//thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
+	//defer thingsCloser.Close()
 
-	cc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
+	//cc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
+	cc := mainflux.NewThingsServiceClient(conn)
 	respChan := make(chan string, 10000)
 
 	b, err := broker.New(cfg.natsURL)

@@ -13,13 +13,12 @@ import (
 	"regexp"
 	"strings"
 
-	kitot "github.com/go-kit/kit/tracing/opentracing"
-	kithttp "github.com/go-kit/kit/transport/http"
-	"github.com/go-zoo/bone"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
 	adapter "github.com/cloustone/pandas/mainflux/http"
-	"github.com/cloustone/pandas/mainflux/things"
+	kitot "github.com/go-kit/kit/tracing/opentracing"
+	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/go-zoo/bone"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc/codes"
@@ -144,7 +143,7 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	switch err {
 	case errMalformedData, errMalformedSubtopic:
 		w.WriteHeader(http.StatusBadRequest)
-	case things.ErrUnauthorizedAccess:
+	case mainflux.ErrUnauthorizedAccess:
 		w.WriteHeader(http.StatusForbidden)
 	default:
 		if e, ok := status.FromError(err); ok {

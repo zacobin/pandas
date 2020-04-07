@@ -6,9 +6,8 @@ package mocks
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/mainflux/things"
+	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -39,7 +38,7 @@ func (tc thingsClient) CanAccessByKey(ctx context.Context, req *mainflux.AccessB
 	}
 
 	if key == "" {
-		return nil, things.ErrUnauthorizedAccess
+		return nil, mainflux.ErrUnauthorizedAccess
 	}
 
 	id, ok := tc.things[key]

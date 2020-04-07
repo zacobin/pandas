@@ -9,7 +9,6 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/mainflux/things"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -40,7 +39,7 @@ func (tc thingsClient) CanAccessByKey(ctx context.Context, req *mainflux.AccessB
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 	if key == "" {
-		return nil, things.ErrUnauthorizedAccess
+		return nil, mainflux.ErrUnauthorizedAccess
 	}
 
 	id, ok := tc.things[key]

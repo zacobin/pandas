@@ -17,13 +17,12 @@ import (
 
 	"google.golang.org/grpc/credentials"
 
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
 	adapter "github.com/cloustone/pandas/mainflux/http"
 	"github.com/cloustone/pandas/mainflux/http/api"
 	"github.com/cloustone/pandas/mainflux/logger"
-	thingsapi "github.com/cloustone/pandas/mainflux/things/api/auth/grpc"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	opentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	jconfig "github.com/uber/jaeger-client-go/config"
@@ -76,8 +75,8 @@ func main() {
 	tracer, closer := initJaeger("http_adapter", cfg.jaegerURL, logger)
 	defer closer.Close()
 
-	thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
-	defer thingsCloser.Close()
+	//thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
+	//defer thingsCloser.Close()
 
 	b, err := broker.New(cfg.natsURL)
 	if err != nil {
@@ -86,7 +85,8 @@ func main() {
 	}
 	defer b.Close()
 
-	cc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
+	//cc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
+	cc := mainflux.NewThingsServiceClient(conn)
 	svc := adapter.New(b, cc)
 
 	svc = api.LoggingMiddleware(svc, logger)
