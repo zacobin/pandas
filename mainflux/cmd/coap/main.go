@@ -19,7 +19,7 @@ import (
 	"github.com/cloustone/pandas/mainflux/broker"
 	"github.com/cloustone/pandas/mainflux/coap"
 	"github.com/cloustone/pandas/mainflux/coap/api"
-	logger "github.com/cloustone/pandas/mainflux/logger"
+	logger "github.com/cloustone/pandas/pkg/logger"
 	gocoap "github.com/dustin/go-coap"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	opentracing "github.com/opentracing/opentracing-go"

@@ -12,7 +12,7 @@ import (
 	"syscall"
 
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/authn"
 	api "github.com/cloustone/pandas/authn/api"
 	grpcapi "github.com/cloustone/pandas/authn/api/grpc"

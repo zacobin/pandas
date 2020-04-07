@@ -15,7 +15,7 @@ import (
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/transformers/senml"
 	"github.com/cloustone/pandas/mainflux/writers"
 	"github.com/cloustone/pandas/mainflux/writers/api"

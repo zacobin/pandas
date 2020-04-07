@@ -16,7 +16,7 @@ import (
 	r "github.com/go-redis/redis"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/lora"
 	"github.com/cloustone/pandas/mainflux/lora/api"
 	"github.com/cloustone/pandas/mainflux/lora/mqtt"

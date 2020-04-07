@@ -11,7 +11,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/cloustone/pandas/mainflux/broker"
 	"github.com/cloustone/pandas/mainflux/errors"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/transformers"
 	"github.com/cloustone/pandas/mainflux/transformers/senml"
 	"github.com/nats-io/nats.go"

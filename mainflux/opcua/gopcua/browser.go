@@ -10,7 +10,7 @@ import (
 	"github.com/gopcua/opcua/id"
 	uaGopcua "github.com/gopcua/opcua/ua"
 	"github.com/cloustone/pandas/mainflux/errors"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/opcua"
 )
 

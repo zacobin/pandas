@@ -18,7 +18,7 @@ import (
 
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	adapter "github.com/cloustone/pandas/mainflux/ws"
 	"github.com/cloustone/pandas/mainflux/ws/api"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"

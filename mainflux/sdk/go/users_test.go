@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/cloustone/pandas/mainflux"
-	log "github.com/cloustone/pandas/mainflux/logger"
+	log "github.com/cloustone/pandas/pkg/logger"
 	sdk "github.com/cloustone/pandas/mainflux/sdk/go"
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"

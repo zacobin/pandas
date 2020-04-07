@@ -16,7 +16,7 @@ import (
 	"github.com/cloustone/pandas/mainflux/transformers/senml"
 	"github.com/cloustone/pandas/mainflux/writers/mongodb"
 
-	log "github.com/cloustone/pandas/mainflux/logger"
+	log "github.com/cloustone/pandas/pkg/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

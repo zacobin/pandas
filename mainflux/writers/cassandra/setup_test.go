@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/gocql/gocql"
-	log "github.com/cloustone/pandas/mainflux/logger"
+	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/writers/cassandra"
 	dockertest "gopkg.in/ory/dockertest.v3"
 )

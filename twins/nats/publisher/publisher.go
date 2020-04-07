@@ -6,7 +6,7 @@ package publisher
 import (
 	"fmt"
 
-	log "github.com/cloustone/pandas/mainflux/logger"
+	log "github.com/cloustone/pandas/pkg/logger"
 
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/gogo/protobuf/proto"

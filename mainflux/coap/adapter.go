@@ -16,7 +16,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/nats-io/nats.go"
 )
 

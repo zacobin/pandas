@@ -9,7 +9,7 @@ import (
 	"io"
 	"testing"
 
-	log "github.com/cloustone/pandas/mainflux/logger"
+	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/stretchr/testify/assert"
 )
 

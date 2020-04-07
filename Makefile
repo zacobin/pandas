@@ -80,7 +80,7 @@ undeploy:
 all: build
 
 .PHONY: build
-build: apimachinery  dmms  pms rulechain lbs headmast  authn 
+build: apimachinery  dmms  pms rulechain lbs headmast  authn  users
 
 .PHONY: apimachinery 
 apimachinery: 
@@ -114,8 +114,15 @@ headmast: cmd/headmast
 
 .PHONY: authn 
 authn: 
-	@echo "building unified user manager center service (authn)..."
+	@echo "building key manager center service (authn)..."
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/authn
+
+.PHONY: users 
+users: 
+	@echo "building user manager center service (users)..."
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/users
+
+
 
 .PHONY: mainflux 
 mainflux: 

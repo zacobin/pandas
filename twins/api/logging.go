@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/mainflux"
-	log "github.com/cloustone/pandas/mainflux/logger"
+	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/twins"
 )
 

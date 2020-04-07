@@ -23,7 +23,7 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc/credentials"
 
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	authapi "github.com/cloustone/pandas/authn/api/grpc"
 	"github.com/cloustone/pandas/things"
 	"github.com/cloustone/pandas/things/api"

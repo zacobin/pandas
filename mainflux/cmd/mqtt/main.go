@@ -14,7 +14,7 @@ import (
 
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	mqtt "github.com/cloustone/pandas/mainflux/mqtt"
 	mr "github.com/cloustone/pandas/mainflux/mqtt/redis"
 	"github.com/go-redis/redis"

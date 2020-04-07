@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/authn"
-	log "github.com/cloustone/pandas/mainflux/logger"
+	log "github.com/cloustone/pandas/pkg/logger"
 )
 
 var _ authn.Service = (*loggingMiddleware)(nil)

@@ -11,7 +11,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/readers/postgres"
 	"github.com/jmoiron/sqlx"
 	dockertest "gopkg.in/ory/dockertest.v3"

@@ -13,7 +13,7 @@ import (
 
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/mqtt/redis"
 	"github.com/mainflux/mproxy/pkg/session"
 	opentracing "github.com/opentracing/opentracing-go"

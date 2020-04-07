@@ -9,7 +9,7 @@ import (
 	"fmt"
 
 	"github.com/go-redis/redis"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/opcua"
 )
 

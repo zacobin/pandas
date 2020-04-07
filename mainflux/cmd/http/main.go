@@ -21,7 +21,7 @@ import (
 	"github.com/cloustone/pandas/mainflux/broker"
 	adapter "github.com/cloustone/pandas/mainflux/http"
 	"github.com/cloustone/pandas/mainflux/http/api"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	opentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"

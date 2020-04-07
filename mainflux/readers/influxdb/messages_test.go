@@ -12,7 +12,7 @@ import (
 	writer "github.com/cloustone/pandas/mainflux/writers/influxdb"
 	influxdata "github.com/influxdata/influxdb/client/v2"
 
-	log "github.com/cloustone/pandas/mainflux/logger"
+	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

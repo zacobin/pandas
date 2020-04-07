@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/readers"
 	"github.com/cloustone/pandas/mainflux/readers/api"
 	"github.com/cloustone/pandas/mainflux/readers/postgres"

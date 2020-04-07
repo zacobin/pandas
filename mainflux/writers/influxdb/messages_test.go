@@ -10,7 +10,7 @@ import (
 	"time"
 
 	influxdata "github.com/influxdata/influxdb/client/v2"
-	log "github.com/cloustone/pandas/mainflux/logger"
+	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/transformers/senml"
 	writer "github.com/cloustone/pandas/mainflux/writers/influxdb"
 	"github.com/stretchr/testify/assert"

@@ -12,7 +12,7 @@ import (
 
 	"github.com/cloustone/pandas/mainflux/broker"
 	"github.com/cloustone/pandas/mainflux/coap"
-	log "github.com/cloustone/pandas/mainflux/logger"
+	log "github.com/cloustone/pandas/pkg/logger"
 )
 
 var _ coap.Service = (*loggingMiddleware)(nil)

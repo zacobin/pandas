@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/cloustone/pandas/mainflux/logger"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/things/postgres"
 	dockertest "gopkg.in/ory/dockertest.v3"
 )

@@ -13,7 +13,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/cloustone/pandas/mainflux"
-	log "github.com/cloustone/pandas/mainflux/logger"
+	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/ws"
 	"github.com/cloustone/pandas/mainflux/ws/api"
 	"github.com/cloustone/pandas/mainflux/ws/mocks"
