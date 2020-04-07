@@ -12,29 +12,28 @@
 package options
 
 import (
+	"github.com/cloustone/pandas/pkg/cache"
 	genericoptions "github.com/cloustone/pandas/pkg/server/options"
 	"github.com/spf13/pflag"
 )
 
 type ServerRunOptions struct {
-	SecureServing *genericoptions.SecureServingOptions
-	SSHKeyfile    string
-	SSHUser       string
+	SecureServing  *genericoptions.SecureServingOptions
+	CacheOptions   *cache.ServingOptions
+	RepositoryPath string
 }
 
 func NewServerRunOptions() *ServerRunOptions {
 	s := ServerRunOptions{
 		SecureServing: genericoptions.NewSecureServingOptions("dmms"),
+		CacheOptions:  cache.NewServingOptions(),
 	}
 	return &s
 }
 
 func (s *ServerRunOptions) AddFlags(fs *pflag.FlagSet) {
 	s.SecureServing.AddFlags(fs)
+	s.CacheOptions.AddFlags(fs)
 
-	fs.StringVar(&s.SSHUser, "ssh-user", s.SSHUser,
-		"If non-empty, use secure SSH proxy to the nodes, using this user name")
-
-	fs.StringVar(&s.SSHKeyfile, "ssh-keyfile", s.SSHKeyfile,
-		"If non-empty, use secure SSH proxy to the nodes, using this user keyfile")
+	fs.StringVar(&s.RepositoryPath, "repository-path", s.RepositoryPath, "backend storage repository path")
 }

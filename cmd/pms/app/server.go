@@ -28,8 +28,10 @@ type ProjectManagementServer struct {
 	server.GenericGrpcServer
 }
 
-func NewProjectManagementServer() *ProjectManagementServer {
-	s := &ProjectManagementServer{}
+func NewProjectManagementServer(runOptions *options.ServerRunOptions) *ProjectManagementServer {
+	s := &ProjectManagementServer{
+		ProjectManagementService: *pms.NewProjectManagementService(runOptions.RepositoryPath, runOptions.CacheOptions),
+	}
 	s.RegisterService = func() {
 		grpc_pms_v1.RegisterProjectManagementServer(s.Server, s)
 		grpc_scada_v1.RegisterScadaServer(s.Server, s)
@@ -52,7 +54,7 @@ func NewAPIServerCommand() *cobra.Command {
 
 // Run runs the specified APIServer.  This should never exit.
 func Run(runOptions *options.ServerRunOptions, stopCh <-chan struct{}) error {
-	NewProjectManagementServer().Run(runOptions.SecureServing)
+	NewProjectManagementServer(runOptions).Run(runOptions.SecureServing)
 	<-stopCh
 	return nil
 }

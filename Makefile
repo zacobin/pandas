@@ -80,7 +80,7 @@ undeploy:
 all: build
 
 .PHONY: build
-build: apimachinery  dmms  pms rulechain lbs headmast  shiro mainflux
+build: apimachinery  dmms  pms rulechain lbs headmast  shiro 
 
 .PHONY: apimachinery 
 apimachinery: 
