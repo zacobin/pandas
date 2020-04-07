@@ -24,7 +24,7 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	"github.com/cloustone/pandas/mainflux/logger"
-	authapi "github.com/cloustone/pandas/shiro/authn/api/grpc"
+	authapi "github.com/cloustone/pandas/authn/api/grpc"
 	"github.com/cloustone/pandas/things"
 	"github.com/cloustone/pandas/things/api"
 	authgrpcapi "github.com/cloustone/pandas/things/api/auth/grpc"

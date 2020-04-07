@@ -23,7 +23,7 @@ else
     push_image cloustone/pandas-pms
     push_image cloustone/pandas-headmast
     push_image cloustone/pandas-rulechain
-    push_image cloustone/pandas-shiro
+    push_image cloustone/pandas-authn
     push_image cloustone/pandas-lbs
 fi
 #push_image redis:alpine

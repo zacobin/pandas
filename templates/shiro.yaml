@@ -1,8 +1,8 @@
-{{ if .Values.shiro.deploy }}
+{{ if .Values.authn.deploy }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{.Values.docker.image_prefix}}shiro
+  name: {{.Values.docker.image_prefix}}authn
   namespace: {{.Values.namespace.name}}
 
 ---
@@ -10,14 +10,14 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
-  name: {{.Values.docker.image_prefix}}shiro
+  name: {{.Values.docker.image_prefix}}authn
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: cluster-admin
 subjects:
   - kind: ServiceAccount
-    name: {{.Values.docker.image_prefix}}shiro
+    name: {{.Values.docker.image_prefix}}authn
     namespace: {{.Values.namespace.name}}
 
 ---
@@ -25,25 +25,25 @@ subjects:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pandas-shiro
+  name: pandas-authn
   namespace: {{.Values.namespace.name}}
   labels:
-    service: pandas-shiro
+    service: pandas-authn
 spec:
   replicas: 1
   selector:
     matchLabels:
-      service: pandas-shiro
+      service: pandas-authn
   template:
     metadata:
       labels:
-        service: pandas-shiro
+        service: pandas-authn
     spec:
-      serviceAccount: {{.Values.docker.image_prefix}}shiro
-      serviceAccountName: {{.Values.docker.image_prefix}}shiro
+      serviceAccount: {{.Values.docker.image_prefix}}authn
+      serviceAccountName: {{.Values.docker.image_prefix}}authn
       containers:
-      - name: pandas-shiro
-        image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}shiro:{{.Values.shiro.version}}
+      - name: pandas-authn
+        image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}authn:{{.Values.authn.version}}
 {{ if .Values.docker.pullPolicy }}
         imagePullPolicy: {{.Values.docker.pullPolicy}}
 {{ end }}
@@ -78,8 +78,8 @@ spec:
           value: {{ .Values.public.rabbitmq.password }}
         resources:
           limits:
-            cpu: {{.Values.shiro.cpus}}
-            memory: {{.Values.shiro.memory}}
+            cpu: {{.Values.authn.cpus}}
+            memory: {{.Values.authn.memory}}
         readinessProbe:
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:4430"]
@@ -94,15 +94,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: pandas-shiro
+  name: pandas-authn
   namespace: {{.Values.namespace.name}}
   labels:
-    service: pandas-shiro
+    service: pandas-authn
 spec:
   ports:
-  - name: pandas-shiro
+  - name: pandas-authn
     port: 80
     targetPort: 8080
   selector:
-    service: pandas-shiro
+    service: pandas-authn
 {{ end }}

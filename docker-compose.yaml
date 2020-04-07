@@ -106,8 +106,8 @@ services:
       PANDAS_PORT: 30015
       PANDAS_DNS_SERVER: "docker-compose"
 
-  shiro:
-    image: cloustone/pandas-shiro
+  authn:
+    image: cloustone/pandas-authn
     ports:
       - "30016:30016"
     restart: always 

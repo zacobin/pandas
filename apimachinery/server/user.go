@@ -14,7 +14,7 @@ package server
 import (
 	"github.com/cloustone/pandas/apimachinery/restapi/operations/user"
 	"github.com/cloustone/pandas/apimachinery/models"
-	"github.com/cloustone/pandas/shiro/grpc_shiro_v1"
+	"github.com/cloustone/pandas/authn/grpc_authn_v1"
 	"github.com/go-openapi/runtime/middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -22,10 +22,10 @@ import (
 
 // LoginUser POST /users/login
 func LoginUser(params user.LoginUserParams) middleware.Responder {
-	client, _ := grpc_shiro_v1.NewClient()
+	client, _ := grpc_authn_v1.NewClient()
 	defer client.Close()
 
-	req := &grpc_shiro_v1.AuthenticateRequest{
+	req := &grpc_authn_v1.AuthenticateRequest{
 		Username: params.Username,
 		Password: params.Password,
 	}
@@ -34,7 +34,7 @@ func LoginUser(params user.LoginUserParams) middleware.Responder {
 		if grpc.Code(err) == codes.InvalidArgument || grpc.Code(err) == codes.NotFound {
 			return user.NewLoginUserBadRequest()
 		}
-		// return error500("shiro  service call failed", err)
+		// return error500("authn  service call failed", err)
 	}
 
 	return user.NewLoginUserOK().WithPayload(

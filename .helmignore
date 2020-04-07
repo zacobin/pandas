@@ -16,7 +16,7 @@ headmast/
 lbs/
 models/
 scada/
-shiro/
+authn/
 scripts/
 tools/
 vendor/

@@ -17,7 +17,7 @@ import (
 
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/cloustone/pandas/mainflux"
-	authapi "github.com/cloustone/pandas/shiro/authn/api/grpc"
+	authapi "github.com/cloustone/pandas/authn/api/grpc"
 	"github.com/cloustone/pandas/mainflux/logger"
 	localusers "github.com/cloustone/pandas/things/users"
 	"github.com/cloustone/pandas/twins"
