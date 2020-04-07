@@ -52,8 +52,7 @@ func NewAPIServerCommand() *cobra.Command {
 
 // Run runs the specified APIServer.  This should never exit.
 func Run(runOptions *options.ServerRunOptions, stopCh <-chan struct{}) error {
-
-	NewManagementServer(runOptions).Run(runOptions.SecureServing)
+	StartAuthnService()
 	<-stopCh
 	return nil
 }
