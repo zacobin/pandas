@@ -9,8 +9,23 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package authn
+package users
 
-type Object struct {
-	object string
+import (
+	"github.com/cloustone/pandas/users/realms"
+)
+
+const (
+	MFADuration = 45
+)
+
+// MFAuthenticator is multiple factor authenticator
+type MFAuthenticator interface {
+	Notify(principal *realms.Principal) error
+	Authenticate(principal *realms.Principal) error
+}
+
+// NewMFAuthenticator returns MFA instance with specified serving options
+func NewMFAuthenticator(r UserRepository, m Emailer) MFAuthenticator {
+	return nil
 }

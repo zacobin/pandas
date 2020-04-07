@@ -11,8 +11,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/authn"
 	api "github.com/cloustone/pandas/authn/api"
 	grpcapi "github.com/cloustone/pandas/authn/api/grpc"
@@ -21,6 +19,8 @@ import (
 	"github.com/cloustone/pandas/authn/postgres"
 	"github.com/cloustone/pandas/authn/tracing"
 	mfidp "github.com/cloustone/pandas/authn/uuid"
+	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas/pkg/logger"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/jmoiron/sqlx"
 	opentracing "github.com/opentracing/opentracing-go"

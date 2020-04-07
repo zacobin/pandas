@@ -9,14 +9,14 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package authn
+package users
 
 import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/cloustone/pandas/authn/realms"
-	"github.com/cloustone/pandas/authn/realms/ldap"
+	"github.com/cloustone/pandas/users/realms"
+	"github.com/cloustone/pandas/users/realms/ldap"
 	"github.com/sirupsen/logrus"
 )
 

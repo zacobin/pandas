@@ -15,7 +15,7 @@ import (
 	"crypto/tls"
 	"fmt"
 
-	"github.com/cloustone/pandas/authn/realms"
+	"github.com/cloustone/pandas/users/realms"
 	"github.com/go-ldap/ldap"
 )
 

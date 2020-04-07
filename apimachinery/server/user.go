@@ -12,36 +12,14 @@
 package server
 
 import (
-	"github.com/cloustone/pandas/apimachinery/restapi/operations/user"
 	"github.com/cloustone/pandas/apimachinery/models"
-	"github.com/cloustone/pandas/authn/grpc_authn_v1"
+	"github.com/cloustone/pandas/apimachinery/restapi/operations/user"
 	"github.com/go-openapi/runtime/middleware"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 )
 
 // LoginUser POST /users/login
 func LoginUser(params user.LoginUserParams) middleware.Responder {
-	client, _ := grpc_authn_v1.NewClient()
-	defer client.Close()
-
-	req := &grpc_authn_v1.AuthenticateRequest{
-		Username: params.Username,
-		Password: params.Password,
-	}
-	resp, err := client.UserManager().Authenticate(params.HTTPRequest.Context(), req)
-	if err != nil {
-		if grpc.Code(err) == codes.InvalidArgument || grpc.Code(err) == codes.NotFound {
-			return user.NewLoginUserBadRequest()
-		}
-		// return error500("authn  service call failed", err)
-	}
-
-	return user.NewLoginUserOK().WithPayload(
-		&models.LoginToken{
-			TokenType:   "bearer",
-			AccessToken: resp.Token,
-		})
+	return user.NewLoginUserOK()
 }
 
 // LogoutUser GET /users/logout

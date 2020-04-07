@@ -13,36 +13,16 @@ package app
 
 import (
 	"github.com/cloustone/pandas/cmd/authn/app/options"
-	"github.com/cloustone/pandas/pkg/server"
-	"github.com/cloustone/pandas/authn"
-	"github.com/cloustone/pandas/authn/grpc_authn_v1"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
-
-type ManagementServer struct {
-	authn.UnifiedUserManagementService
-	server.GenericGrpcServer
-}
-
-func NewManagementServer(runOptions *options.ServerRunOptions) *ManagementServer {
-	s := &ManagementServer{
-		UnifiedUserManagementService: *authn.NewUnifiedUserManagementService(runOptions.ShiroServingOptions),
-	}
-	s.RegisterService = func() {
-		grpc_authn_v1.RegisterUnifiedUserManagementServer(s.Server, s)
-	}
-
-	return s
-
-}
 
 // NewAPIServerCommand creates a *cobra.Command object with default parameters
 func NewAPIServerCommand() *cobra.Command {
 	s := options.NewServerRunOptions()
 	s.AddFlags(pflag.CommandLine)
 	cmd := &cobra.Command{
-		Use:  "mixer",
+		Use:  "authn",
 		Long: ``,
 		Run: func(cmd *cobra.Command, args []string) {
 		},

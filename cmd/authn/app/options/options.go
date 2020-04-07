@@ -12,25 +12,16 @@
 package options
 
 import (
-	genericoptions "github.com/cloustone/pandas/pkg/server/options"
-	authn_options "github.com/cloustone/pandas/authn/options"
 	"github.com/spf13/pflag"
 )
 
 type ServerRunOptions struct {
-	SecureServing       *genericoptions.SecureServingOptions
-	ShiroServingOptions *authn_options.ServingOptions
 }
 
 func NewServerRunOptions() *ServerRunOptions {
-	s := ServerRunOptions{
-		SecureServing:       genericoptions.NewSecureServingOptions("authn"),
-		ShiroServingOptions: authn_options.NewServingOptions(),
-	}
+	s := ServerRunOptions{}
 	return &s
 }
 
 func (s *ServerRunOptions) AddFlags(fs *pflag.FlagSet) {
-	s.SecureServing.AddFlags(fs)
-	s.ShiroServingOptions.AddFlags(fs)
 }

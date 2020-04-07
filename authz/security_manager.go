@@ -9,7 +9,7 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package authn
+package authz
 
 import (
 	"errors"
@@ -18,8 +18,8 @@ import (
 
 	"github.com/cloustone/pandas/authn/auth"
 	"github.com/cloustone/pandas/authn/options"
-	"github.com/cloustone/pandas/authn/realms"
-	. "github.com/cloustone/pandas/authn/realms"
+	"github.com/cloustone/pandas/users/realms"
+	. "github.com/cloustone/pandas/users/realms"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 )
