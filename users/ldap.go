@@ -9,26 +9,25 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package ldap
+package users
 
 import (
 	"crypto/tls"
 	"fmt"
 
-	"github.com/cloustone/pandas/users/realms"
 	"github.com/go-ldap/ldap"
 )
 
 const (
-	AdaptorName = "ldap"
+	LdapAdaptorName = "ldap"
 )
 
-type LdapRealm struct {
+type ldapRealm struct {
 	conn         *ldap.Conn
-	realmOptions *realms.RealmOptions
+	realmOptions *RealmOptions
 }
 
-func NewLdapRealm(realmOptions *realms.RealmOptions) (*LdapRealm, error) {
+func NewLdapRealm(realmOptions *RealmOptions) (Realm, error) {
 	conn, err := ldap.Dial("tcp", realmOptions.ServiceConnectURL)
 	if err != nil {
 		return nil, err
@@ -44,10 +43,10 @@ func NewLdapRealm(realmOptions *realms.RealmOptions) (*LdapRealm, error) {
 		return nil, err
 	}
 
-	return &LdapRealm{conn: conn, realmOptions: realmOptions}, nil
+	return &ldapRealm{conn: conn, realmOptions: realmOptions}, nil
 }
 
-func (l *LdapRealm) Authenticate(principal *realms.Principal) error {
+func (l *ldapRealm) Authenticate(principal *Principal) error {
 	searchRequest := ldap.NewSearchRequest(
 		l.realmOptions.SearchDN,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,

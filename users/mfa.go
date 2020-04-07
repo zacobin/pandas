@@ -11,18 +11,14 @@
 //  under the License.
 package users
 
-import (
-	"github.com/cloustone/pandas/users/realms"
-)
-
 const (
 	MFADuration = 45
 )
 
 // MFAuthenticator is multiple factor authenticator
 type MFAuthenticator interface {
-	Notify(principal *realms.Principal) error
-	Authenticate(principal *realms.Principal) error
+	Notify(principal *Principal) error
+	Authenticate(principal *Principal) error
 }
 
 // NewMFAuthenticator returns MFA instance with specified serving options

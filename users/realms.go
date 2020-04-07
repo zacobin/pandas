@@ -15,22 +15,34 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/cloustone/pandas/users/realms"
-	"github.com/cloustone/pandas/users/realms/ldap"
 	"github.com/sirupsen/logrus"
 )
 
+type Realm interface {
+	Authenticate(principal *Principal) error
+}
+
+type RealmOptions struct {
+	Name              string `json:"name"`
+	CertFile          string `json:"certFile"`
+	KeyFile           string `json:"keyFile"`
+	Username          string `json:"username"`
+	Password          string `json:"password"`
+	ServiceConnectURL string `json:"serviceConnectURL"`
+	SearchDN          string `json:"searchDN"`
+}
+
 type realmoptions struct {
-	Realmoptions []realms.RealmOptions `json: realmoptions`
+	Realmoptions []RealmOptions `json: realmoptions`
 }
 
 // NewReal create a realm from specific options
-func NewRealm(realmOptions *realms.RealmOptions) (realms.Realm, error) {
+func NewRealm(realmOptions *RealmOptions) (Realm, error) {
 	switch realmOptions.Name {
-	case ldap.AdaptorName:
-		realm, err := ldap.NewLdapRealm(realmOptions)
+	case LdapAdaptorName:
+		realm, err := NewLdapRealm(realmOptions)
 		if err != nil {
-			logrus.WithError(err).Errorf("invalid realm '%s' options", ldap.AdaptorName)
+			logrus.WithError(err).Errorf("invalid realm '%s' options", LdapAdaptorName)
 			return nil, err
 		}
 		return realm, nil
@@ -40,7 +52,7 @@ func NewRealm(realmOptions *realms.RealmOptions) (realms.Realm, error) {
 }
 
 // NewRealmsWithFile create realms from realms config file
-func NewRealmsWithFile(fullFilePath string) ([]realms.Realm, error) {
+func NewRealmsWithFile(fullFilePath string) ([]Realm, error) {
 	buf, err := ioutil.ReadFile(fullFilePath)
 	if err != nil {
 		logrus.WithError(err).Fatalf("open realms config file failed")
@@ -52,7 +64,7 @@ func NewRealmsWithFile(fullFilePath string) ([]realms.Realm, error) {
 		return nil, err
 	}
 
-	realms := []realms.Realm{}
+	realms := []Realm{}
 	for _, option := range realmop.Realmoptions {
 		if realm, err := NewRealm(&option); err != nil {
 			logrus.WithError(err)

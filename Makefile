@@ -114,12 +114,18 @@ headmast: cmd/headmast
 
 .PHONY: authn 
 authn: 
-	@echo "building key manager center service (authn)..."
+	@echo "building key management service (authn)..."
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/authn
+
+.PHONY: authz
+authz: 
+	@echo "building authorization service (authn)..."
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/authz
+
 
 .PHONY: users 
 users: 
-	@echo "building user manager center service (users)..."
+	@echo "building user management service (users)..."
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/users
 
 .PHONY: bootstrap 

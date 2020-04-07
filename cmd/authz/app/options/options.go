@@ -9,18 +9,19 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package realms
+package options
 
-type Realm interface {
-	Authenticate(principal *Principal) error
+import (
+	"github.com/spf13/pflag"
+)
+
+type ServerRunOptions struct {
 }
 
-type RealmOptions struct {
-	Name              string `json:"name"`
-	CertFile          string `json:"certFile"`
-	KeyFile           string `json:"keyFile"`
-	Username          string `json:"username"`
-	Password          string `json:"password"`
-	ServiceConnectURL string `json:"serviceConnectURL"`
-	SearchDN          string `json:"searchDN"`
+func NewServerRunOptions() *ServerRunOptions {
+	s := ServerRunOptions{}
+	return &s
+}
+
+func (s *ServerRunOptions) AddFlags(fs *pflag.FlagSet) {
 }
