@@ -20,9 +20,9 @@ spec:
       containers:
         - name: {{.Values.docker.image_prefix}}things
 {{ if .Values.docker.registry }}
-          image: {{.Values.docker.registry}}/mainflux/things:latest
+          image: {{.Values.docker.registry}}/things:latest
 {{ else }}
-          image: mainflux/things:latest
+          image: things:latest
 {{ end }}
           imagePullPolicy: IfNotPresent
           ports:

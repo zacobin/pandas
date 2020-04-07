@@ -120,6 +120,8 @@ shiro: cmd/shiro
 .PHONY: mainflux 
 mainflux: 
 	@echo "building backend service (mainflux)..."
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/things
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/twins
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/ws
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/postgres-writer
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/postgres-reader
