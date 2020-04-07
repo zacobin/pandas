@@ -16,28 +16,25 @@ import (
 
 	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/pkg/cache"
-	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 )
 
 type Repository struct {
-	modelDB        *gorm.DB
-	cache          cache.Cache
-	servingOptions *modelsoptions.ServingOptions
+	modelDB *gorm.DB
+	cache   cache.Cache
 }
 
 // New return repository instance that manage device models and etc in dmms
-func New(servingOptions *modelsoptions.ServingOptions, cache cache.Cache) *Repository {
-	modelDB, err := gorm.Open(servingOptions.StorePath, "pandas-dmms.db")
+func New(repositoryPath string, cache cache.Cache) *Repository {
+	modelDB, err := gorm.Open(repositoryPath, "pandas-dmms.db")
 	if err != nil {
 		logrus.Fatal(err)
 	}
 	modelDB.AutoMigrate(&models.DeviceModel{})
 	return &Repository{
-		modelDB:        modelDB,
-		cache:          cache,
-		servingOptions: servingOptions,
+		modelDB: modelDB,
+		cache:   cache,
 	}
 }
 

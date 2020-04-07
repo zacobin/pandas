@@ -15,7 +15,6 @@ import (
 	"github.com/cloustone/pandas/cmd/dmms/app/options"
 	"github.com/cloustone/pandas/dmms"
 	"github.com/cloustone/pandas/dmms/grpc_dmms_v1"
-	"github.com/cloustone/pandas/pkg/factory"
 	"github.com/cloustone/pandas/pkg/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -27,7 +26,9 @@ type DeviceManagementServer struct {
 }
 
 func NewDeviceManagementServer(runOptions *options.ServerRunOptions) *DeviceManagementServer {
-	s := &DeviceManagementServer{}
+	s := &DeviceManagementServer{
+		DeviceManagementService: *dmms.NewDeviceManagementService(runOptions.DeviceServing),
+	}
 	s.RegisterService = func() {
 		grpc_dmms_v1.RegisterDMMSServer(s.Server, s)
 	}
@@ -49,11 +50,8 @@ func NewAPIServerCommand() *cobra.Command {
 
 // Run runs the specified APIServer.  This should never exit.
 func Run(runOptions *options.ServerRunOptions, stopCh <-chan struct{}) error {
-
 	// Initialize object factory
-	factory.Initialize(runOptions.ModelServing)
 	service := NewDeviceManagementServer(runOptions)
-	service.Initialize(runOptions.DeviceServing)
 	service.Run(runOptions.SecureServing)
 	<-stopCh
 	return nil

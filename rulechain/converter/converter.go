@@ -24,6 +24,6 @@ func NewRuleChain(model models.Model) *grpc_rulechain_v1.RuleChain {
 	return &grpc_rulechain_v1.RuleChain{}
 }
 
-func NewRuleChains(objs []models.Model) []*grpc_rulechain_v1.RuleChain {
+func NewRuleChains(objs []*models.RuleChain) []*grpc_rulechain_v1.RuleChain {
 	return []*grpc_rulechain_v1.RuleChain{}
 }

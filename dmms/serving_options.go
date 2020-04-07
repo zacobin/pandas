@@ -14,20 +14,19 @@ package dmms
 import (
 	"fmt"
 
-	modeloptions "github.com/cloustone/pandas/pkg/factory/options"
+	"github.com/cloustone/pandas/pkg/cache"
 	"github.com/spf13/pflag"
 )
 
 // ServingOptions
 type ServingOptions struct {
-	ServingOptions  *modeloptions.ServingOptions
+	CacheOptions    *cache.ServingOptions
+	RepositoryPath  string
 	DeviceModelPath string
 }
 
 func NewServingOptions() *ServingOptions {
 	return &ServingOptions{
-		//DeviceModelPath: "./pandas/apimachinery/models",
-		ServingOptions:  modeloptions.NewServingOptions(),
 		DeviceModelPath: "./models",
 	}
 }
@@ -43,4 +42,5 @@ func (s *ServingOptions) Validate() []error {
 
 func (s *ServingOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&s.DeviceModelPath, "device-models-path", s.DeviceModelPath, "The device models path")
+	fs.StringVar(&s.DeviceModelPath, "repository-path", s.RepositoryPath, "The device models path")
 }

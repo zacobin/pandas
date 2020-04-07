@@ -13,7 +13,6 @@ package app
 
 import (
 	"github.com/cloustone/pandas/cmd/pms/app/options"
-	"github.com/cloustone/pandas/pkg/factory"
 	"github.com/cloustone/pandas/pkg/server"
 	"github.com/cloustone/pandas/pms"
 	"github.com/cloustone/pandas/pms/grpc_pms_v1"
@@ -53,10 +52,6 @@ func NewAPIServerCommand() *cobra.Command {
 
 // Run runs the specified APIServer.  This should never exit.
 func Run(runOptions *options.ServerRunOptions, stopCh <-chan struct{}) error {
-
-	// Initialize object factory
-	factory.Initialize(runOptions.ModelServing)
-
 	NewProjectManagementServer().Run(runOptions.SecureServing)
 	<-stopCh
 	return nil

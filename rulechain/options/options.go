@@ -13,6 +13,7 @@ package options
 
 import (
 	broadcast_options "github.com/cloustone/pandas/pkg/broadcast"
+	"github.com/cloustone/pandas/pkg/cache"
 	genericoptions "github.com/cloustone/pandas/pkg/server/options"
 	"github.com/rs/xid"
 	"github.com/spf13/pflag"
@@ -23,6 +24,8 @@ type ServingOptions struct {
 	BroadcastServing *broadcast_options.ServingOptions
 	HeadmastEndpoint string
 	ServiceID        string
+	CacheOptions     *cache.ServingOptions
+	RepositoryPath   string
 }
 
 func NewServingOptions() *ServingOptions {
@@ -31,6 +34,7 @@ func NewServingOptions() *ServingOptions {
 		BroadcastServing: broadcast_options.NewServingOptions(),
 		HeadmastEndpoint: "",
 		ServiceID:        xid.New().String(),
+		CacheOptions:     cache.NewServingOptions(),
 	}
 	return &s
 }
@@ -39,6 +43,7 @@ func (s *ServingOptions) AddFlags(fs *pflag.FlagSet) {
 	s.SecureServing.AddFlags(fs)
 	s.BroadcastServing.AddFlags(fs)
 	fs.StringVar(&s.HeadmastEndpoint, "headmast-endpoint", s.HeadmastEndpoint, "headmast server endpoint")
+	fs.StringVar(&s.RepositoryPath, "repository-path", s.RepositoryPath, "headmast server endpoint")
 	fs.StringVar(&s.ServiceID, "service-id", s.ServiceID, "rulechain service ID")
 }
 

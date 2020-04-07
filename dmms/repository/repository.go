@@ -16,28 +16,25 @@ import (
 
 	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/pkg/cache"
-	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 )
 
 type Repository struct {
-	modelDB        *gorm.DB
-	cache          cache.Cache
-	servingOptions *modelsoptions.ServingOptions
+	modelDB *gorm.DB
+	cache   cache.Cache
 }
 
 // New return repository instance that manage device models and etc in dmms
-func New(servingOptions *modelsoptions.ServingOptions, cache cache.Cache) *Repository {
-	modelDB, err := gorm.Open(servingOptions.StorePath, "pandas-dmms.db")
+func New(repositoryPath string, cache cache.Cache) *Repository {
+	modelDB, err := gorm.Open(repositoryPath, "pandas-dmms.db")
 	if err != nil {
 		logrus.Fatal(err)
 	}
 	modelDB.AutoMigrate(&models.DeviceModel{})
 	return &Repository{
-		modelDB:        modelDB,
-		cache:          cache,
-		servingOptions: servingOptions,
+		modelDB: modelDB,
+		cache:   cache,
 	}
 }
 
@@ -211,13 +208,17 @@ func (r *Repository) LoadDeviceMetrics(principal *models.Principal, deviceMetric
 	return deviceMetrics, nil
 }
 
-func (r *Repository) GetDeviceMetrics(principal models.Principal, query *models.Query) ([]*models.DeviceMetrics, error) {
+func (r *Repository) GetDeviceMetrics(principal *models.Principal, deviceID string) (*models.DeviceMetrics, error) {
 	db := r.modelDB.New()
 	defer db.Close()
-	deviceMetrics := []*models.DeviceMetrics{}
-	db.Where("userId = ?", principal.ID).Find(deviceMetrics)
+	deviceMetrics := &models.DeviceMetrics{}
+	db.Where("userId = ?", principal.ID).Find(deviceMetrics) // TODO
 	if errs := db.GetErrors(); len(errs) > 0 {
 		return nil, errs[0]
 	}
 	return deviceMetrics, nil
+}
+
+func (r *Repository) UpdateDeviceMetrics(principal *models.Principal, metrics *models.DeviceMetrics) (*models.DeviceMetrics, error) {
+	return nil, nil
 }

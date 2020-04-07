@@ -13,11 +13,10 @@ package rulechain
 
 import (
 	"context"
-	"errors"
 	"reflect"
 
 	"github.com/cloustone/pandas/apimachinery/models"
-	"github.com/cloustone/pandas/pkg/factory"
+	"github.com/cloustone/pandas/pkg/cache"
 	"github.com/cloustone/pandas/rulechain/converter"
 	pb "github.com/cloustone/pandas/rulechain/grpc_rulechain_v1"
 	"github.com/cloustone/pandas/rulechain/nodes"
@@ -35,29 +34,30 @@ var (
 type standaloneService struct {
 	servingOptions  *options.ServingOptions
 	instanceManager *instanceManager
+	repository      *Repository
 }
 
 // NewstandaloneService return rulechain service object
 func newStandaloneService(servingOptions *options.ServingOptions, instanceManager *instanceManager) *standaloneService {
+	cache := cache.NewCache(servingOptions.CacheOptions)
 	s := &standaloneService{
 		servingOptions:  servingOptions,
 		instanceManager: instanceManager,
+		repository:      NewRepository(servingOptions.RepositoryPath, cache),
 	}
 	return s
 }
 
 // loadAllRuleChains load runtimes in models and deploy them according to rulechain's status
 func (s *standaloneService) loadAllRuleChains() error {
-	pf := factory.NewFactory(models.RuleChain{})
-	owner := factory.NewOwner("") // TODO
+	principal := models.NewPrincipal("-")
 	query := models.NewQuery().WithQuery("status", models.RULE_STATUS_STARTED)
-	rulechainModels, err := pf.List(owner, query)
+	rulechains, err := s.repository.GetRuleChains(principal, query)
 	if err != nil {
 		logr.WithError(err)
 		return err
 	}
-	for _, rulechainModel := range rulechainModels {
-		rulechain := rulechainModel.(*models.RuleChain)
+	for _, rulechain := range rulechains {
 		if err := s.instanceManager.startRuleChain(rulechain); err != nil {
 			logr.WithError(err)
 		}
@@ -85,6 +85,7 @@ func (s *standaloneService) CheckRuleChain(ctx context.Context, in *pb.CheckRule
 
 // CreateRuleChain add a new rulechain into  repository
 func (s *standaloneService) CreateRuleChain(ctx context.Context, in *pb.CreateRuleChainRequest) (*pb.CreateRuleChainResponse, error) {
+	principal := models.NewPrincipal(in.RuleChain.UserID)
 	resp := pb.CreateRuleChainResponse{
 		Reasons: []string{},
 	}
@@ -96,66 +97,61 @@ func (s *standaloneService) CreateRuleChain(ctx context.Context, in *pb.CreateRu
 		return &resp, status.Error(codes.InvalidArgument, "")
 	}
 
-	pf := factory.NewFactory(models.RuleChain{})
-	owner := factory.NewOwner(in.RuleChain.UserID)
-	rulechain := converter.NewRuleChainModel(in.RuleChain)
-	_, err := pf.Save(owner, rulechain)
-
-	return &resp, xerror(err)
+	_, err := s.repository.AddRuleChain(principal, converter.NewRuleChainModel(in.RuleChain))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
+	}
+	return &resp, nil
 }
 
 // DeleteRuleChain remove a rulechain from rulechain service
 // In the cluster environmnent, the peer nodes should be notified
 func (s *standaloneService) DeleteRuleChain(ctx context.Context, in *pb.DeleteRuleChainRequest) (*pb.DeleteRuleChainResponse, error) {
-	pf := factory.NewFactory(models.RuleChain{})
-	owner := factory.NewOwner(in.UserID)
-
+	principal := models.NewPrincipal(in.UserID)
 	// If the rule chain no exist, just return error
-	rulechain, err := pf.Get(owner, in.RuleChainID)
+	rulechain, err := s.repository.GetRuleChain(principal, in.RuleChainID)
 	if err != nil {
-		return &pb.DeleteRuleChainResponse{}, xerror(err)
+		return &pb.DeleteRuleChainResponse{}, status.Errorf(codes.Internal, "%w", err)
 	}
 	// if rule chain's status is not allowed to be deleted, also return errors
-	if rulechain.(*models.RuleChain).Status == models.RULE_STATUS_STARTED {
+	if rulechain.Status == models.RULE_STATUS_STARTED {
 		return nil, status.Error(codes.FailedPrecondition, "")
 	}
 
-	if err := pf.Delete(owner, in.RuleChainID); err != nil {
-		return nil, xerror(err)
+	if err := s.repository.DeleteRuleChain(principal, in.RuleChainID); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.DeleteRuleChainResponse{}, nil
 }
 
 // UpdateRuleChain update an existed rule chain
 func (s *standaloneService) UpdateRuleChain(ctx context.Context, in *pb.UpdateRuleChainRequest) (*pb.UpdateRuleChainResponse, error) {
-	pf := factory.NewFactory(models.RuleChain{})
-	owner := factory.NewOwner(in.RuleChain.UserID)
+	principal := models.NewPrincipal(in.RuleChain.UserID)
 
 	// If the rule chain no exist, just return error
-	rulechain, err := pf.Get(owner, in.RuleChain.ID)
+	rulechain, err := s.repository.GetRuleChain(principal, in.RuleChain.ID)
 	if err != nil {
-		return &pb.UpdateRuleChainResponse{}, xerror(err)
+		return &pb.UpdateRuleChainResponse{}, status.Errorf(codes.Internal, "%w", err)
 	}
 	// if rule chain's status is not allowed to be deleted, also return errors
-	if rulechain.(*models.RuleChain).Status == models.RULE_STATUS_STARTED {
+	if rulechain.Status == models.RULE_STATUS_STARTED {
 		return nil, status.Error(codes.FailedPrecondition, "")
 	}
 	rulechainModel := converter.NewRuleChainModel(in.RuleChain)
-	if err := pf.Update(owner, rulechainModel); err != nil {
-		return nil, xerror(err)
+	if _, err := s.repository.UpdateRuleChain(principal, rulechainModel); err != nil {
+		return nil, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.UpdateRuleChainResponse{}, nil
 }
 
 // GetRuleChian return specified rulechain
 func (s *standaloneService) GetRuleChain(ctx context.Context, in *pb.GetRuleChainRequest) (*pb.GetRuleChainResponse, error) {
-	pf := factory.NewFactory(models.RuleChain{})
-	owner := factory.NewOwner(in.UserID)
+	principal := models.NewPrincipal(in.UserID)
 
 	// If the rule chain no exist, just return error
-	rulechainModel, err := pf.Get(owner, in.RuleChainID)
+	rulechainModel, err := s.repository.GetRuleChain(principal, in.RuleChainID)
 	if err != nil {
-		return &pb.GetRuleChainResponse{}, xerror(err)
+		return &pb.GetRuleChainResponse{}, status.Errorf(codes.Internal, "%w", err)
 	}
 	return &pb.GetRuleChainResponse{
 		RuleChain: converter.NewRuleChain(rulechainModel),
@@ -164,13 +160,12 @@ func (s *standaloneService) GetRuleChain(ctx context.Context, in *pb.GetRuleChai
 
 // GetRuleChains returns user's all rulechain informations
 func (s *standaloneService) GetRuleChains(ctx context.Context, in *pb.GetRuleChainsRequest) (*pb.GetRuleChainsResponse, error) {
-	pf := factory.NewFactory(models.RuleChain{})
-	owner := factory.NewOwner(in.UserID)
+	principal := models.NewPrincipal(in.UserID)
 
 	// If the rule chain no exist, just return error
-	rulechainModels, err := pf.List(owner, models.NewQuery())
+	rulechainModels, err := s.repository.GetRuleChains(principal, models.NewQuery())
 	if err != nil {
-		return &pb.GetRuleChainsResponse{}, xerror(err)
+		return &pb.GetRuleChainsResponse{}, status.Errorf(codes.NotFound, "%w", err)
 	}
 	return &pb.GetRuleChainsResponse{
 		RuleChains: converter.NewRuleChains(rulechainModels),
@@ -179,15 +174,13 @@ func (s *standaloneService) GetRuleChains(ctx context.Context, in *pb.GetRuleCha
 
 // StartRuleChain start a rule chain to receive incoming data
 func (s *standaloneService) StartRuleChain(ctx context.Context, in *pb.StartRuleChainRequest) (*pb.StartRuleChainResponse, error) {
-	pf := factory.NewFactory(models.RuleChain{})
-	owner := factory.NewOwner(in.UserID)
+	principal := models.NewPrincipal(in.UserID)
 
 	// If the rule chain no exist, just return error
-	rulechainModel, err := pf.Get(owner, in.RuleChainID)
+	rulechain, err := s.repository.GetRuleChain(principal, in.RuleChainID)
 	if err != nil {
-		return &pb.StartRuleChainResponse{}, xerror(err)
+		return &pb.StartRuleChainResponse{}, status.Errorf(codes.NotFound, "%w", err)
 	}
-	rulechain := rulechainModel.(*models.RuleChain)
 	if rulechain.Status != models.RULE_STATUS_CREATED &&
 		rulechain.Status != models.RULE_STATUS_STOPPED {
 		return nil, status.Error(codes.FailedPrecondition, "")
@@ -198,15 +191,13 @@ func (s *standaloneService) StartRuleChain(ctx context.Context, in *pb.StartRule
 
 // StopRuleChain stop a rule chain to receive incoming data
 func (s *standaloneService) StopRuleChain(ctx context.Context, in *pb.StopRuleChainRequest) (*pb.StopRuleChainResponse, error) {
-	pf := factory.NewFactory(models.RuleChain{})
-	owner := factory.NewOwner(in.UserID)
+	principal := models.NewPrincipal(in.UserID)
 
 	// If the rule chain no exist, just return error
-	rulechainModel, err := pf.Get(owner, in.RuleChainID)
+	rulechain, err := s.repository.GetRuleChain(principal, in.RuleChainID)
 	if err != nil {
-		return &pb.StopRuleChainResponse{}, xerror(err)
+		return &pb.StopRuleChainResponse{}, status.Errorf(codes.NotFound, "%w", err)
 	}
-	rulechain := rulechainModel.(*models.RuleChain)
 	if rulechain.Status != models.RULE_STATUS_STARTED {
 		return nil, status.Error(codes.FailedPrecondition, "")
 	}
@@ -232,18 +223,4 @@ func (s *standaloneService) GetNodeConfigs(ctx context.Context, in *pb.GetNodeCo
 		}
 	}
 	return &pb.GetNodeConfigsResponse{NodeConfigs: nodeConfigs}, nil
-}
-
-// xerror return grpc error according to models errors
-func xerror(err error) error {
-	switch {
-	case errors.As(err, &factory.ErrObjectNotFound):
-		return status.Errorf(codes.NotFound, "%w", err)
-	case errors.As(err, &factory.ErrObjectAlreadyExist):
-		return status.Errorf(codes.AlreadyExists, "%w", err)
-	case errors.As(err, &factory.ErrObjectInvalidArg):
-		return status.Errorf(codes.InvalidArgument, "%w", err)
-	default:
-		return status.Errorf(codes.Internal, "%s", err)
-	}
 }

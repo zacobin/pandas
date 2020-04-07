@@ -12,13 +12,10 @@
 package cache
 
 import (
-	"testing"
-
-	"github.com/cloustone/pandas/apimachinery/models"
-	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+/*
 func TestCacheSet(t *testing.T) {
 	servingOptions := modelsoptions.NewServingOptions()
 	servingOptions.Cache = modelsoptions.KCacheRedis
@@ -133,3 +130,4 @@ func TestListPush(t *testing.T) {
 		So(err, ShouldNotBeNil)
 	})
 }
+*/

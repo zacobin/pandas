@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/apimachinery/models"
-	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 	"github.com/garyburd/redigo/redis"
 	"github.com/sirupsen/logrus"
 )
@@ -25,7 +24,7 @@ type redisCache struct {
 }
 
 // newRedisCache return cache instance using redis
-func newRedisCache(options *modelsoptions.ServingOptions) Cache {
+func newRedisCache(options *ServingOptions) Cache {
 	conn, err := redis.Dial("tcp", options.CacheConnectedUrl)
 	if err != nil {
 		logrus.Fatal(err)
