@@ -12,13 +12,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-redis/redis"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
 	"github.com/cloustone/pandas/mainflux/logger"
 	mqtt "github.com/cloustone/pandas/mainflux/mqtt"
 	mr "github.com/cloustone/pandas/mainflux/mqtt/redis"
-	thingsapi "github.com/cloustone/pandas/mainflux/things/api/auth/grpc"
+	"github.com/go-redis/redis"
 	mp "github.com/mainflux/mproxy/pkg/mqtt"
 	ws "github.com/mainflux/mproxy/pkg/websocket"
 	opentracing "github.com/opentracing/opentracing-go"
@@ -119,13 +118,14 @@ func main() {
 	tracer, closer := initJaeger("mproxy", cfg.jaegerURL, logger)
 	defer closer.Close()
 
-	thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
-	defer thingsCloser.Close()
+	//thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
+	//defer thingsCloser.Close()
 
 	rc := connectToRedis(cfg.esURL, cfg.esPass, cfg.esDB, logger)
 	defer rc.Close()
 
-	cc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
+	//cc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
+	cc := mainflux.NewThingsServiceClient(conn)
 
 	b, err := broker.New(cfg.natsURL)
 	if err != nil {

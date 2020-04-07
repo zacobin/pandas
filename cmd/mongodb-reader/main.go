@@ -16,13 +16,12 @@ import (
 	"syscall"
 	"time"
 
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/logger"
 	"github.com/cloustone/pandas/mainflux/readers"
 	"github.com/cloustone/pandas/mainflux/readers/api"
 	"github.com/cloustone/pandas/mainflux/readers/mongodb"
-	thingsapi "github.com/cloustone/pandas/mainflux/things/api/auth/grpc"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	opentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	jconfig "github.com/uber/jaeger-client-go/config"
@@ -85,10 +84,11 @@ func main() {
 	conn := connectToThings(cfg, logger)
 	defer conn.Close()
 
-	thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
-	defer thingsCloser.Close()
+	//thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
+	//defer thingsCloser.Close()
 
-	tc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
+	//tc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
+	tc := mainflux.NewThingsServiceClient(conn)
 
 	db := connectToMongoDB(cfg.dbHost, cfg.dbPort, cfg.dbName, logger)
 
