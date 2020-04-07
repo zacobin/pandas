@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/cloustone/pandas/mainflux/errors"
+	"github.com/cloustone/pandas/pkg/errors"
 	"github.com/cloustone/pandas/users"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"

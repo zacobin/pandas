@@ -6,8 +6,8 @@ package producer
 import (
 	"time"
 
+	"github.com/cloustone/pandas/bootstrap"
 	"github.com/go-redis/redis"
-	"github.com/mainflux/mainflux/bootstrap"
 )
 
 const (

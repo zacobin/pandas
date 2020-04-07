@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mainflux/mainflux/bootstrap"
+	"github.com/cloustone/pandas/bootstrap"
 )
 
 const (

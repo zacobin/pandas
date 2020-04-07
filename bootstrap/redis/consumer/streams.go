@@ -7,9 +7,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/cloustone/pandas/bootstrap"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/go-redis/redis"
-	"github.com/mainflux/mainflux/bootstrap"
-	"github.com/mainflux/mainflux/logger"
 )
 
 const (

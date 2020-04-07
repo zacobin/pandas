@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/mainflux/errors"
+	"github.com/cloustone/pandas/pkg/errors"
 
 	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/users"

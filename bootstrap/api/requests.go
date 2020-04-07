@@ -3,7 +3,7 @@
 
 package api
 
-import "github.com/mainflux/mainflux/bootstrap"
+import "github.com/cloustone/pandas/bootstrap"
 
 type apiReq interface {
 	validate() error

@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/cloustone/pandas/bootstrap"
+	"github.com/cloustone/pandas/bootstrap/postgres"
+	"github.com/cloustone/pandas/pkg/errors"
 	"github.com/gofrs/uuid"
-	"github.com/mainflux/mainflux/bootstrap"
-	"github.com/mainflux/mainflux/bootstrap/postgres"
-	"github.com/mainflux/mainflux/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

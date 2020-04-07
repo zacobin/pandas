@@ -6,8 +6,8 @@ package mocks
 import (
 	"context"
 
-	"github.com/mainflux/mainflux"
-	"github.com/mainflux/mainflux/users"
+	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas/users"
 	"google.golang.org/grpc"
 )
 

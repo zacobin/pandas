@@ -10,9 +10,9 @@ import (
 	"encoding/hex"
 	"time"
 
-	"github.com/mainflux/mainflux"
-	"github.com/mainflux/mainflux/errors"
-	mfsdk "github.com/mainflux/mainflux/sdk/go"
+	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas/pkg/errors"
+	mfsdk "github.com/cloustone/pandas/sdk/go"
 )
 
 var (

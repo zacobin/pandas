@@ -9,7 +9,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 
-	"github.com/cloustone/pandas/mainflux/errors"
+	"github.com/cloustone/pandas/pkg/errors"
 	"github.com/cloustone/pandas/users"
 )
 

@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/mainflux/mainflux"
-	"github.com/mainflux/mainflux/things"
+	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas/things"
 )
 
 var _ things.Service = (*mainfluxThings)(nil)

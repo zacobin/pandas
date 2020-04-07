@@ -16,10 +16,10 @@ import (
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/cloustone/pandas/mainflux/users/api"
+	"github.com/cloustone/pandas/users/api"
 
-	"github.com/cloustone/pandas/mainflux/users"
-	"github.com/cloustone/pandas/mainflux/users/mocks"
+	"github.com/cloustone/pandas/users"
+	"github.com/cloustone/pandas/users/mocks"
 )
 
 const (

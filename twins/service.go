@@ -10,7 +10,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/cloustone/pandas/mainflux/errors"
+	"github.com/cloustone/pandas/pkg/errors"
 
 	"github.com/cloustone/pandas/mainflux"
 	nats "github.com/cloustone/pandas/twins/nats/publisher"

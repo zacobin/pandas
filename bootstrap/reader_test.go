@@ -11,8 +11,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/mainflux/mainflux"
-	"github.com/mainflux/mainflux/bootstrap"
+	"github.com/cloustone/pandas/bootstrap"
+	"github.com/cloustone/pandas/mainflux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

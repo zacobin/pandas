@@ -5,7 +5,7 @@
 package bcrypt
 
 import (
-	"github.com/cloustone/pandas/mainflux/errors"
+	"github.com/cloustone/pandas/pkg/errors"
 	"github.com/cloustone/pandas/users"
 	"golang.org/x/crypto/bcrypt"
 )

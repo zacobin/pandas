@@ -8,7 +8,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/cloustone/pandas/mainflux/errors"
+	"github.com/cloustone/pandas/pkg/errors"
 )
 
 const columns = 2

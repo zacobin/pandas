@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/go-kit/kit/metrics"
-	"github.com/mainflux/mainflux/bootstrap"
+	"github.com/cloustone/pandas/bootstrap"
 )
 
 var _ bootstrap.Service = (*metricsMiddleware)(nil)

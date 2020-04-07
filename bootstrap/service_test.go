@@ -16,14 +16,14 @@ import (
 
 	"github.com/opentracing/opentracing-go/mocktracer"
 
+	"github.com/cloustone/pandas/bootstrap"
+	"github.com/cloustone/pandas/bootstrap/mocks"
+	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas/pkg/errors"
+	mfsdk "github.com/cloustone/pandas/sdk/go"
+	"github.com/cloustone/pandas/things"
+	httpapi "github.com/cloustone/pandas/things/api/things/http"
 	"github.com/gofrs/uuid"
-	"github.com/mainflux/mainflux"
-	"github.com/mainflux/mainflux/bootstrap"
-	"github.com/mainflux/mainflux/bootstrap/mocks"
-	"github.com/mainflux/mainflux/errors"
-	mfsdk "github.com/mainflux/mainflux/sdk/go"
-	"github.com/mainflux/mainflux/things"
-	httpapi "github.com/mainflux/mainflux/things/api/things/http"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/mainflux/errors"
+	"github.com/cloustone/pandas/pkg/errors"
 	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/opcua"
 	opcuaGopcua "github.com/gopcua/opcua"

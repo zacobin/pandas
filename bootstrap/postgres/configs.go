@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/cloustone/pandas/bootstrap"
+	"github.com/cloustone/pandas/pkg/errors"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	"github.com/mainflux/mainflux/bootstrap"
-	"github.com/mainflux/mainflux/errors"
-	"github.com/mainflux/mainflux/logger"
 )
 
 const (

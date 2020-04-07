@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/mainflux/mainflux"
-	"github.com/mainflux/mainflux/bootstrap"
+	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas/bootstrap"
 )
 
 var (

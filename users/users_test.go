@@ -8,7 +8,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/cloustone/pandas/mainflux/errors"
+	"github.com/cloustone/pandas/pkg/errors"
 	"github.com/cloustone/pandas/users"
 	"github.com/stretchr/testify/assert"
 )

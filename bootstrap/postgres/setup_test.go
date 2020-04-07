@@ -9,9 +9,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/cloustone/pandas/bootstrap/postgres"
+	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/jmoiron/sqlx"
-	"github.com/mainflux/mainflux/bootstrap/postgres"
-	"github.com/mainflux/mainflux/logger"
 	dockertest "gopkg.in/ory/dockertest.v3"
 )
 

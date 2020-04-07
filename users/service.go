@@ -8,7 +8,7 @@ import (
 
 	"github.com/cloustone/pandas/authn"
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/mainflux/errors"
+	"github.com/cloustone/pandas/pkg/errors"
 )
 
 var (

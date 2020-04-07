@@ -10,7 +10,7 @@ import (
 	"net/http"
 
 	"github.com/cloustone/pandas/things"
-	"github.com/cloustone/pandas/mainflux/users"
+	"github.com/cloustone/pandas/users"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mainflux/mainflux/bootstrap"
+	"github.com/cloustone/pandas/bootstrap"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 	"context"
 
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/mainflux/users"
+	"github.com/cloustone/pandas/users"
 	"google.golang.org/grpc"
 )
 
