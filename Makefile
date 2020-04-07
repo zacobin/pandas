@@ -80,7 +80,7 @@ undeploy:
 all: build
 
 .PHONY: build
-build: apimachinery  dmms  pms rulechain lbs headmast  authn  users
+build: apimachinery  dmms  pms rulechain lbs headmast  authn  users bootstrap
 
 .PHONY: apimachinery 
 apimachinery: 
@@ -122,6 +122,10 @@ users:
 	@echo "building user manager center service (users)..."
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/users
 
+.PHONY: bootstrap 
+bootstrap: cmd/bootstrap 
+	@echo "building bootstrap service (bootstrap)..."
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/bootstrap
 
 
 .PHONY: mainflux 
