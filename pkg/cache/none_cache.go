@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/apimachinery/models"
-	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 )
 
 // noneCache is just a simple helper to making source code unified when no
@@ -24,7 +23,7 @@ import (
 type noneCache struct{}
 
 // newNoneCache return cache backend instance
-func newNoneCache(options *modelsoptions.ServingOptions) Cache { return &noneCache{} }
+func newNoneCache(options *ServingOptions) Cache { return &noneCache{} }
 
 // Set just return nil to tell client cache operation is successful
 func (r *noneCache) Set(key string, val models.Model) error { return nil }

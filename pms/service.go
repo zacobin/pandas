@@ -17,7 +17,6 @@ import (
 
 	"github.com/cloustone/pandas/apimachinery/models"
 	"github.com/cloustone/pandas/pkg/cache"
-	modeloptions "github.com/cloustone/pandas/pkg/factory/options"
 	"github.com/cloustone/pandas/pms/converter"
 	pb "github.com/cloustone/pandas/pms/grpc_pms_v1"
 	"github.com/cloustone/pandas/pms/repository"
@@ -27,15 +26,14 @@ import (
 
 // ProjectManagementService implement grpc service for pms
 type ProjectManagementService struct {
-	servingOptions *modeloptions.ServingOptions
-	repo           *repository.Repository
+	repo *repository.Repository
 }
 
 // NewProjectManagementService return service instance used in main server
-func NewProjectManagementService(servingOptions *modeloptions.ServingOptions) *ProjectManagementService {
-	cache := cache.NewCache(servingOptions)
+func NewProjectManagementService(repositoryPath string, cacheOptions *cache.ServingOptions) *ProjectManagementService {
+	cache := cache.NewCache(cacheOptions)
 	return &ProjectManagementService{
-		repo: repository.New(servingOptions, cache),
+		repo: repository.New(repositoryPath, cache),
 	}
 }
 

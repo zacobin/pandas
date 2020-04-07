@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/apimachinery/models"
-	modelsoptions "github.com/cloustone/pandas/pkg/factory/options"
 )
 
 // Cache is simple wrapper of redis or memcahed client
@@ -29,9 +28,9 @@ type Cache interface {
 }
 
 // NewCache return cache client endpoint
-func NewCache(options *modelsoptions.ServingOptions) Cache {
+func NewCache(options *ServingOptions) Cache {
 	switch options.Cache {
-	case modelsoptions.KCacheRedis:
+	case KCacheRedis:
 		return newRedisCache(options)
 	default:
 		return newNoneCache(options)

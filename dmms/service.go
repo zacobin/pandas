@@ -41,24 +41,19 @@ var (
 // presentation. Model definition and presentation are wrapped into bundle to
 // store into backend storage.
 type DeviceManagementService struct {
-	servingOptions *ServingOptions
-	repo           *repository.Repository
+	repo *repository.Repository
 }
 
-func NewDeviceManagementService() *DeviceManagementService {
-	return &DeviceManagementService{}
-}
-
-// Prerun initialize and load builtin devices models
-func (s *DeviceManagementService) Initialize(servingOptions *ServingOptions) {
-	cache := cache.NewCache(servingOptions.ServingOptions)
-	s.repo = repository.New(servingOptions.ServingOptions, cache)
-	s.servingOptions = servingOptions
-	s.loadPresetDeviceModels(s.servingOptions.DeviceModelPath)
+func NewDeviceManagementService(servingOptions *ServingOptions) *DeviceManagementService {
+	cache := cache.NewCache(servingOptions.CacheOptions)
+	s := &DeviceManagementService{
+		repo: repository.New(servingOptions.RepositoryPath, cache),
+	}
+	s.loadPresetDeviceModels(servingOptions.DeviceModelPath)
 	b := broadcast_util.NewBroadcast(broadcast.NewServingOptions())
 	b.RegisterObserver(nameOfDeviceModel, s)
 	b.RegisterObserver(nameOfDeviceNotification, s)
-
+	return s
 }
 
 // Onbroadcast handle notifications received from other component service
@@ -76,7 +71,7 @@ func (s *DeviceManagementService) Onbroadcast(b broadcast.Broadcast, notify broa
 // handleDeviceNotifications handle device's notificaitons, such as device is added, removed,
 // and device message is recived.
 func (s *DeviceManagementService) handleDeviceNotifications(n *DeviceNotification) {
-	deviceUpdater := NewDeviceUpdater()
+	deviceUpdater := NewDeviceUpdater(s.repo)
 	deviceUpdater.UpdateDeviceMetrics(n)
 
 	switch n.Type {
