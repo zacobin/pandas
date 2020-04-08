@@ -13,12 +13,13 @@ require (
 	github.com/coreos/etcd v3.3.10+incompatible
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/didip/tollbooth v4.0.2+incompatible
+	github.com/docker/docker v1.13.1
 	github.com/dre1080/recover v0.0.0-20150930082637-1c296bbb3227
 	github.com/dustin/go-coap v0.0.0-20170214053734-ddcc80675fa4
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/elazarl/go-bindata-assetfs v1.0.0
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
-	github.com/fatih/color v1.9.0 // indirect
+	github.com/fatih/color v1.9.0
 	github.com/fatih/structs v1.1.0
 	github.com/garyburd/redigo v1.6.0
 	github.com/go-kit/kit v0.10.0
@@ -43,6 +44,7 @@ require (
 	github.com/goods/httpbuf v0.0.0-20120503183857-5709e9bb814c // indirect
 	github.com/gopcua/opcua v0.1.11
 	github.com/gorilla/websocket v1.4.1
+	github.com/hokaccha/go-prettyjson v0.0.0-20180920040306-f579f869bbfe
 	github.com/influxdata/influxdb v1.6.4
 	github.com/interpose/middleware v0.0.0-20150216143757-05ed56ed52fa // indirect
 	github.com/jessevdk/go-flags v1.4.0

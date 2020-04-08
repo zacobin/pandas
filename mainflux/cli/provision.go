@@ -12,8 +12,8 @@ import (
 	"os"
 	"path/filepath"
 
+	mfxsdk "github.com/cloustone/pandas/sdk/go"
 	"github.com/docker/docker/pkg/namesgenerator"
-	mfxsdk "github.com/cloustone/pandas/mainflux/sdk/go"
 	"github.com/spf13/cobra"
 )
 

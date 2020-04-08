@@ -5,10 +5,10 @@ Go SDK, a Go driver for Mainflux HTTP API.
 Does both system administration (provisioning) and messaging.
 
 ## Installation
-Import `"github.com/cloustone/pandas/mainflux/sdk/go"` in your Go package.
+Import `"github.com/cloustone/pandas/sdk/go"` in your Go package.
 
 ```
-import "github.com/cloustone/pandas/mainflux/sdk/go"
+import "github.com/cloustone/pandas/sdk/go"
 ```
 
 Then call SDK Go functions to interact with the system.

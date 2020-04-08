@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"testing"
 
-	sdk "github.com/cloustone/pandas/mainflux/sdk/go"
+	sdk "github.com/cloustone/pandas/sdk/go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
