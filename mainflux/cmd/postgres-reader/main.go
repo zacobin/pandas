@@ -16,10 +16,11 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/readers"
 	"github.com/cloustone/pandas/mainflux/readers/api"
 	"github.com/cloustone/pandas/mainflux/readers/postgres"
+	"github.com/cloustone/pandas/pkg/logger"
+	thingsapi "github.com/cloustone/pandas/things/api/auth/grpc"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/jmoiron/sqlx"
 	opentracing "github.com/opentracing/opentracing-go"
@@ -90,11 +91,10 @@ func main() {
 	conn := connectToThings(cfg, logger)
 	defer conn.Close()
 
-	//thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
-	//defer thingsCloser.Close()
+	thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
+	defer thingsCloser.Close()
 
-	//tc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
-	tc := mainflux.NewThingsServiceClient(conn)
+	tc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
 
 	db := connectToDB(cfg.dbConfig, logger)
 	defer db.Close()

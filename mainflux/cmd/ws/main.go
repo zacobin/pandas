@@ -18,9 +18,10 @@ import (
 
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/pkg/logger"
 	adapter "github.com/cloustone/pandas/mainflux/ws"
 	"github.com/cloustone/pandas/mainflux/ws/api"
+	"github.com/cloustone/pandas/pkg/logger"
+	thingsapi "github.com/cloustone/pandas/things/api/auth/grpc"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	opentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
@@ -71,11 +72,10 @@ func main() {
 	conn := connectToThings(cfg, logger)
 	defer conn.Close()
 
-	//thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
-	//defer thingsCloser.Close()
+	thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
+	defer thingsCloser.Close()
 
-	//cc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
-	cc := mainflux.NewThingsServiceClient(conn)
+	cc := thingsapi.NewClient(conn, thingsTracer, cfg.thingsTimeout)
 
 	b, err := broker.New(cfg.natsURL)
 	if err != nil {
