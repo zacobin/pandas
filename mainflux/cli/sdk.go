@@ -3,7 +3,7 @@
 
 package cli
 
-import mfxsdk "github.com/cloustone/pandas/mainflux/sdk/go"
+import mfxsdk "github.com/cloustone/pandas/sdk/go"
 
 // Keep SDK handle in global var
 var sdk mfxsdk.SDK

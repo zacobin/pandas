@@ -6,7 +6,7 @@ package cli
 import (
 	"encoding/json"
 
-	mfxsdk "github.com/cloustone/pandas/mainflux/sdk/go"
+	mfxsdk "github.com/cloustone/pandas/sdk/go"
 	"github.com/spf13/cobra"
 )
 

@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/cloustone/pandas/mainflux/cli"
-	"github.com/cloustone/pandas/mainflux/sdk/go"
+	"github.com/cloustone/pandas/sdk/go"
 	"github.com/spf13/cobra"
 )
 

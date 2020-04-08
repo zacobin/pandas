@@ -12,7 +12,7 @@ import (
 	adapter "github.com/cloustone/pandas/mainflux/http"
 	"github.com/cloustone/pandas/mainflux/http/api"
 	"github.com/cloustone/pandas/mainflux/http/mocks"
-	sdk "github.com/cloustone/pandas/mainflux/sdk/go"
+	sdk "github.com/cloustone/pandas/sdk/go"
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 )
