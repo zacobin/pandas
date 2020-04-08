@@ -9,7 +9,7 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package users
+package realms
 
 const (
 	MFADuration = 45
@@ -19,9 +19,4 @@ const (
 type MFAuthenticator interface {
 	Notify(principal *Principal) error
 	Authenticate(principal *Principal) error
-}
-
-// NewMFAuthenticator returns MFA instance with specified serving options
-func NewMFAuthenticator(r UserRepository, m Emailer) MFAuthenticator {
-	return nil
 }

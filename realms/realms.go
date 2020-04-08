@@ -9,20 +9,21 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package users
+package realms
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"context"
 
 	"github.com/sirupsen/logrus"
 )
 
-type Realm interface {
-	Authenticate(principal *Principal) error
+// RealmProvider represent entity that provide user identity authentication using ldap
+type RealmProvider interface {
+	Authenticate(principal Principal) error
 }
 
-type RealmOptions struct {
+// Realm
+type Realm struct {
 	Name              string `json:"name"`
 	CertFile          string `json:"certFile"`
 	KeyFile           string `json:"keyFile"`
@@ -32,15 +33,37 @@ type RealmOptions struct {
 	SearchDN          string `json:"searchDN"`
 }
 
-type realmoptions struct {
-	Realmoptions []RealmOptions `json: realmoptions`
+// Validate returns an error if representtation is invalid
+func (r Realm) Validate() error {
+	if r.SearchDN == "" || r.ServiceConnectURL == "" {
+		return ErrMalformedEntity
+	}
+	return nil
 }
 
-// NewReal create a realm from specific options
-func NewRealm(realmOptions *RealmOptions) (Realm, error) {
-	switch realmOptions.Name {
+// RealmRepository specifies realm persistence API
+type RealmRepository interface {
+	// Save persists the realm
+	Save(context.Context, Realm) error
+
+	// Update updates the realm metdata
+	Update(context.Context, Realm) error
+
+	// Retrieve return realm by its identifier (i.e name)
+	Retrieve(context.Context, string) (Realm, error)
+
+	// RevokeRealm remove realm
+	Revoke(context.Context, string) error
+
+	// List return all reams
+	List(context.Context) ([]Realm, error)
+}
+
+// NewRealProvider create a realm from specific options
+func NewRealmProvider(realm Realm) (RealmProvider, error) {
+	switch realm.Name {
 	case LdapAdaptorName:
-		realm, err := NewLdapRealm(realmOptions)
+		realm, err := newLdapRealmProvider(realm)
 		if err != nil {
 			logrus.WithError(err).Errorf("invalid realm '%s' options", LdapAdaptorName)
 			return nil, err
@@ -49,29 +72,4 @@ func NewRealm(realmOptions *RealmOptions) (Realm, error) {
 	}
 	logrus.Fatalf("invalid realm names")
 	return nil, nil
-}
-
-// NewRealmsWithFile create realms from realms config file
-func NewRealmsWithFile(fullFilePath string) ([]Realm, error) {
-	buf, err := ioutil.ReadFile(fullFilePath)
-	if err != nil {
-		logrus.WithError(err).Fatalf("open realms config file failed")
-		return nil, err
-	}
-	var realmop realmoptions
-	if err := json.Unmarshal(buf, &realmop); err != nil {
-		logrus.WithError(err).Fatalf("illegal realm config file")
-		return nil, err
-	}
-
-	realms := []Realm{}
-	for _, option := range realmop.Realmoptions {
-		if realm, err := NewRealm(&option); err != nil {
-			logrus.WithError(err)
-			continue
-		} else {
-			realms = append(realms, realm)
-		}
-	}
-	return realms, nil
 }

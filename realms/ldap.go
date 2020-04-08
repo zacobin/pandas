@@ -9,7 +9,7 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package users
+package realms
 
 import (
 	"crypto/tls"
@@ -22,13 +22,13 @@ const (
 	LdapAdaptorName = "ldap"
 )
 
-type ldapRealm struct {
-	conn         *ldap.Conn
-	realmOptions *RealmOptions
+type ldapRealmProvider struct {
+	conn  *ldap.Conn
+	realm Realm
 }
 
-func NewLdapRealm(realmOptions *RealmOptions) (Realm, error) {
-	conn, err := ldap.Dial("tcp", realmOptions.ServiceConnectURL)
+func newLdapRealmProvider(r Realm) (RealmProvider, error) {
+	conn, err := ldap.Dial("tcp", r.ServiceConnectURL)
 	if err != nil {
 		return nil, err
 	}
@@ -38,17 +38,17 @@ func NewLdapRealm(realmOptions *RealmOptions) (Realm, error) {
 		return nil, err
 	}
 
-	err = conn.Bind(realmOptions.Username, realmOptions.Password)
+	err = conn.Bind(r.Username, r.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	return &ldapRealm{conn: conn, realmOptions: realmOptions}, nil
+	return &ldapRealmProvider{conn: conn, realm: r}, nil
 }
 
-func (l *ldapRealm) Authenticate(principal *Principal) error {
+func (l *ldapRealmProvider) Authenticate(principal Principal) error {
 	searchRequest := ldap.NewSearchRequest(
-		l.realmOptions.SearchDN,
+		l.realm.SearchDN,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		fmt.Sprintf("(&(objectClass=inetOrgPerson)(mail=%s))", principal.Username),
 		[]string{"dn"},
@@ -70,7 +70,7 @@ func (l *ldapRealm) Authenticate(principal *Principal) error {
 		return err
 	}
 
-	err = l.conn.Bind(l.realmOptions.Username, l.realmOptions.Password)
+	err = l.conn.Bind(l.realm.Username, l.realm.Password)
 	if err != nil {
 		return err
 	}

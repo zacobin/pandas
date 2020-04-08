@@ -80,7 +80,7 @@ undeploy:
 all: build
 
 .PHONY: build
-build: apimachinery  dmms  pms rulechain lbs headmast  authn  users bootstrap
+build: apimachinery  dmms  pms rulechain lbs headmast  authn  users bootstrap realms
 
 .PHONY: apimachinery 
 apimachinery: 
@@ -127,6 +127,13 @@ authz:
 users: 
 	@echo "building user management service (users)..."
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/users
+
+.PHONY: realms 
+realms: 
+	@echo "building identify authentiation management service (realms)..."
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/realms
+
+
 
 .PHONY: bootstrap 
 bootstrap: cmd/bootstrap 
