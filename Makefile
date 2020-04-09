@@ -31,6 +31,21 @@ endif
 
 GCFLAGS  := -gcflags="-N -l"
 
+DOCKERS_DEV = $(addprefix docker_dev_,$(IMAGES))
+define make_docker_dev
+	$(eval svc=$(subst docker_dev_,,$(1)))
+	@echo IMAGE_DIR is $(IMAGE_DIR1) 
+	@echo svc is $(svc)
+	@echo building $(IMAGE_NAME_PREFIX)$(svc) image ...
+	@if [ ! -d "cmd/$(svc)/bin/" ]; then mkdir cmd/$(svc)/bin/ ; fi
+	@cp scripts/dockerize cmd/$(svc)/bin/
+	cp bin/$(svc) cmd/$(svc)/bin/main
+	@full_img_name=$(IMAGE_NAME_PREFIX)$(svc); \
+		cd ./cmd/$(svc)/ && \
+			docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/$$full_img_name ../../../. -f Dockerfile.dev 
+	@rm -rf cmd/$(svc)/bin
+endef
+
 .PHONY: all
 all: build
 
@@ -61,6 +76,11 @@ $(addprefix docker-build-, $(IMAGES)): docker-build-%: %
 pandas-base:
 	@echo building $(IMAGE_NAME_PREFIX)pandas-base image ...
 	docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/pandas-base . -f docker/base/Dockerfile
+
+.PHONY: dockers_dev
+$(DOCKERS_DEV):
+	$(call make_docker_dev,$(@))
+dockers_dev: $(DOCKERS_DEV)
 
 .PHONY: deploy
 deploy:
