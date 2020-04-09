@@ -18,7 +18,7 @@ MAINFLUX_SERVICES = http ws coap lora influxdb-writer influxdb-reader mongodb-wr
 
 UNAME = $(shell uname)
 DOCKER_REPO = docker.io
-IMAGES = apimachinery dmms pms rulechain headmast lbs authn
+IMAGES = apimachinery dmms pms rulechain headmast lbs authn authz things bootstrap twins users
 IMAGE_NAME_PREFIX := pandas-
 IMAGE_DIR := $(IMAGE_NAME)
 ifeq ($(IMAGE_NAME),bridge)
@@ -34,8 +34,6 @@ GCFLAGS  := -gcflags="-N -l"
 DOCKERS_DEV = $(addprefix docker_dev_,$(IMAGES))
 define make_docker_dev
 	$(eval svc=$(subst docker_dev_,,$(1)))
-	@echo IMAGE_DIR is $(IMAGE_DIR1) 
-	@echo svc is $(svc)
 	@echo building $(IMAGE_NAME_PREFIX)$(svc) image ...
 	@if [ ! -d "cmd/$(svc)/bin/" ]; then mkdir cmd/$(svc)/bin/ ; fi
 	@cp scripts/dockerize cmd/$(svc)/bin/
@@ -160,12 +158,19 @@ bootstrap: cmd/bootstrap
 	@echo "building bootstrap service (bootstrap)..."
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/bootstrap
 
+.PHONY: things 
+things: cmd/things 
+	@echo "building things service (things)..."
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/things
+
+.PHONY: twins 
+twins: cmd/twins 
+	@echo "building twins service (twins)..."
+	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/twins
 
 .PHONY: mainflux 
 mainflux: 
 	@echo "building backend service (mainflux)..."
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/things
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/twins
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/ws
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/postgres-writer
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/postgres-reader
