@@ -15,6 +15,11 @@ import "github.com/cloustone/pandas/apimachinery/models"
 
 type ScriptEngine interface {
 	ScriptOnMessage(msg models.Message, script string) (models.Message, error)
+	//used by filter_switch_node
+	ScriptOnSwitch(msg models.Message, script string) ([]string, error)
+	//used by filter_script_node
+	ScriptOnFilter(msg models.Message, script string) (bool, error)
+	ScriptToString(msg models.Message, script string) (string, error)
 }
 
 func NewScriptEngine() ScriptEngine {

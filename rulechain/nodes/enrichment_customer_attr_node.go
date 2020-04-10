@@ -11,10 +11,24 @@
 //  under the License.
 package nodes
 
+import "github.com/cloustone/pandas/apimachinery/models"
+
+type enrichmentCustomerNode struct {
+	bareNode
+}
+
 type enrichmentCustomerAttrNodeFactory struct{}
 
 func (f enrichmentCustomerAttrNodeFactory) Name() string     { return "EnrichmentCustomerNode" }
 func (f enrichmentCustomerAttrNodeFactory) Category() string { return NODE_CATEGORY_ENRICHMENT }
 func (f enrichmentCustomerAttrNodeFactory) Create(id string, meta Metadata) (Node, error) {
-	return nil, nil
+	labels := []string{"Success", "Failure"}
+	node := &enrichmentCustomerNode{
+		bareNode: newBareNode(f.Name(), id, meta, labels),
+	}
+	return decodePath(meta, node)
+}
+
+func (n *enrichmentCustomerNode) Handle(msg models.Message) error {
+	return nil
 }

@@ -11,6 +11,10 @@
 //  under the License.
 package nodes
 
+type assignToCustomerNode struct {
+	bareNode
+}
+
 type assignToCustomerFactory struct{}
 
 func (f assignToCustomerFactory) Name() string     { return "AssignCustomerFactoryNode" }

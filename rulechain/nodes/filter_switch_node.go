@@ -36,5 +36,19 @@ func (f switchFilterNodeFactory) Create(id string, meta Metadata) (Node, error) 
 
 func (n *switchFilterNode) Handle(msg models.Message) error {
 	logrus.Infof("%s handle message '%s'", n.Name(), msg.GetType())
+
+	scriptEngine := NewScriptEngine()
+	SwitchResults, err := scriptEngine.ScriptOnSwitch(msg, n.Scripts)
+	if err != nil {
+		return nil
+	}
+	nodes := n.GetLinkedNodes()
+	for label, node := range nodes {
+		for _, switchresult := range SwitchResults {
+			if label == switchresult {
+				return node.Handle(msg)
+			}
+		}
+	}
 	return nil
 }
