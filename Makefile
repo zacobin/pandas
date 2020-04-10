@@ -119,7 +119,7 @@ authn:
 
 .PHONY: authz
 authz: 
-	@echo "building authorization service (authn)..."
+	@echo "building authorization service (authz)..."
 	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/authz
 
 
