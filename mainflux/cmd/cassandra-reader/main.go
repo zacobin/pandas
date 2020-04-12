@@ -16,6 +16,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/readers"
 	"github.com/cloustone/pandas/mainflux/readers/api"
@@ -113,39 +114,39 @@ func main() {
 }
 
 func loadConfig() config {
-	dbPort, err := strconv.Atoi(mainflux.Env(envDBPort, defDBPort))
+	dbPort, err := strconv.Atoi(pandas.Env(envDBPort, defDBPort))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	dbCfg := cassandra.DBConfig{
-		Hosts:    strings.Split(mainflux.Env(envCluster, defCluster), sep),
-		Keyspace: mainflux.Env(envKeyspace, defKeyspace),
-		Username: mainflux.Env(envDBUsername, defDBUsername),
-		Password: mainflux.Env(envDBPassword, defDBPassword),
+		Hosts:    strings.Split(pandas.Env(envCluster, defCluster), sep),
+		Keyspace: pandas.Env(envKeyspace, defKeyspace),
+		Username: pandas.Env(envDBUsername, defDBUsername),
+		Password: pandas.Env(envDBPassword, defDBPassword),
 		Port:     dbPort,
 	}
 
-	tls, err := strconv.ParseBool(mainflux.Env(envClientTLS, defClientTLS))
+	tls, err := strconv.ParseBool(pandas.Env(envClientTLS, defClientTLS))
 	if err != nil {
 		log.Fatalf("Invalid value passed for %s\n", envClientTLS)
 	}
 
-	timeout, err := strconv.ParseInt(mainflux.Env(envThingsTimeout, defThingsTimeout), 10, 64)
+	timeout, err := strconv.ParseInt(pandas.Env(envThingsTimeout, defThingsTimeout), 10, 64)
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envThingsTimeout, err.Error())
 	}
 
 	return config{
-		logLevel:      mainflux.Env(envLogLevel, defLogLevel),
-		port:          mainflux.Env(envPort, defPort),
+		logLevel:      pandas.Env(envLogLevel, defLogLevel),
+		port:          pandas.Env(envPort, defPort),
 		dbCfg:         dbCfg,
-		thingsURL:     mainflux.Env(envThingsURL, defThingsURL),
+		thingsURL:     pandas.Env(envThingsURL, defThingsURL),
 		clientTLS:     tls,
-		caCerts:       mainflux.Env(envCACerts, defCACerts),
-		serverCert:    mainflux.Env(envServerCert, defServerCert),
-		serverKey:     mainflux.Env(envServerKey, defServerKey),
-		jaegerURL:     mainflux.Env(envJaegerURL, defJaegerURL),
+		caCerts:       pandas.Env(envCACerts, defCACerts),
+		serverCert:    pandas.Env(envServerCert, defServerCert),
+		serverKey:     pandas.Env(envServerKey, defServerKey),
+		jaegerURL:     pandas.Env(envJaegerURL, defJaegerURL),
 		thingsTimeout: time.Duration(timeout) * time.Second,
 	}
 }

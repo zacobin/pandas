@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
 	adapter "github.com/cloustone/pandas/mainflux/http"
@@ -55,7 +56,7 @@ func MakeHandler(svc adapter.Service, tracer opentracing.Tracer) http.Handler {
 		opts...,
 	))
 
-	r.GetFunc("/version", mainflux.Version("http"))
+	r.GetFunc("/version", pandas.Version("http"))
 	r.Handle("/metrics", promhttp.Handler())
 
 	return r

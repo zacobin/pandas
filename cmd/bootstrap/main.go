@@ -16,6 +16,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cloustone/pandas"
 	authapi "github.com/cloustone/pandas/authn/api/grpc"
 	rediscons "github.com/cloustone/pandas/bootstrap/redis/consumer"
 	redisprod "github.com/cloustone/pandas/bootstrap/redis/producer"
@@ -25,12 +26,12 @@ import (
 	"github.com/cloustone/pandas/bootstrap"
 	api "github.com/cloustone/pandas/bootstrap/api"
 	"github.com/cloustone/pandas/bootstrap/postgres"
+	"github.com/cloustone/pandas/mainflux"
 	mflog "github.com/cloustone/pandas/pkg/logger"
 	mfsdk "github.com/cloustone/pandas/sdk/go"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	r "github.com/go-redis/redis"
 	"github.com/jmoiron/sqlx"
-	"github.com/cloustone/pandas/mainflux"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	jconfig "github.com/uber/jaeger-client-go/config"
 	"google.golang.org/grpc"
@@ -162,27 +163,27 @@ func main() {
 }
 
 func loadConfig() config {
-	tls, err := strconv.ParseBool(mainflux.Env(envClientTLS, defClientTLS))
+	tls, err := strconv.ParseBool(pandas.Env(envClientTLS, defClientTLS))
 	if err != nil {
 		tls = false
 	}
 	dbConfig := postgres.Config{
-		Host:        mainflux.Env(envDBHost, defDBHost),
-		Port:        mainflux.Env(envDBPort, defDBPort),
-		User:        mainflux.Env(envDBUser, defDBUser),
-		Pass:        mainflux.Env(envDBPass, defDBPass),
-		Name:        mainflux.Env(envDBName, defDBName),
-		SSLMode:     mainflux.Env(envDBSSLMode, defDBSSLMode),
-		SSLCert:     mainflux.Env(envDBSSLCert, defDBSSLCert),
-		SSLKey:      mainflux.Env(envDBSSLKey, defDBSSLKey),
-		SSLRootCert: mainflux.Env(envDBSSLRootCert, defDBSSLRootCert),
+		Host:        pandas.Env(envDBHost, defDBHost),
+		Port:        pandas.Env(envDBPort, defDBPort),
+		User:        pandas.Env(envDBUser, defDBUser),
+		Pass:        pandas.Env(envDBPass, defDBPass),
+		Name:        pandas.Env(envDBName, defDBName),
+		SSLMode:     pandas.Env(envDBSSLMode, defDBSSLMode),
+		SSLCert:     pandas.Env(envDBSSLCert, defDBSSLCert),
+		SSLKey:      pandas.Env(envDBSSLKey, defDBSSLKey),
+		SSLRootCert: pandas.Env(envDBSSLRootCert, defDBSSLRootCert),
 	}
 
-	timeout, err := strconv.ParseInt(mainflux.Env(envAuthTimeout, defAuthTimeout), 10, 64)
+	timeout, err := strconv.ParseInt(pandas.Env(envAuthTimeout, defAuthTimeout), 10, 64)
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envAuthTimeout, err.Error())
 	}
-	encKey, err := hex.DecodeString(mainflux.Env(envEncryptKey, defEncryptKey))
+	encKey, err := hex.DecodeString(pandas.Env(envEncryptKey, defEncryptKey))
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envEncryptKey, err.Error())
 	}
@@ -194,25 +195,25 @@ func loadConfig() config {
 	}
 
 	return config{
-		logLevel:       mainflux.Env(envLogLevel, defLogLevel),
+		logLevel:       pandas.Env(envLogLevel, defLogLevel),
 		dbConfig:       dbConfig,
 		clientTLS:      tls,
 		encKey:         encKey,
-		caCerts:        mainflux.Env(envCACerts, defCACerts),
-		httpPort:       mainflux.Env(envPort, defPort),
-		serverCert:     mainflux.Env(envServerCert, defServerCert),
-		serverKey:      mainflux.Env(envServerKey, defServerKey),
-		baseURL:        mainflux.Env(envBaseURL, defBaseURL),
-		thingsPrefix:   mainflux.Env(envThingsPrefix, defThingsPrefix),
-		esThingsURL:    mainflux.Env(envThingsESURL, defThingsESURL),
-		esThingsPass:   mainflux.Env(envThingsESPass, defThingsESPass),
-		esThingsDB:     mainflux.Env(envThingsESDB, defThingsESDB),
-		esURL:          mainflux.Env(envESURL, defESURL),
-		esPass:         mainflux.Env(envESPass, defESPass),
-		esDB:           mainflux.Env(envESDB, defESDB),
-		esConsumerName: mainflux.Env(envESConsumerName, defESConsumerName),
-		jaegerURL:      mainflux.Env(envJaegerURL, defJaegerURL),
-		authURL:        mainflux.Env(envAuthURL, defAuthURL),
+		caCerts:        pandas.Env(envCACerts, defCACerts),
+		httpPort:       pandas.Env(envPort, defPort),
+		serverCert:     pandas.Env(envServerCert, defServerCert),
+		serverKey:      pandas.Env(envServerKey, defServerKey),
+		baseURL:        pandas.Env(envBaseURL, defBaseURL),
+		thingsPrefix:   pandas.Env(envThingsPrefix, defThingsPrefix),
+		esThingsURL:    pandas.Env(envThingsESURL, defThingsESURL),
+		esThingsPass:   pandas.Env(envThingsESPass, defThingsESPass),
+		esThingsDB:     pandas.Env(envThingsESDB, defThingsESDB),
+		esURL:          pandas.Env(envESURL, defESURL),
+		esPass:         pandas.Env(envESPass, defESPass),
+		esDB:           pandas.Env(envESDB, defESDB),
+		esConsumerName: pandas.Env(envESConsumerName, defESConsumerName),
+		jaegerURL:      pandas.Env(envJaegerURL, defJaegerURL),
+		authURL:        pandas.Env(envAuthURL, defAuthURL),
 		authTimeout:    time.Duration(timeout) * time.Second,
 	}
 }

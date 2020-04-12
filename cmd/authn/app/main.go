@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"fmt"
@@ -11,7 +11,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/authn"
 	api "github.com/cloustone/pandas/authn/api"
 	grpcapi "github.com/cloustone/pandas/authn/api/grpc"
@@ -84,7 +83,7 @@ type tokenConfig struct {
 	tokenDuration    string // token in duration in min
 }
 
-func main() {
+func StartAuthnService() {
 	cfg := loadConfig()
 
 	logger, err := logger.New(os.Stdout, cfg.logLevel)

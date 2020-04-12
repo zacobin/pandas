@@ -11,15 +11,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
-	"github.com/jmoiron/sqlx"
-	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/transformers/senml"
 	"github.com/cloustone/pandas/mainflux/writers"
 	"github.com/cloustone/pandas/mainflux/writers/api"
 	"github.com/cloustone/pandas/mainflux/writers/postgres"
+	"github.com/cloustone/pandas/pkg/logger"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/jmoiron/sqlx"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 
@@ -27,7 +27,7 @@ const (
 	svcName = "postgres-writer"
 	sep     = ","
 
-	defNatsURL         = mainflux.DefNatsURL
+	defNatsURL         = pandas.DefNatsURL
 	defLogLevel        = "error"
 	defPort            = "9104"
 	defDBHost          = "postgres"
@@ -104,23 +104,23 @@ func main() {
 
 func loadConfig() config {
 	dbConfig := postgres.Config{
-		Host:        mainflux.Env(envDBHost, defDBHost),
-		Port:        mainflux.Env(envDBPort, defDBPort),
-		User:        mainflux.Env(envDBUser, defDBUser),
-		Pass:        mainflux.Env(envDBPass, defDBPass),
-		Name:        mainflux.Env(envDBName, defDBName),
-		SSLMode:     mainflux.Env(envDBSSLMode, defDBSSLMode),
-		SSLCert:     mainflux.Env(envDBSSLCert, defDBSSLCert),
-		SSLKey:      mainflux.Env(envDBSSLKey, defDBSSLKey),
-		SSLRootCert: mainflux.Env(envDBSSLRootCert, defDBSSLRootCert),
+		Host:        pandas.Env(envDBHost, defDBHost),
+		Port:        pandas.Env(envDBPort, defDBPort),
+		User:        pandas.Env(envDBUser, defDBUser),
+		Pass:        pandas.Env(envDBPass, defDBPass),
+		Name:        pandas.Env(envDBName, defDBName),
+		SSLMode:     pandas.Env(envDBSSLMode, defDBSSLMode),
+		SSLCert:     pandas.Env(envDBSSLCert, defDBSSLCert),
+		SSLKey:      pandas.Env(envDBSSLKey, defDBSSLKey),
+		SSLRootCert: pandas.Env(envDBSSLRootCert, defDBSSLRootCert),
 	}
 
 	return config{
-		natsURL:         mainflux.Env(envNatsURL, defNatsURL),
-		logLevel:        mainflux.Env(envLogLevel, defLogLevel),
-		port:            mainflux.Env(envPort, defPort),
+		natsURL:         pandas.Env(envNatsURL, defNatsURL),
+		logLevel:        pandas.Env(envLogLevel, defLogLevel),
+		port:            pandas.Env(envPort, defPort),
 		dbConfig:        dbConfig,
-		subjectsCfgPath: mainflux.Env(envSubjectsCfgPath, defSubjectsCfgPath),
+		subjectsCfgPath: pandas.Env(envSubjectsCfgPath, defSubjectsCfgPath),
 	}
 }
 

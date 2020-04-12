@@ -15,6 +15,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cloustone/pandas"
 	authapi "github.com/cloustone/pandas/authn/api/grpc"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/logger"
@@ -151,38 +152,38 @@ func main() {
 }
 
 func loadConfig() config {
-	tls, err := strconv.ParseBool(mainflux.Env(envClientTLS, defClientTLS))
+	tls, err := strconv.ParseBool(pandas.Env(envClientTLS, defClientTLS))
 	if err != nil {
 		log.Fatalf("Invalid value passed for %s\n", envClientTLS)
 	}
 
-	timeout, err := strconv.ParseInt(mainflux.Env(envAuthnTimeout, defAuthnTimeout), 10, 64)
+	timeout, err := strconv.ParseInt(pandas.Env(envAuthnTimeout, defAuthnTimeout), 10, 64)
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envAuthnTimeout, err.Error())
 	}
 
 	dbCfg := twmongodb.Config{
-		Name: mainflux.Env(envDBName, defDBName),
-		Host: mainflux.Env(envDBHost, defDBHost),
-		Port: mainflux.Env(envDBPort, defDBPort),
+		Name: pandas.Env(envDBName, defDBName),
+		Host: pandas.Env(envDBHost, defDBHost),
+		Port: pandas.Env(envDBPort, defDBPort),
 	}
 
 	return config{
-		logLevel:        mainflux.Env(envLogLevel, defLogLevel),
-		httpPort:        mainflux.Env(envHTTPPort, defHTTPPort),
-		serverCert:      mainflux.Env(envServerCert, defServerCert),
-		serverKey:       mainflux.Env(envServerKey, defServerKey),
-		jaegerURL:       mainflux.Env(envJaegerURL, defJaegerURL),
+		logLevel:        pandas.Env(envLogLevel, defLogLevel),
+		httpPort:        pandas.Env(envHTTPPort, defHTTPPort),
+		serverCert:      pandas.Env(envServerCert, defServerCert),
+		serverKey:       pandas.Env(envServerKey, defServerKey),
+		jaegerURL:       pandas.Env(envJaegerURL, defJaegerURL),
 		dbCfg:           dbCfg,
-		singleUserEmail: mainflux.Env(envSingleUserEmail, defSingleUserEmail),
-		singleUserToken: mainflux.Env(envSingleUserToken, defSingleUserToken),
+		singleUserEmail: pandas.Env(envSingleUserEmail, defSingleUserEmail),
+		singleUserToken: pandas.Env(envSingleUserToken, defSingleUserToken),
 		clientTLS:       tls,
-		caCerts:         mainflux.Env(envCACerts, defCACerts),
-		thingID:         mainflux.Env(envThingID, defThingID),
-		channelID:       mainflux.Env(envChannelID, defChannelID),
-		thingKey:        mainflux.Env(envThingKey, defThingKey),
-		NatsURL:         mainflux.Env(envNatsURL, defNatsURL),
-		authnURL:        mainflux.Env(envAuthnURL, defAuthnURL),
+		caCerts:         pandas.Env(envCACerts, defCACerts),
+		thingID:         pandas.Env(envThingID, defThingID),
+		channelID:       pandas.Env(envChannelID, defChannelID),
+		thingKey:        pandas.Env(envThingKey, defThingKey),
+		NatsURL:         pandas.Env(envNatsURL, defNatsURL),
+		authnURL:        pandas.Env(envAuthnURL, defAuthnURL),
 		authnTimeout:    time.Duration(timeout) * time.Second,
 	}
 }

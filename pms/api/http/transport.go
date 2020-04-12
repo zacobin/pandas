@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pms"
 	"github.com/cloustone/pandas/twins"
@@ -83,7 +84,7 @@ func MakeHandler(tracer opentracing.Tracer, svc pms.Service) http.Handler {
 	))
 
 	// others handlers
-	r.GetFunc("/version", mainflux.Version("twins"))
+	r.GetFunc("/version", pandas.Version("twins"))
 	r.Handle("/metrics", promhttp.Handler())
 
 	return r

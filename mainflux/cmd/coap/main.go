@@ -15,6 +15,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
 	"github.com/cloustone/pandas/mainflux/coap"
@@ -32,7 +33,7 @@ import (
 
 const (
 	defPort          = "5683"
-	defNatsURL       = mainflux.DefNatsURL
+	defNatsURL       = pandas.DefNatsURL
 	defThingsURL     = "localhost:8181"
 	defLogLevel      = "error"
 	defClientTLS     = "false"
@@ -124,12 +125,12 @@ func main() {
 }
 
 func loadConfig() config {
-	tls, err := strconv.ParseBool(mainflux.Env(envClientTLS, defClientTLS))
+	tls, err := strconv.ParseBool(pandas.Env(envClientTLS, defClientTLS))
 	if err != nil {
 		log.Fatalf("Invalid value passed for %s\n", envClientTLS)
 	}
 
-	pp, err := strconv.ParseInt(mainflux.Env(envPingPeriod, defPingPeriod), 10, 64)
+	pp, err := strconv.ParseInt(pandas.Env(envPingPeriod, defPingPeriod), 10, 64)
 	if err != nil {
 		log.Fatalf("Invalid value passed for %s\n", envPingPeriod)
 	}
@@ -138,20 +139,20 @@ func loadConfig() config {
 		log.Fatalf("Value of %s must be between 1 and 24", envPingPeriod)
 	}
 
-	timeout, err := strconv.ParseInt(mainflux.Env(envThingsTimeout, defThingsTimeout), 10, 64)
+	timeout, err := strconv.ParseInt(pandas.Env(envThingsTimeout, defThingsTimeout), 10, 64)
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envThingsTimeout, err.Error())
 	}
 
 	return config{
-		thingsURL:     mainflux.Env(envThingsURL, defThingsURL),
-		natsURL:       mainflux.Env(envNatsURL, defNatsURL),
-		port:          mainflux.Env(envPort, defPort),
-		logLevel:      mainflux.Env(envLogLevel, defLogLevel),
+		thingsURL:     pandas.Env(envThingsURL, defThingsURL),
+		natsURL:       pandas.Env(envNatsURL, defNatsURL),
+		port:          pandas.Env(envPort, defPort),
+		logLevel:      pandas.Env(envLogLevel, defLogLevel),
 		clientTLS:     tls,
-		caCerts:       mainflux.Env(envCACerts, defCACerts),
+		caCerts:       pandas.Env(envCACerts, defCACerts),
 		pingPeriod:    time.Duration(pp),
-		jaegerURL:     mainflux.Env(envJaegerURL, defJaegerURL),
+		jaegerURL:     pandas.Env(envJaegerURL, defJaegerURL),
 		thingsTimeout: time.Duration(timeout) * time.Second,
 	}
 }

@@ -16,13 +16,14 @@ import (
 	"strings"
 	"time"
 
-	gocoap "github.com/dustin/go-coap"
-	"github.com/go-zoo/bone"
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
 	"github.com/cloustone/pandas/mainflux/coap"
-	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/transformers/senml"
+	log "github.com/cloustone/pandas/pkg/logger"
+	gocoap "github.com/dustin/go-coap"
+	"github.com/go-zoo/bone"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -52,7 +53,7 @@ type handler func(conn *net.UDPConn, addr *net.UDPAddr, msg *gocoap.Message) *go
 //MakeHTTPHandler creates handler for version endpoint.
 func MakeHTTPHandler() http.Handler {
 	b := bone.New()
-	b.GetFunc("/version", mainflux.Version(protocol))
+	b.GetFunc("/version", pandas.Version(protocol))
 	b.Handle("/metrics", promhttp.Handler())
 
 	return b

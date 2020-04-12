@@ -11,12 +11,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/cloustone/pandas"
+	"github.com/cloustone/pandas/authn"
+	"github.com/cloustone/pandas/mainflux"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-zoo/bone"
-	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/authn"
-	"github.com/opentracing/opentracing-go"
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -53,7 +54,7 @@ func MakeHandler(svc authn.Service, tracer opentracing.Tracer) http.Handler {
 		opts...,
 	))
 
-	mux.GetFunc("/version", mainflux.Version("auth"))
+	mux.GetFunc("/version", pandas.Version("auth"))
 	mux.Handle("/metrics", promhttp.Handler())
 
 	return mux

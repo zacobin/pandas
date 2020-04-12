@@ -12,24 +12,24 @@ import (
 	"strconv"
 	"syscall"
 
-	mqttPaho "github.com/eclipse/paho.mqtt.golang"
-	r "github.com/go-redis/redis"
-	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/lora"
 	"github.com/cloustone/pandas/mainflux/lora/api"
 	"github.com/cloustone/pandas/mainflux/lora/mqtt"
+	"github.com/cloustone/pandas/pkg/logger"
+	mqttPaho "github.com/eclipse/paho.mqtt.golang"
+	r "github.com/go-redis/redis"
 
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/cloustone/pandas/mainflux/lora/redis"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 
 const (
 	defHTTPPort       = "8180"
 	defLoraMsgURL     = "tcp://localhost:1883"
-	defNatsURL        = mainflux.DefNatsURL
+	defNatsURL        = pandas.DefNatsURL
 	defLogLevel       = "error"
 	defESURL          = "localhost:6379"
 	defESPass         = ""
@@ -134,17 +134,17 @@ func main() {
 
 func loadConfig() config {
 	return config{
-		httpPort:       mainflux.Env(envHTTPPort, defHTTPPort),
-		loraMsgURL:     mainflux.Env(envLoraMsgURL, defLoraMsgURL),
-		natsURL:        mainflux.Env(envNatsURL, defNatsURL),
-		logLevel:       mainflux.Env(envLogLevel, defLogLevel),
-		esURL:          mainflux.Env(envESURL, defESURL),
-		esPass:         mainflux.Env(envESPass, defESPass),
-		esDB:           mainflux.Env(envESDB, defESDB),
-		esConsumerName: mainflux.Env(envESConsumerName, defESConsumerName),
-		routeMapURL:    mainflux.Env(envRouteMapURL, defRouteMapURL),
-		routeMapPass:   mainflux.Env(envRouteMapPass, defRouteMapPass),
-		routeMapDB:     mainflux.Env(envRouteMapDB, defRouteMapDB),
+		httpPort:       pandas.Env(envHTTPPort, defHTTPPort),
+		loraMsgURL:     pandas.Env(envLoraMsgURL, defLoraMsgURL),
+		natsURL:        pandas.Env(envNatsURL, defNatsURL),
+		logLevel:       pandas.Env(envLogLevel, defLogLevel),
+		esURL:          pandas.Env(envESURL, defESURL),
+		esPass:         pandas.Env(envESPass, defESPass),
+		esDB:           pandas.Env(envESDB, defESDB),
+		esConsumerName: pandas.Env(envESConsumerName, defESConsumerName),
+		routeMapURL:    pandas.Env(envRouteMapURL, defRouteMapURL),
+		routeMapPass:   pandas.Env(envRouteMapPass, defRouteMapPass),
+		routeMapDB:     pandas.Env(envRouteMapDB, defRouteMapDB),
 	}
 }
 

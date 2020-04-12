@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/readers"
 	"github.com/cloustone/pandas/mainflux/readers/api"
@@ -113,30 +114,30 @@ func main() {
 }
 
 func loadConfigs() (config, influxdata.HTTPConfig) {
-	tls, err := strconv.ParseBool(mainflux.Env(envClientTLS, defClientTLS))
+	tls, err := strconv.ParseBool(pandas.Env(envClientTLS, defClientTLS))
 	if err != nil {
 		log.Fatalf("Invalid value passed for %s\n", envClientTLS)
 	}
 
-	timeout, err := strconv.ParseInt(mainflux.Env(envThingsTimeout, defThingsTimeout), 10, 64)
+	timeout, err := strconv.ParseInt(pandas.Env(envThingsTimeout, defThingsTimeout), 10, 64)
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envThingsTimeout, err.Error())
 	}
 
 	cfg := config{
-		thingsURL:     mainflux.Env(envThingsURL, defThingsURL),
-		logLevel:      mainflux.Env(envLogLevel, defLogLevel),
-		port:          mainflux.Env(envPort, defPort),
-		dbName:        mainflux.Env(envDBName, defDBName),
-		dbHost:        mainflux.Env(envDBHost, defDBHost),
-		dbPort:        mainflux.Env(envDBPort, defDBPort),
-		dbUser:        mainflux.Env(envDBUser, defDBUser),
-		dbPass:        mainflux.Env(envDBPass, defDBPass),
+		thingsURL:     pandas.Env(envThingsURL, defThingsURL),
+		logLevel:      pandas.Env(envLogLevel, defLogLevel),
+		port:          pandas.Env(envPort, defPort),
+		dbName:        pandas.Env(envDBName, defDBName),
+		dbHost:        pandas.Env(envDBHost, defDBHost),
+		dbPort:        pandas.Env(envDBPort, defDBPort),
+		dbUser:        pandas.Env(envDBUser, defDBUser),
+		dbPass:        pandas.Env(envDBPass, defDBPass),
 		clientTLS:     tls,
-		caCerts:       mainflux.Env(envCACerts, defCACerts),
-		serverCert:    mainflux.Env(envServerCert, defServerCert),
-		serverKey:     mainflux.Env(envServerKey, defServerKey),
-		jaegerURL:     mainflux.Env(envJaegerURL, defJaegerURL),
+		caCerts:       pandas.Env(envCACerts, defCACerts),
+		serverCert:    pandas.Env(envServerCert, defServerCert),
+		serverKey:     pandas.Env(envServerKey, defServerKey),
+		jaegerURL:     pandas.Env(envJaegerURL, defJaegerURL),
 		thingsTimeout: time.Duration(timeout) * time.Second,
 	}
 

@@ -13,15 +13,15 @@ import (
 	"strings"
 	"syscall"
 
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
-	"github.com/gocql/gocql"
-	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/transformers/senml"
 	"github.com/cloustone/pandas/mainflux/writers"
 	"github.com/cloustone/pandas/mainflux/writers/api"
 	"github.com/cloustone/pandas/mainflux/writers/cassandra"
+	"github.com/cloustone/pandas/pkg/logger"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/gocql/gocql"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 
@@ -29,7 +29,7 @@ const (
 	svcName = "cassandra-writer"
 	sep     = ","
 
-	defNatsURL         = mainflux.DefNatsURL
+	defNatsURL         = pandas.DefNatsURL
 	defLogLevel        = "error"
 	defPort            = "8180"
 	defCluster         = "127.0.0.1"
@@ -97,25 +97,25 @@ func main() {
 }
 
 func loadConfig() config {
-	dbPort, err := strconv.Atoi(mainflux.Env(envDBPort, defDBPort))
+	dbPort, err := strconv.Atoi(pandas.Env(envDBPort, defDBPort))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	dbCfg := cassandra.DBConfig{
-		Hosts:    strings.Split(mainflux.Env(envCluster, defCluster), sep),
-		Keyspace: mainflux.Env(envKeyspace, defKeyspace),
-		Username: mainflux.Env(envDBUsername, defDBUsername),
-		Password: mainflux.Env(envDBPassword, defDBPassword),
+		Hosts:    strings.Split(pandas.Env(envCluster, defCluster), sep),
+		Keyspace: pandas.Env(envKeyspace, defKeyspace),
+		Username: pandas.Env(envDBUsername, defDBUsername),
+		Password: pandas.Env(envDBPassword, defDBPassword),
 		Port:     dbPort,
 	}
 
 	return config{
-		natsURL:         mainflux.Env(envNatsURL, defNatsURL),
-		logLevel:        mainflux.Env(envLogLevel, defLogLevel),
-		port:            mainflux.Env(envPort, defPort),
+		natsURL:         pandas.Env(envNatsURL, defNatsURL),
+		logLevel:        pandas.Env(envLogLevel, defLogLevel),
+		port:            pandas.Env(envPort, defPort),
 		dbCfg:           dbCfg,
-		subjectsCfgPath: mainflux.Env(envSubjectsCfgPath, defSubjectsCfgPath),
+		subjectsCfgPath: pandas.Env(envSubjectsCfgPath, defSubjectsCfgPath),
 	}
 }
 

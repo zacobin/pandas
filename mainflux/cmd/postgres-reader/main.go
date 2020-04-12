@@ -15,6 +15,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/readers"
 	"github.com/cloustone/pandas/mainflux/readers/api"
@@ -117,28 +118,28 @@ func main() {
 
 func loadConfig() config {
 	dbConfig := postgres.Config{
-		Host:        mainflux.Env(envDBHost, defDBHost),
-		Port:        mainflux.Env(envDBPort, defDBPort),
-		User:        mainflux.Env(envDBUser, defDBUser),
-		Pass:        mainflux.Env(envDBPass, defDBPass),
-		Name:        mainflux.Env(envDBName, defDBName),
-		SSLMode:     mainflux.Env(envDBSSLMode, defDBSSLMode),
-		SSLCert:     mainflux.Env(envDBSSLCert, defDBSSLCert),
-		SSLKey:      mainflux.Env(envDBSSLKey, defDBSSLKey),
-		SSLRootCert: mainflux.Env(envDBSSLRootCert, defDBSSLRootCert),
+		Host:        pandas.Env(envDBHost, defDBHost),
+		Port:        pandas.Env(envDBPort, defDBPort),
+		User:        pandas.Env(envDBUser, defDBUser),
+		Pass:        pandas.Env(envDBPass, defDBPass),
+		Name:        pandas.Env(envDBName, defDBName),
+		SSLMode:     pandas.Env(envDBSSLMode, defDBSSLMode),
+		SSLCert:     pandas.Env(envDBSSLCert, defDBSSLCert),
+		SSLKey:      pandas.Env(envDBSSLKey, defDBSSLKey),
+		SSLRootCert: pandas.Env(envDBSSLRootCert, defDBSSLRootCert),
 	}
 
-	timeout, err := strconv.ParseInt(mainflux.Env(envThingsTimeout, defThingsTimeout), 10, 64)
+	timeout, err := strconv.ParseInt(pandas.Env(envThingsTimeout, defThingsTimeout), 10, 64)
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envThingsTimeout, err.Error())
 	}
 
 	return config{
-		thingsURL:     mainflux.Env(envThingsURL, defThingsURL),
-		logLevel:      mainflux.Env(envLogLevel, defLogLevel),
-		port:          mainflux.Env(envPort, defPort),
+		thingsURL:     pandas.Env(envThingsURL, defThingsURL),
+		logLevel:      pandas.Env(envLogLevel, defLogLevel),
+		port:          pandas.Env(envPort, defPort),
 		dbConfig:      dbConfig,
-		jaegerURL:     mainflux.Env(envJaegerURL, defJaegerURL),
+		jaegerURL:     pandas.Env(envJaegerURL, defJaegerURL),
 		thingsTimeout: time.Duration(timeout) * time.Second,
 	}
 }

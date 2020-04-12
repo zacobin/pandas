@@ -12,14 +12,14 @@ import (
 	"os/signal"
 	"syscall"
 
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
-	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/transformers/senml"
 	"github.com/cloustone/pandas/mainflux/writers"
 	"github.com/cloustone/pandas/mainflux/writers/api"
 	"github.com/cloustone/pandas/mainflux/writers/mongodb"
+	"github.com/cloustone/pandas/pkg/logger"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -28,7 +28,7 @@ import (
 const (
 	svcName = "mongodb-writer"
 
-	defNatsURL         = mainflux.DefNatsURL
+	defNatsURL         = pandas.DefNatsURL
 	defLogLevel        = "error"
 	defPort            = "8180"
 	defDBName          = "mainflux"
@@ -104,13 +104,13 @@ func main() {
 
 func loadConfigs() config {
 	return config{
-		natsURL:         mainflux.Env(envNatsURL, defNatsURL),
-		logLevel:        mainflux.Env(envLogLevel, defLogLevel),
-		port:            mainflux.Env(envPort, defPort),
-		dbName:          mainflux.Env(envDBName, defDBName),
-		dbHost:          mainflux.Env(envDBHost, defDBHost),
-		dbPort:          mainflux.Env(envDBPort, defDBPort),
-		subjectsCfgPath: mainflux.Env(envSubjectsCfgPath, defSubjectsCfgPath),
+		natsURL:         pandas.Env(envNatsURL, defNatsURL),
+		logLevel:        pandas.Env(envLogLevel, defLogLevel),
+		port:            pandas.Env(envPort, defPort),
+		dbName:          pandas.Env(envDBName, defDBName),
+		dbHost:          pandas.Env(envDBHost, defDBHost),
+		dbPort:          pandas.Env(envDBPort, defDBPort),
+		subjectsCfgPath: pandas.Env(envSubjectsCfgPath, defSubjectsCfgPath),
 	}
 }
 

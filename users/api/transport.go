@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/errors"
 
@@ -95,7 +96,7 @@ func MakeHandler(svc users.Service, tracer opentracing.Tracer, l log.Logger) htt
 		opts...,
 	))
 
-	mux.GetFunc("/version", mainflux.Version("users"))
+	mux.GetFunc("/version", pandas.Version("users"))
 	mux.Handle("/metrics", promhttp.Handler())
 
 	return mux

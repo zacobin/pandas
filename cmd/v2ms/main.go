@@ -15,6 +15,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/v2ms"
 	"github.com/cloustone/pandas/v2ms/tracing"
@@ -189,50 +190,50 @@ func main() {
 }
 
 func loadConfig() config {
-	tls, err := strconv.ParseBool(mainflux.Env(envClientTLS, defClientTLS))
+	tls, err := strconv.ParseBool(pandas.Env(envClientTLS, defClientTLS))
 	if err != nil {
 		log.Fatalf("Invalid value passed for %s\n", envClientTLS)
 	}
 
-	timeout, err := strconv.ParseInt(mainflux.Env(envAuthTimeout, defAuthTimeout), 10, 64)
+	timeout, err := strconv.ParseInt(pandas.Env(envAuthTimeout, defAuthTimeout), 10, 64)
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envAuthTimeout, err.Error())
 	}
 
 	dbConfig := postgres.Config{
-		Host:        mainflux.Env(envDBHost, defDBHost),
-		Port:        mainflux.Env(envDBPort, defDBPort),
-		User:        mainflux.Env(envDBUser, defDBUser),
-		Pass:        mainflux.Env(envDBPass, defDBPass),
-		Name:        mainflux.Env(envDBName, defDBName),
-		SSLMode:     mainflux.Env(envDBSSLMode, defDBSSLMode),
-		SSLCert:     mainflux.Env(envDBSSLCert, defDBSSLCert),
-		SSLKey:      mainflux.Env(envDBSSLKey, defDBSSLKey),
-		SSLRootCert: mainflux.Env(envDBSSLRootCert, defDBSSLRootCert),
+		Host:        pandas.Env(envDBHost, defDBHost),
+		Port:        pandas.Env(envDBPort, defDBPort),
+		User:        pandas.Env(envDBUser, defDBUser),
+		Pass:        pandas.Env(envDBPass, defDBPass),
+		Name:        pandas.Env(envDBName, defDBName),
+		SSLMode:     pandas.Env(envDBSSLMode, defDBSSLMode),
+		SSLCert:     pandas.Env(envDBSSLCert, defDBSSLCert),
+		SSLKey:      pandas.Env(envDBSSLKey, defDBSSLKey),
+		SSLRootCert: pandas.Env(envDBSSLRootCert, defDBSSLRootCert),
 	}
 
 	return config{
-		logLevel:        mainflux.Env(envLogLevel, defLogLevel),
+		logLevel:        pandas.Env(envLogLevel, defLogLevel),
 		dbConfig:        dbConfig,
 		clientTLS:       tls,
-		caCerts:         mainflux.Env(envCACerts, defCACerts),
-		cacheURL:        mainflux.Env(envCacheURL, defCacheURL),
-		cachePass:       mainflux.Env(envCachePass, defCachePass),
-		cacheDB:         mainflux.Env(envCacheDB, defCacheDB),
-		esURL:           mainflux.Env(envESURL, defESURL),
-		esPass:          mainflux.Env(envESPass, defESPass),
-		esDB:            mainflux.Env(envESDB, defESDB),
-		httpPort:        mainflux.Env(envHTTPPort, defHTTPPort),
-		authHTTPPort:    mainflux.Env(envAuthHTTPPort, defAuthHTTPPort),
-		authGRPCPort:    mainflux.Env(envAuthGRPCPort, defAuthGRPCPort),
-		serverCert:      mainflux.Env(envServerCert, defServerCert),
-		serverKey:       mainflux.Env(envServerKey, defServerKey),
-		singleUserEmail: mainflux.Env(envSingleUserEmail, defSingleUserEmail),
-		singleUserToken: mainflux.Env(envSingleUserToken, defSingleUserToken),
-		jaegerURL:       mainflux.Env(envJaegerURL, defJaegerURL),
-		authURL:         mainflux.Env(envAuthURL, defAuthURL),
-		NatsURL:         mainflux.Env(envNatsURL, defNatsURL),
-		channelID:       mainflux.Env(envChannelID, defChannelID),
+		caCerts:         pandas.Env(envCACerts, defCACerts),
+		cacheURL:        pandas.Env(envCacheURL, defCacheURL),
+		cachePass:       pandas.Env(envCachePass, defCachePass),
+		cacheDB:         pandas.Env(envCacheDB, defCacheDB),
+		esURL:           pandas.Env(envESURL, defESURL),
+		esPass:          pandas.Env(envESPass, defESPass),
+		esDB:            pandas.Env(envESDB, defESDB),
+		httpPort:        pandas.Env(envHTTPPort, defHTTPPort),
+		authHTTPPort:    pandas.Env(envAuthHTTPPort, defAuthHTTPPort),
+		authGRPCPort:    pandas.Env(envAuthGRPCPort, defAuthGRPCPort),
+		serverCert:      pandas.Env(envServerCert, defServerCert),
+		serverKey:       pandas.Env(envServerKey, defServerKey),
+		singleUserEmail: pandas.Env(envSingleUserEmail, defSingleUserEmail),
+		singleUserToken: pandas.Env(envSingleUserToken, defSingleUserToken),
+		jaegerURL:       pandas.Env(envJaegerURL, defJaegerURL),
+		authURL:         pandas.Env(envAuthURL, defAuthURL),
+		NatsURL:         pandas.Env(envNatsURL, defNatsURL),
+		channelID:       pandas.Env(envChannelID, defChannelID),
 		authTimeout:     time.Duration(timeout) * time.Second,
 	}
 }

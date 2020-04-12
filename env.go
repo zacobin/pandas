@@ -1,12 +1,11 @@
-// Copyright (c) Mainflux
 // SPDX-License-Identifier: Apache-2.0
 
-package mainflux
+package pandas
 
 import (
 	"os"
 
-	"github.com/nats-io/nats.go"
+	nats "github.com/nats-io/nats.go"
 )
 
 const (

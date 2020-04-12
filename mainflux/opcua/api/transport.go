@@ -9,10 +9,11 @@ import (
 	"errors"
 	"net/http"
 
-	kithttp "github.com/go-kit/kit/transport/http"
-	"github.com/go-zoo/bone"
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/opcua"
+	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/go-zoo/bone"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -49,7 +50,7 @@ func MakeHandler(svc opcua.Service) http.Handler {
 		opts...,
 	))
 
-	r.GetFunc("/version", mainflux.Version("opcua-adapter"))
+	r.GetFunc("/version", pandas.Version("opcua-adapter"))
 	r.Handle("/metrics", promhttp.Handler())
 
 	return r

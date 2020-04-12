@@ -13,15 +13,15 @@ import (
 	"strconv"
 	"syscall"
 
-	r "github.com/go-redis/redis"
-	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux/broker"
-	"github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/opcua"
 	"github.com/cloustone/pandas/mainflux/opcua/api"
 	"github.com/cloustone/pandas/mainflux/opcua/db"
 	"github.com/cloustone/pandas/mainflux/opcua/gopcua"
 	"github.com/cloustone/pandas/mainflux/opcua/redis"
+	"github.com/cloustone/pandas/pkg/logger"
+	r "github.com/go-redis/redis"
 
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
@@ -34,7 +34,7 @@ const (
 	defOPCMode        = ""
 	defOPCCertFile    = ""
 	defOPCKeyFile     = ""
-	defNatsURL        = mainflux.DefNatsURL
+	defNatsURL        = pandas.DefNatsURL
 	defLogLevel       = "debug"
 	defESURL          = "localhost:6379"
 	defESPass         = ""
@@ -145,24 +145,24 @@ func main() {
 
 func loadConfig() config {
 	oc := opcua.Config{
-		Interval: mainflux.Env(envOPCIntervalMs, defOPCIntervalMs),
-		Policy:   mainflux.Env(envOPCPolicy, defOPCPolicy),
-		Mode:     mainflux.Env(envOPCMode, defOPCMode),
-		CertFile: mainflux.Env(envOPCCertFile, defOPCCertFile),
-		KeyFile:  mainflux.Env(envOPCKeyFile, defOPCKeyFile),
+		Interval: pandas.Env(envOPCIntervalMs, defOPCIntervalMs),
+		Policy:   pandas.Env(envOPCPolicy, defOPCPolicy),
+		Mode:     pandas.Env(envOPCMode, defOPCMode),
+		CertFile: pandas.Env(envOPCCertFile, defOPCCertFile),
+		KeyFile:  pandas.Env(envOPCKeyFile, defOPCKeyFile),
 	}
 	return config{
-		httpPort:       mainflux.Env(envHTTPPort, defHTTPPort),
+		httpPort:       pandas.Env(envHTTPPort, defHTTPPort),
 		opcuaConfig:    oc,
-		natsURL:        mainflux.Env(envNatsURL, defNatsURL),
-		logLevel:       mainflux.Env(envLogLevel, defLogLevel),
-		esURL:          mainflux.Env(envESURL, defESURL),
-		esPass:         mainflux.Env(envESPass, defESPass),
-		esDB:           mainflux.Env(envESDB, defESDB),
-		esConsumerName: mainflux.Env(envESConsumerName, defESConsumerName),
-		routeMapURL:    mainflux.Env(envRouteMapURL, defRouteMapURL),
-		routeMapPass:   mainflux.Env(envRouteMapPass, defRouteMapPass),
-		routeMapDB:     mainflux.Env(envRouteMapDB, defRouteMapDB),
+		natsURL:        pandas.Env(envNatsURL, defNatsURL),
+		logLevel:       pandas.Env(envLogLevel, defLogLevel),
+		esURL:          pandas.Env(envESURL, defESURL),
+		esPass:         pandas.Env(envESPass, defESPass),
+		esDB:           pandas.Env(envESDB, defESDB),
+		esConsumerName: pandas.Env(envESConsumerName, defESConsumerName),
+		routeMapURL:    pandas.Env(envRouteMapURL, defRouteMapURL),
+		routeMapPass:   pandas.Env(envRouteMapPass, defRouteMapPass),
+		routeMapDB:     pandas.Env(envRouteMapDB, defRouteMapDB),
 	}
 }
 

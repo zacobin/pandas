@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux/broker"
 	mqtt "github.com/cloustone/pandas/mainflux/mqtt"
 	mr "github.com/cloustone/pandas/mainflux/mqtt/redis"
@@ -59,7 +59,7 @@ const (
 	envThingsURL     = "MF_THINGS_URL"
 	envThingsTimeout = "MF_MQTT_ADAPTER_THINGS_TIMEOUT"
 	// Nats
-	defNatsURL = mainflux.DefNatsURL
+	defNatsURL = pandas.DefNatsURL
 	envNatsURL = "MF_NATS_URL"
 	// Jaeger
 	defJaegerURL = ""
@@ -158,38 +158,38 @@ func main() {
 }
 
 func loadConfig() config {
-	tls, err := strconv.ParseBool(mainflux.Env(envClientTLS, defClientTLS))
+	tls, err := strconv.ParseBool(pandas.Env(envClientTLS, defClientTLS))
 	if err != nil {
 		log.Fatalf("Invalid value passed for %s\n", envClientTLS)
 	}
 
-	timeout, err := strconv.ParseInt(mainflux.Env(envThingsTimeout, defThingsTimeout), 10, 64)
+	timeout, err := strconv.ParseInt(pandas.Env(envThingsTimeout, defThingsTimeout), 10, 64)
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envThingsTimeout, err.Error())
 	}
 
 	return config{
-		mqttHost:       mainflux.Env(envMQTTHost, defMQTTHost),
-		mqttPort:       mainflux.Env(envMQTTPort, defMQTTPort),
-		mqttTargetHost: mainflux.Env(envMQTTTargetHost, defMQTTTargetHost),
-		mqttTargetPort: mainflux.Env(envMQTTTargetPort, defMQTTTargetPort),
-		httpHost:       mainflux.Env(envHTTPHost, defHTTPHost),
-		httpPort:       mainflux.Env(envHTTPPort, defHTTPPort),
-		httpScheme:     mainflux.Env(envHTTPScheme, defHTTPScheme),
-		httpTargetHost: mainflux.Env(envHTTPTargetHost, defHTTPTargetHost),
-		httpTargetPort: mainflux.Env(envHTTPTargetPort, defHTTPTargetPort),
-		httpTargetPath: mainflux.Env(envHTTPTargetPath, defHTTPTargetPath),
-		jaegerURL:      mainflux.Env(envJaegerURL, defJaegerURL),
+		mqttHost:       pandas.Env(envMQTTHost, defMQTTHost),
+		mqttPort:       pandas.Env(envMQTTPort, defMQTTPort),
+		mqttTargetHost: pandas.Env(envMQTTTargetHost, defMQTTTargetHost),
+		mqttTargetPort: pandas.Env(envMQTTTargetPort, defMQTTTargetPort),
+		httpHost:       pandas.Env(envHTTPHost, defHTTPHost),
+		httpPort:       pandas.Env(envHTTPPort, defHTTPPort),
+		httpScheme:     pandas.Env(envHTTPScheme, defHTTPScheme),
+		httpTargetHost: pandas.Env(envHTTPTargetHost, defHTTPTargetHost),
+		httpTargetPort: pandas.Env(envHTTPTargetPort, defHTTPTargetPort),
+		httpTargetPath: pandas.Env(envHTTPTargetPath, defHTTPTargetPath),
+		jaegerURL:      pandas.Env(envJaegerURL, defJaegerURL),
 		thingsTimeout:  time.Duration(timeout) * time.Second,
-		thingsURL:      mainflux.Env(envThingsURL, defThingsURL),
-		natsURL:        mainflux.Env(envNatsURL, defNatsURL),
-		logLevel:       mainflux.Env(envLogLevel, defLogLevel),
+		thingsURL:      pandas.Env(envThingsURL, defThingsURL),
+		natsURL:        pandas.Env(envNatsURL, defNatsURL),
+		logLevel:       pandas.Env(envLogLevel, defLogLevel),
 		clientTLS:      tls,
-		caCerts:        mainflux.Env(envCACerts, defCACerts),
-		instance:       mainflux.Env(envInstance, defInstance),
-		esURL:          mainflux.Env(envESURL, defESURL),
-		esPass:         mainflux.Env(envESPass, defESPass),
-		esDB:           mainflux.Env(envESDB, defESDB),
+		caCerts:        pandas.Env(envCACerts, defCACerts),
+		instance:       pandas.Env(envInstance, defInstance),
+		esURL:          pandas.Env(envESURL, defESURL),
+		esPass:         pandas.Env(envESPass, defESPass),
+		esDB:           pandas.Env(envESDB, defESDB),
 	}
 }
 
