@@ -15,9 +15,8 @@ import (
 	"syscall"
 	"time"
 
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
-	"github.com/cloustone/pandas/mainflux"
 	authapi "github.com/cloustone/pandas/authn/api/grpc"
+	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/logger"
 	localusers "github.com/cloustone/pandas/things/users"
 	"github.com/cloustone/pandas/twins"
@@ -27,6 +26,7 @@ import (
 	natspub "github.com/cloustone/pandas/twins/nats/publisher"
 	natssub "github.com/cloustone/pandas/twins/nats/subscriber"
 	"github.com/cloustone/pandas/twins/uuid"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	nats "github.com/nats-io/nats.go"
 	opentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
