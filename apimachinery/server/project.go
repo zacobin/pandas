@@ -12,45 +12,16 @@
 package server
 
 import (
-	"github.com/cloustone/pandas/apimachinery/restapi/operations/project"
 	"github.com/cloustone/pandas/apimachinery/models"
-	serverconverter "github.com/cloustone/pandas/pms/converter"
-	pb "github.com/cloustone/pandas/pms/grpc_pms_v1"
+	"github.com/cloustone/pandas/apimachinery/restapi/operations/project"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 func GetProjects(params project.GetProjectsParams, principal *models.Principal) middleware.Responder {
-	client, err := pb.NewClient()
-	if err != nil {
-		return serverError(err)
-	}
-	defer client.Close()
-
-	req := &pb.GetProjectsRequest{UserID: principal.ID}
-	resp, err := client.ProjectManager().GetProjects(params.HTTPRequest.Context(), req)
-	if err != nil {
-		return serverError(err)
-	}
-	return project.NewGetProjectsOK().WithPayload(
-		serverconverter.NewProjectModels(resp.Projects),
-	)
+	return nil
 }
 
 func CreateProject(params project.CreateProjectParams, principal *models.Principal) middleware.Responder {
-	client, err := pb.NewClient()
-	if err != nil {
-		return serverError(err)
-	}
-	defer client.Close()
-
-	req := &pb.CreateProjectRequest{
-		UserID:  principal.ID,
-		Project: serverconverter.NewProject(params.Project),
-	}
-	resp, err := client.ProjectManager().CreateProject(params.HTTPRequest.Context(), req)
-	if err != nil {
-		return serverError(err)
-	}
-	return project.NewCreateProjectOK().WithPayload(serverconverter.NewProjectModel(resp.Project))
+	return nil
 }
