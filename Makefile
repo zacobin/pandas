@@ -18,12 +18,12 @@ MAINFLUX_SERVICES = http ws coap lora influxdb-writer influxdb-reader mongodb-wr
 
 UNAME = $(shell uname)
 DOCKER_REPO = docker.io
-IMAGES = apimachinery dmms pms rulechain headmast lbs authn authz things bootstrap twins users
+IMAGES = apimachinery pms rulechain headmast lbs authn authz things bootstrap twins users
 IMAGE_NAME_PREFIX := pandas-
 IMAGE_DIR := $(IMAGE_NAME)
 ifeq ($(IMAGE_NAME),bridge)
     IMAGE_DIR := edge/$(IMAGE_NAME)
-else ifneq (,$(filter $(IMAGE_NAME), apimachinery dmms pms rulechain headmast lbs authn))
+else ifneq (,$(filter $(IMAGE_NAME), apimachinery  pms rulechain headmast lbs authn))
     IMAGE_DIR := cmd/$(IMAGE_NAME)
 else ifeq ($(IMAGE_NAME),cabinet)
     IMAGE_DIR := security/$(IMAGE_NAME)
@@ -100,17 +100,13 @@ undeploy:
 all: build
 
 .PHONY: build
-build: apimachinery  dmms  pms rulechain lbs headmast  authn  users bootstrap realms authz things twins v2ms
+build: apimachinery  pms rulechain lbs headmast  authn  users bootstrap realms authz things twins v2ms
 
 .PHONY: apimachinery 
 apimachinery: 
 	@echo "building api server (apimachinery)..."
 	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/apimachinery 
 
-.PHONY: dmms 
-dmms: cmd/dmms 
-	@echo "building device management server (dmms)..."
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/dmms
 
 .PHONY: pms 
 pms: cmd/pms 
