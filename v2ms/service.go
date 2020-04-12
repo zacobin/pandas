@@ -71,6 +71,9 @@ type Service interface {
 	// RemoveVariable removes the variable identified with the provided ID, that
 	// belongs to the user identified by the provided key.
 	RemoveVariable(context.Context, string, string) error
+
+	// SaveStates persists states into variable
+	SaveStates(*mainflux.Message) error
 }
 
 const (
@@ -363,6 +366,10 @@ func (v2m *v2mService) ListVariables(ctx context.Context, token string, offset u
 	}
 
 	return v2m.variables.RetrieveAll(ctx, res.GetValue(), offset, limit, name, metadata)
+}
+
+func (v2m *v2mService) SaveStates(msg *mainflux.Message) error {
+	return nil
 }
 
 // Common

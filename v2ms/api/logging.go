@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cloustone/pandas/mainflux"
 	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/v2ms"
 )
@@ -155,4 +156,17 @@ func (lm *loggingMiddleware) RemoveVariable(ctx context.Context, token, id strin
 	}(time.Now())
 
 	return lm.svc.RemoveVariable(ctx, token, id)
+}
+
+func (lm *loggingMiddleware) SaveStates(msg *mainflux.Message) (err error) {
+	defer func(begin time.Time) {
+		message := fmt.Sprintf("Method save_states took %s to complete", time.Since(begin))
+		if err != nil {
+			lm.logger.Warn(fmt.Sprintf("%s with error: %s.", message, err))
+			return
+		}
+		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
+	}(time.Now())
+
+	return lm.svc.SaveStates(msg)
 }

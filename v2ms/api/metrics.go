@@ -9,6 +9,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/v2ms"
 	"github.com/go-kit/kit/metrics"
 )
@@ -120,4 +121,13 @@ func (ms *metricsMiddleware) RemoveVariable(ctx context.Context, token, id strin
 	}(time.Now())
 
 	return ms.svc.RemoveVariable(ctx, token, id)
+}
+
+func (ms *metricsMiddleware) SaveStates(msg *mainflux.Message) (err error) {
+	defer func(begin time.Time) {
+		ms.counter.With("method", "save_states").Add(1)
+		ms.latency.With("method", "save_states").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return ms.svc.SaveStates(msg)
 }

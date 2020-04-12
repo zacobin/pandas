@@ -55,10 +55,8 @@ func (s *Subscriber) handleMsg(m *nats.Msg) {
 		return
 	}
 
-	/*
-		if err := s.svc.SaveStates(&msg); err != nil {
-			s.logger.Error(fmt.Sprintf("State save failed: %s", err))
-			return
-		}
-	*/
+	if err := s.svc.SaveStates(&msg); err != nil {
+		s.logger.Error(fmt.Sprintf("State save failed: %s", err))
+		return
+	}
 }
