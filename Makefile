@@ -173,7 +173,7 @@ twins: cmd/twins
 
 #### mainflux
 .PHONY: adaptors
-adaptors: http ws mqtt coap opcua
+adaptors: http ws mqtt coap opcua lora
 
 .PHONY: http 
 http: cmd/http
@@ -194,6 +194,11 @@ mqtt: cmd/mqtt
 coap: cmd/coap
 	@echo "building coap adaptor service (coap)..."
 	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/coap
+
+.PHONY: lora 
+lora: cmd/lora
+	@echo "building lora adaptor service (lora)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/lora
 
 .PHONY: opcua 
 opcua: cmd/opcua
