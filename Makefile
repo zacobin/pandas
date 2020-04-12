@@ -100,7 +100,7 @@ undeploy:
 all: build
 
 .PHONY: build
-build: apimachinery  rulechain lbs headmast  authn  users bootstrap realms authz things twins v2ms
+build: apimachinery  rulechain lbs headmast  authn  users bootstrap realms authz things twins v2ms pms
 
 .PHONY: apimachinery 
 apimachinery: 
@@ -143,6 +143,13 @@ users: cmd/users
 realms: cmd/realms 
 	@echo "building identify authentiation management service (realms)..."
 	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/realms
+
+.PHONY: pms 
+pms: cmd/pms
+	@echo "building view and variable management service (v2ms)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/pms
+
+
 
 .PHONY: v2ms 
 v2ms: cmd/v2ms

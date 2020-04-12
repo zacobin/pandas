@@ -1,53 +1,366 @@
-//  Licensed under the Apache License, Version 2.0 (the "License"); you may
-//  not use p file except in compliance with the License. You may obtain
-//  a copy of the License at
-//
-//        http://www.apache.org/licenses/LICENSE-2.0
-//
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-//  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-//  License for the specific language governing permissions and limitations
-//  under the License.
+// Copyright (c) Mainflux
+// SPDX-License-Identifier: Apache-2.0
+
 package main
 
 import (
 	"fmt"
-	"math/rand"
+	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"strconv"
+	"syscall"
 	"time"
 
-	"github.com/cloustone/pandas/cmd/pms/app"
-	"github.com/cloustone/pandas/cmd/pms/app/options"
-	"github.com/cloustone/pandas/pkg/util/flag"
-	"github.com/cloustone/pandas/pkg/util/logs"
-	"github.com/cloustone/pandas/pkg/util/wait"
-	"github.com/spf13/pflag"
+	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas/pms"
+	"github.com/cloustone/pandas/pms/tracing"
+
+	"github.com/jmoiron/sqlx"
+	opentracing "github.com/opentracing/opentracing-go"
+	"google.golang.org/grpc/credentials"
+
+	authapi "github.com/cloustone/pandas/authn/api/grpc"
+	"github.com/cloustone/pandas/pkg/logger"
+	"github.com/cloustone/pandas/pms/api"
+	httpapi "github.com/cloustone/pandas/pms/api/http"
+	"github.com/cloustone/pandas/pms/postgres"
+	rediscache "github.com/cloustone/pandas/pms/redis"
+	"github.com/cloustone/pandas/pms/uuid"
+	localusers "github.com/cloustone/pandas/things/users"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/go-redis/redis"
+	nats "github.com/nats-io/nats.go"
+	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	jconfig "github.com/uber/jaeger-client-go/config"
+	"google.golang.org/grpc"
+
+	natspub "github.com/cloustone/pandas/pms/nats/publisher"
+	natssub "github.com/cloustone/pandas/pms/nats/subscriber"
 )
 
-// inject by go build
-var (
-	Version   = "0.0.0"
-	BuildTime = "2020-01-13-0802 UTC"
+const (
+	defLogLevel        = "error"
+	defDBHost          = "localhost"
+	defDBPort          = "5432"
+	defDBUser          = "mainflux"
+	defDBPass          = "mainflux"
+	defDBName          = "things"
+	defDBSSLMode       = "disable"
+	defDBSSLCert       = ""
+	defDBSSLKey        = ""
+	defDBSSLRootCert   = ""
+	defClientTLS       = "false"
+	defCACerts         = ""
+	defCacheURL        = "localhost:6379"
+	defCachePass       = ""
+	defCacheDB         = "0"
+	defESURL           = "localhost:6379"
+	defESPass          = ""
+	defESDB            = "0"
+	defHTTPPort        = "8180"
+	defAuthHTTPPort    = "8989"
+	defAuthGRPCPort    = "8181"
+	defServerCert      = ""
+	defServerKey       = ""
+	defSingleUserEmail = ""
+	defSingleUserToken = ""
+	defJaegerURL       = ""
+	defAuthURL         = "localhost:8181"
+	defAuthTimeout     = "1" // in seconds
+	defNatsURL         = nats.DefaultURL
+	defChannelID       = ""
+
+	envLogLevel        = "MF_V2MS_LOG_LEVEL"
+	envDBHost          = "MF_V2MS_DB_HOST"
+	envDBPort          = "MF_V2MS_DB_PORT"
+	envDBUser          = "MF_V2MS_DB_USER"
+	envDBPass          = "MF_V2MS_DB_PASS"
+	envDBName          = "MF_V2MS_DB"
+	envDBSSLMode       = "MF_V2MS_DB_SSL_MODE"
+	envDBSSLCert       = "MF_V2MS_DB_SSL_CERT"
+	envDBSSLKey        = "MF_V2MS_DB_SSL_KEY"
+	envDBSSLRootCert   = "MF_V2MS_DB_SSL_ROOT_CERT"
+	envClientTLS       = "MF_V2MS_CLIENT_TLS"
+	envCACerts         = "MF_V2MS_CA_CERTS"
+	envCacheURL        = "MF_V2MS_CACHE_URL"
+	envCachePass       = "MF_V2MS_CACHE_PASS"
+	envCacheDB         = "MF_V2MS_CACHE_DB"
+	envESURL           = "MF_V2MS_ES_URL"
+	envESPass          = "MF_V2MS_ES_PASS"
+	envESDB            = "MF_V2MS_ES_DB"
+	envHTTPPort        = "MF_V2MS_HTTP_PORT"
+	envAuthHTTPPort    = "MF_V2MS_AUTH_HTTP_PORT"
+	envAuthGRPCPort    = "MF_V2MS_AUTH_GRPC_PORT"
+	envServerCert      = "MF_V2MS_SERVER_CERT"
+	envServerKey       = "MF_V2MS_SERVER_KEY"
+	envSingleUserEmail = "MF_V2MS_SINGLE_USER_EMAIL"
+	envSingleUserToken = "MF_V2MS_SINGLE_USER_TOKEN"
+	envJaegerURL       = "MF_JAEGER_URL"
+	envAuthURL         = "MF_AUTH_URL"
+	envAuthTimeout     = "MF_AUTH_TIMEOUT"
+	envNatsURL         = "MF_NATS_URL"
+	envChannelID       = "MF_V2MS_CHANNEL_ID"
 )
 
-func init() {
-	fmt.Println("Version:", Version)
-	fmt.Println("BuildTime:", BuildTime)
+type config struct {
+	logLevel        string
+	dbConfig        postgres.Config
+	clientTLS       bool
+	caCerts         string
+	cacheURL        string
+	cachePass       string
+	cacheDB         string
+	esURL           string
+	esPass          string
+	esDB            string
+	httpPort        string
+	authHTTPPort    string
+	authGRPCPort    string
+	serverCert      string
+	serverKey       string
+	singleUserEmail string
+	singleUserToken string
+	jaegerURL       string
+	authURL         string
+	authTimeout     time.Duration
+	NatsURL         string
+	channelID       string
 }
 
 func main() {
-	rand.Seed(time.Now().UTC().UnixNano())
+	cfg := loadConfig()
 
-	s := options.NewServerRunOptions()
-	s.AddFlags(pflag.CommandLine)
+	logger, err := logger.New(os.Stdout, cfg.logLevel)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 
-	flag.InitFlags()
-	logs.InitLogs()
-	defer logs.FlushLogs()
+	thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
+	defer thingsCloser.Close()
 
-	if err := app.Run(s, wait.NeverStop); err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
+	cacheClient := connectToRedis(cfg.cacheURL, cfg.cachePass, cfg.cacheDB, logger)
+
+	esClient := connectToRedis(cfg.esURL, cfg.esPass, cfg.esDB, logger)
+
+	db := connectToDB(cfg.dbConfig, logger)
+	defer db.Close()
+
+	authTracer, authCloser := initJaeger("auth", cfg.jaegerURL, logger)
+	defer authCloser.Close()
+
+	auth, close := createAuthClient(cfg, authTracer, logger)
+	if close != nil {
+		defer close()
+	}
+
+	dbTracer, dbCloser := initJaeger("pms_db", cfg.jaegerURL, logger)
+	defer dbCloser.Close()
+
+	cacheTracer, cacheCloser := initJaeger("pms_cache", cfg.jaegerURL, logger)
+	defer cacheCloser.Close()
+
+	nc, err := nats.Connect(cfg.NatsURL)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to connect to NATS: %s", err))
 		os.Exit(1)
 	}
+	defer nc.Close()
+
+	ncTracer, ncCloser := initJaeger("pms_nats", cfg.jaegerURL, logger)
+	defer ncCloser.Close()
+
+	svc := newService(nc, ncTracer, cfg.channelID, auth, dbTracer, cacheTracer, db, cacheClient, esClient, logger)
+	errs := make(chan error, 2)
+
+	go startHTTPServer(httpapi.MakeHandler(thingsTracer, svc), cfg.httpPort, cfg, logger, errs)
+
+	go func() {
+		c := make(chan os.Signal)
+		signal.Notify(c, syscall.SIGINT)
+		errs <- fmt.Errorf("%s", <-c)
+	}()
+
+	err = <-errs
+	logger.Error(fmt.Sprintf("PMS service terminated: %s", err))
+}
+
+func loadConfig() config {
+	tls, err := strconv.ParseBool(mainflux.Env(envClientTLS, defClientTLS))
+	if err != nil {
+		log.Fatalf("Invalid value passed for %s\n", envClientTLS)
+	}
+
+	timeout, err := strconv.ParseInt(mainflux.Env(envAuthTimeout, defAuthTimeout), 10, 64)
+	if err != nil {
+		log.Fatalf("Invalid %s value: %s", envAuthTimeout, err.Error())
+	}
+
+	dbConfig := postgres.Config{
+		Host:        mainflux.Env(envDBHost, defDBHost),
+		Port:        mainflux.Env(envDBPort, defDBPort),
+		User:        mainflux.Env(envDBUser, defDBUser),
+		Pass:        mainflux.Env(envDBPass, defDBPass),
+		Name:        mainflux.Env(envDBName, defDBName),
+		SSLMode:     mainflux.Env(envDBSSLMode, defDBSSLMode),
+		SSLCert:     mainflux.Env(envDBSSLCert, defDBSSLCert),
+		SSLKey:      mainflux.Env(envDBSSLKey, defDBSSLKey),
+		SSLRootCert: mainflux.Env(envDBSSLRootCert, defDBSSLRootCert),
+	}
+
+	return config{
+		logLevel:        mainflux.Env(envLogLevel, defLogLevel),
+		dbConfig:        dbConfig,
+		clientTLS:       tls,
+		caCerts:         mainflux.Env(envCACerts, defCACerts),
+		cacheURL:        mainflux.Env(envCacheURL, defCacheURL),
+		cachePass:       mainflux.Env(envCachePass, defCachePass),
+		cacheDB:         mainflux.Env(envCacheDB, defCacheDB),
+		esURL:           mainflux.Env(envESURL, defESURL),
+		esPass:          mainflux.Env(envESPass, defESPass),
+		esDB:            mainflux.Env(envESDB, defESDB),
+		httpPort:        mainflux.Env(envHTTPPort, defHTTPPort),
+		authHTTPPort:    mainflux.Env(envAuthHTTPPort, defAuthHTTPPort),
+		authGRPCPort:    mainflux.Env(envAuthGRPCPort, defAuthGRPCPort),
+		serverCert:      mainflux.Env(envServerCert, defServerCert),
+		serverKey:       mainflux.Env(envServerKey, defServerKey),
+		singleUserEmail: mainflux.Env(envSingleUserEmail, defSingleUserEmail),
+		singleUserToken: mainflux.Env(envSingleUserToken, defSingleUserToken),
+		jaegerURL:       mainflux.Env(envJaegerURL, defJaegerURL),
+		authURL:         mainflux.Env(envAuthURL, defAuthURL),
+		NatsURL:         mainflux.Env(envNatsURL, defNatsURL),
+		channelID:       mainflux.Env(envChannelID, defChannelID),
+		authTimeout:     time.Duration(timeout) * time.Second,
+	}
+}
+
+func initJaeger(svcName, url string, logger logger.Logger) (opentracing.Tracer, io.Closer) {
+	if url == "" {
+		return opentracing.NoopTracer{}, ioutil.NopCloser(nil)
+	}
+
+	tracer, closer, err := jconfig.Configuration{
+		ServiceName: svcName,
+		Sampler: &jconfig.SamplerConfig{
+			Type:  "const",
+			Param: 1,
+		},
+		Reporter: &jconfig.ReporterConfig{
+			LocalAgentHostPort: url,
+			LogSpans:           true,
+		},
+	}.NewTracer()
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to init Jaeger client: %s", err))
+		os.Exit(1)
+	}
+
+	return tracer, closer
+}
+
+func connectToRedis(cacheURL, cachePass string, cacheDB string, logger logger.Logger) *redis.Client {
+	db, err := strconv.Atoi(cacheDB)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to connect to cache: %s", err))
+		os.Exit(1)
+	}
+
+	return redis.NewClient(&redis.Options{
+		Addr:     cacheURL,
+		Password: cachePass,
+		DB:       db,
+	})
+}
+
+func connectToDB(dbConfig postgres.Config, logger logger.Logger) *sqlx.DB {
+	db, err := postgres.Connect(dbConfig)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to connect to postgres: %s", err))
+		os.Exit(1)
+	}
+	return db
+}
+
+func createAuthClient(cfg config, tracer opentracing.Tracer, logger logger.Logger) (mainflux.AuthNServiceClient, func() error) {
+	if cfg.singleUserEmail != "" && cfg.singleUserToken != "" {
+		return localusers.NewSingleUserService(cfg.singleUserEmail, cfg.singleUserToken), nil
+	}
+
+	conn := connectToAuth(cfg, logger)
+	return authapi.NewClient(tracer, conn, cfg.authTimeout), conn.Close
+}
+
+func connectToAuth(cfg config, logger logger.Logger) *grpc.ClientConn {
+	var opts []grpc.DialOption
+	if cfg.clientTLS {
+		if cfg.caCerts != "" {
+			tpc, err := credentials.NewClientTLSFromFile(cfg.caCerts, "")
+			if err != nil {
+				logger.Error(fmt.Sprintf("Failed to create tls credentials: %s", err))
+				os.Exit(1)
+			}
+			opts = append(opts, grpc.WithTransportCredentials(tpc))
+		}
+	} else {
+		opts = append(opts, grpc.WithInsecure())
+		logger.Info("gRPC communication is not encrypted")
+	}
+
+	conn, err := grpc.Dial(cfg.authURL, opts...)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to connect to users service: %s", err))
+		os.Exit(1)
+	}
+
+	return conn
+}
+
+func newService(nc *nats.Conn, ncTracer opentracing.Tracer, chanID string, auth mainflux.AuthNServiceClient, dbTracer opentracing.Tracer, cacheTracer opentracing.Tracer, db *sqlx.DB, cacheClient *redis.Client, esClient *redis.Client, logger logger.Logger) pms.Service {
+	database := postgres.NewDatabase(db)
+
+	projectsRepo := postgres.NewProjectRepository(database)
+	projectsRepo = tracing.ProjectRepositoryMiddleware(dbTracer, projectsRepo)
+
+	projectCache := rediscache.NewProjectCache(cacheClient)
+	projectCache = tracing.ProjectCacheMiddleware(cacheTracer, projectCache)
+
+	idp := uuid.New()
+
+	np := natspub.NewPublisher(nc, chanID, logger)
+	svc := pms.New(auth, projectsRepo, projectCache, idp, np)
+	//svc = rediscache.NewEventStoreMiddleware(svc, esClient)
+	svc = api.LoggingMiddleware(svc, logger)
+	svc = api.MetricsMiddleware(
+		svc,
+		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+			Namespace: "things",
+			Subsystem: "api",
+			Name:      "request_count",
+			Help:      "Number of requests received.",
+		}, []string{"method"}),
+		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+			Namespace: "things",
+			Subsystem: "api",
+			Name:      "request_latency_microseconds",
+			Help:      "Total duration of requests in microseconds.",
+		}, []string{"method"}),
+	)
+
+	natssub.NewSubscriber(nc, chanID, svc, logger)
+	return svc
+}
+
+func startHTTPServer(handler http.Handler, port string, cfg config, logger logger.Logger, errs chan error) {
+	p := fmt.Sprintf(":%s", port)
+	if cfg.serverCert != "" || cfg.serverKey != "" {
+		logger.Info(fmt.Sprintf("pms service started using https on port %s with cert %s key %s",
+			port, cfg.serverCert, cfg.serverKey))
+		errs <- http.ListenAndServeTLS(p, cfg.serverCert, cfg.serverKey, handler)
+		return
+	}
+	logger.Info(fmt.Sprintf("pms service started using http on port %s", cfg.httpPort))
+	errs <- http.ListenAndServe(p, handler)
 }
