@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/cloustone/pandas/pkg/errors"
@@ -428,7 +429,26 @@ func (v2m *v2mService) saveState(msg *mainflux.Message, variable Variable) error
 }
 
 func (v2m *v2mService) updateVariable(variable Variable, model Model, rec senml.Record, msg *mainflux.Message) (Variable, error) {
-	return Variable{}, errors.New("not implemented") // TODO
+	recSec := rec.BaseTime + rec.Time
+	recNano := recSec * nanosec
+	sec, dec := math.Modf(recSec)
+	recTime := time.Unix(int64(sec), int64(dec*nanosec))
+
+	if variable.Channel == msg.Channel && variable.Subtopic == msg.Subtopic &&
+		variable.AttributeName == rec.Name {
+		// TODO: wether the senml record name can be matched with variable
+		// attribute name
+		delta := math.Abs(float64(variable.Created.UnixNano()) - recNano)
+		if recNano == 0 || delta > float64(variable.Delta) {
+			if recNano != 0 {
+				variable.Created = recTime
+			}
+		}
+		val := findValue(rec)
+		variable.AttributeVal = val
+		return variable, nil
+	}
+	return variable, errors.New("not valid variable")
 }
 
 // Models

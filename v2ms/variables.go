@@ -19,10 +19,11 @@ type Variable struct {
 	AttributeName string
 	AttributeVal  interface{}
 	Channel       string
-	SubTopic      string
+	Subtopic      string
 	Created       time.Time
 	Updated       time.Time
 	Revision      int
+	Delta         int64
 	Metadata      Metadata
 }
 
