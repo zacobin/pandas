@@ -74,6 +74,25 @@ type Service interface {
 
 	// SaveStates persists states into variable
 	SaveStates(*mainflux.Message) error
+
+	// AddModel adds new model related to user identified by the provided key.
+	AddModel(context.Context, string, Model) (Model, error)
+
+	// UpdateModel updates model identified by the provided variable that
+	// belongs to the user identified by the provided key.
+	UpdateModel(context.Context, string, Model) error
+
+	// ViewModel retrieves data about model with the provided
+	// ID belonging to the user identified by the provided key.
+	ViewModel(context.Context, string, string) (Model, error)
+
+	// ListModels retrieves data about subset of models that belongs to the
+	// user identified by the provided key.
+	ListModels(context.Context, string, uint64, uint64, string, Metadata) (ModelsPage, error)
+
+	// RemoveModel removes the model identified with the provided ID, that
+	// belongs to the user identified by the provided key.
+	RemoveModel(context.Context, string, string) error
 }
 
 const (
@@ -101,25 +120,29 @@ type v2mService struct {
 	auth          mainflux.AuthNServiceClient
 	views         ViewRepository
 	variables     VariableRepository
+	models        ModelRepository
 	idp           IdentityProvider
 	nats          *nats.Publisher
 	viewCache     ViewCache
 	variableCache VariableCache
+	modelCache    ModelCache
 }
 
 var _ Service = (*v2mService)(nil)
 
 // New instantiates the views service implementation.
-func New(auth mainflux.AuthNServiceClient, views ViewRepository, variables VariableRepository,
-	viewCache ViewCache, variableCache VariableCache, idp IdentityProvider, n *nats.Publisher) Service {
+func New(auth mainflux.AuthNServiceClient, views ViewRepository, variables VariableRepository, models ModelRepository,
+	viewCache ViewCache, variableCache VariableCache, modelCache ModelCache, idp IdentityProvider, n *nats.Publisher) Service {
 	return &v2mService{
 		auth:          auth,
 		views:         views,
 		variables:     variables,
+		models:        models,
 		idp:           idp,
 		nats:          n,
 		viewCache:     viewCache,
 		variableCache: variableCache,
+		modelCache:    modelCache,
 	}
 }
 
@@ -370,6 +393,126 @@ func (v2m *v2mService) ListVariables(ctx context.Context, token string, offset u
 
 func (v2m *v2mService) SaveStates(msg *mainflux.Message) error {
 	return nil
+}
+
+// Models
+
+func (v2m *v2mService) AddModel(ctx context.Context, token string, model Model) (v Model, err error) {
+	var id string
+	var b []byte
+	defer v2m.nats.Publish(&id, &err, crudOp["createSucc"], crudOp["createFail"], &b)
+
+	res, err := v2m.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return Model{}, ErrUnauthorizedAccess
+	}
+
+	model.ID, err = v2m.idp.ID()
+	if err != nil {
+		return Model{}, err
+	}
+
+	model.Owner = res.GetValue()
+
+	model.Created = time.Now()
+	model.Updated = time.Now()
+	model.Revision = 0
+	if _, err = v2m.models.Save(ctx, model); err != nil {
+		return Model{}, err
+	}
+
+	id = model.ID
+	b, err = json.Marshal(model)
+
+	return model, nil
+}
+
+func (v2m *v2mService) UpdateModel(ctx context.Context, token string, model Model) (err error) {
+	var b []byte
+	var id string
+	defer v2m.nats.Publish(&id, &err, crudOp["updateSucc"], crudOp["updateFail"], &b)
+
+	res, err := v2m.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ErrUnauthorizedAccess
+	}
+
+	tm, err := v2m.models.RetrieveByID(ctx, res.GetValue(), model.ID)
+	if err != nil {
+		return err
+	}
+
+	revision := false
+
+	if model.Name != "" {
+		revision = true
+		tm.Name = model.Name
+	}
+
+	if len(model.Metadata) > 0 {
+		revision = true
+		tm.Metadata = model.Metadata
+	}
+
+	if !revision {
+		return ErrMalformedEntity
+	}
+
+	tm.Updated = time.Now()
+	tm.Revision++
+
+	if err := v2m.models.Update(ctx, tm); err != nil {
+		return err
+	}
+
+	id = model.ID
+	b, err = json.Marshal(model)
+
+	return nil
+}
+
+func (v2m *v2mService) ViewModel(ctx context.Context, token, id string) (tm Model, err error) {
+	var b []byte
+	defer v2m.nats.Publish(&id, &err, crudOp["getSucc"], crudOp["getFail"], &b)
+
+	res, err := v2m.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return Model{}, ErrUnauthorizedAccess
+	}
+
+	model, err := v2m.models.RetrieveByID(ctx, res.GetValue(), id)
+	if err != nil {
+		return Model{}, err
+	}
+
+	b, err = json.Marshal(model)
+
+	return model, nil
+}
+
+func (v2m *v2mService) RemoveModel(ctx context.Context, token, id string) (err error) {
+	var b []byte
+	defer v2m.nats.Publish(&id, &err, crudOp["removeSucc"], crudOp["removeFail"], &b)
+
+	res, err := v2m.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ErrUnauthorizedAccess
+	}
+
+	if err := v2m.models.Remove(ctx, res.GetValue(), id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (v2m *v2mService) ListModels(ctx context.Context, token string, offset uint64, limit uint64, name string, metadata Metadata) (ModelsPage, error) {
+	res, err := v2m.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ModelsPage{}, ErrUnauthorizedAccess
+	}
+
+	return v2m.models.RetrieveAll(ctx, res.GetValue(), offset, limit, name, metadata)
 }
 
 // Common

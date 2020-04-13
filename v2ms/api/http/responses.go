@@ -109,6 +109,7 @@ func (res removeRes) Empty() bool {
 }
 
 // Variables
+
 type variableRes struct {
 	id      string `json:"id"`
 	created bool   `json:"created"`
@@ -173,3 +174,69 @@ func (res variablesPageRes) Headers() map[string]string {
 }
 
 func (res variablesPageRes) Empty() bool { return false }
+
+// Models
+
+type modelRes struct {
+	id      string `json:"id"`
+	created bool   `json:"created"`
+}
+
+func (res modelRes) Code() int {
+	if res.created {
+		return http.StatusCreated
+	}
+
+	return http.StatusOK
+}
+
+func (res modelRes) Headers() map[string]string {
+	if res.created {
+		return map[string]string{
+			"Location": fmt.Sprintf("/models/%s", res.id),
+		}
+	}
+
+	return map[string]string{}
+}
+
+func (res modelRes) Empty() bool {
+	return true
+}
+
+type viewModelRes struct {
+	Owner    string                 `json:"owner,omitempty"`
+	ID       string                 `json:"id"`
+	Name     string                 `json:"name,omitempty"`
+	Revision int                    `json:"revision"`
+	Created  time.Time              `json:"created"`
+	Updated  time.Time              `json:"updated"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+}
+
+func (res viewModelRes) Code() int {
+	return http.StatusOK
+}
+
+func (res viewModelRes) Headers() map[string]string {
+	return map[string]string{}
+}
+
+func (res viewModelRes) Empty() bool {
+	return false
+}
+
+type modelsPageRes struct {
+	pageRes
+	Models []viewModelRes `json:"models"`
+}
+
+func (res modelsPageRes) Code() int {
+	return http.StatusOK
+}
+
+func (res modelsPageRes) Headers() map[string]string {
+	return map[string]string{}
+}
+
+func (res modelsPageRes) Empty() bool { return false }

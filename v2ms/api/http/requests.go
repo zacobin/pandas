@@ -183,3 +183,89 @@ func (req *listVariableReq) validate() error {
 
 	return nil
 }
+
+// Models
+
+type addModelReq struct {
+	token    string
+	Name     string                 `json:"name,omitempty"`
+	Model    v2ms.Model             `json:"variable,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+}
+
+func (req addModelReq) validate() error {
+	if req.token == "" {
+		return v2ms.ErrUnauthorizedAccess
+	}
+
+	if len(req.Name) > maxNameSize {
+		return v2ms.ErrMalformedEntity
+	}
+
+	return nil
+}
+
+type updateModelReq struct {
+	token    string
+	id       string
+	Name     string                 `json:"name,omitempty"`
+	Model    v2ms.Model             `json:"model,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+}
+
+func (req updateModelReq) validate() error {
+	if req.token == "" {
+		return v2ms.ErrUnauthorizedAccess
+	}
+
+	if req.id == "" {
+		return v2ms.ErrMalformedEntity
+	}
+
+	if len(req.Name) > maxNameSize {
+		return v2ms.ErrMalformedEntity
+	}
+
+	return nil
+}
+
+type viewModelReq struct {
+	token string
+	id    string
+}
+
+func (req viewModelReq) validate() error {
+	if req.token == "" {
+		return v2ms.ErrUnauthorizedAccess
+	}
+
+	if req.id == "" {
+		return v2ms.ErrMalformedEntity
+	}
+
+	return nil
+}
+
+type listModelReq struct {
+	token    string
+	offset   uint64
+	limit    uint64
+	name     string
+	metadata map[string]interface{}
+}
+
+func (req *listModelReq) validate() error {
+	if req.token == "" {
+		return v2ms.ErrUnauthorizedAccess
+	}
+
+	if req.limit == 0 || req.limit > maxLimitSize {
+		return v2ms.ErrMalformedEntity
+	}
+
+	if len(req.name) > maxNameSize {
+		return v2ms.ErrMalformedEntity
+	}
+
+	return nil
+}

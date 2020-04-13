@@ -113,9 +113,45 @@ func MakeHandler(tracer opentracing.Tracer, svc v2ms.Service) http.Handler {
 		opts...,
 	))
 
-	r.Get("/views", kithttp.NewServer(
+	r.Get("/vars", kithttp.NewServer(
 		kitot.TraceServer(tracer, "list_vars")(listVariablesEndpoint(svc)),
 		decodeVariableList,
+		encodeResponse,
+		opts...,
+	))
+
+	// Models
+	r.Post("/models", kithttp.NewServer(
+		kitot.TraceServer(tracer, "add_models")(addModelEndpoint(svc)),
+		decodeModelCreation,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Put("/models/:id", kithttp.NewServer(
+		kitot.TraceServer(tracer, "update_models")(updateModelEndpoint(svc)),
+		decodeModelUpdate,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Get("/models/:id", kithttp.NewServer(
+		kitot.TraceServer(tracer, "view_model")(viewModelEndpoint(svc)),
+		decodeModel,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Delete("/models/:id", kithttp.NewServer(
+		kitot.TraceServer(tracer, "remove_models")(removeModelEndpoint(svc)),
+		decodeModel,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Get("/models", kithttp.NewServer(
+		kitot.TraceServer(tracer, "list_models")(listModelsEndpoint(svc)),
+		decodeModelList,
 		encodeResponse,
 		opts...,
 	))
@@ -258,6 +294,78 @@ func decodeVariableList(_ context.Context, r *http.Request) (interface{}, error)
 	}
 
 	req := listVariableReq{
+		token:    r.Header.Get("Authorization"),
+		limit:    l,
+		offset:   o,
+		name:     n,
+		metadata: m,
+	}
+
+	return req, nil
+}
+
+// Models
+
+func decodeModelCreation(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+
+	req := addModelReq{token: r.Header.Get("Authorization")}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeModelUpdate(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+
+	req := updateModelReq{
+		token: r.Header.Get("Authorization"),
+		id:    bone.GetValue(r, "id"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeModel(_ context.Context, r *http.Request) (interface{}, error) {
+	req := viewVariableReq{
+		token: r.Header.Get("Authorization"),
+		id:    bone.GetValue(r, "id"),
+	}
+
+	return req, nil
+}
+
+func decodeModelList(_ context.Context, r *http.Request) (interface{}, error) {
+	l, err := readUintQuery(r, limit, defLimit)
+	if err != nil {
+		return nil, err
+	}
+
+	o, err := readUintQuery(r, offset, defOffset)
+	if err != nil {
+		return nil, err
+	}
+
+	n, err := readStringQuery(r, name)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := readMetadataQuery(r, "metadata")
+	if err != nil {
+		return nil, err
+	}
+
+	req := listModelReq{
 		token:    r.Header.Get("Authorization"),
 		limit:    l,
 		offset:   o,

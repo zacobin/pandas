@@ -131,3 +131,50 @@ func (ms *metricsMiddleware) SaveStates(msg *mainflux.Message) (err error) {
 
 	return ms.svc.SaveStates(msg)
 }
+
+// Models
+
+func (ms *metricsMiddleware) AddModel(ctx context.Context, token string, model v2ms.Model) (saved v2ms.Model, err error) {
+	defer func(begin time.Time) {
+		ms.counter.With("method", "add_model").Add(1)
+		ms.latency.With("method", "add_model").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return ms.svc.AddModel(ctx, token, model)
+}
+
+func (ms *metricsMiddleware) UpdateModel(ctx context.Context, token string, model v2ms.Model) (err error) {
+	defer func(begin time.Time) {
+		ms.counter.With("method", "update_model").Add(1)
+		ms.latency.With("method", "update_model").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return ms.svc.UpdateModel(ctx, token, model)
+}
+
+func (ms *metricsMiddleware) ViewModel(ctx context.Context, token, id string) (viewed v2ms.Model, err error) {
+	defer func(begin time.Time) {
+		ms.counter.With("method", "view_model").Add(1)
+		ms.latency.With("method", "view_model").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return ms.svc.ViewModel(ctx, token, id)
+}
+
+func (ms *metricsMiddleware) ListModels(ctx context.Context, token string, offset uint64, limit uint64, name string, metadata v2ms.Metadata) (tw v2ms.ModelsPage, err error) {
+	defer func(begin time.Time) {
+		ms.counter.With("method", "list_models").Add(1)
+		ms.latency.With("method", "list_models").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return ms.svc.ListModels(ctx, token, offset, limit, name, metadata)
+}
+
+func (ms *metricsMiddleware) RemoveModel(ctx context.Context, token, id string) (err error) {
+	defer func(begin time.Time) {
+		ms.counter.With("method", "remove_model").Add(1)
+		ms.latency.With("method", "remove_model").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return ms.svc.RemoveModel(ctx, token, id)
+}

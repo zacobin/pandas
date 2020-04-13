@@ -324,19 +324,23 @@ func newService(nc *nats.Conn, ncTracer opentracing.Tracer, chanID string, auth 
 
 	viewsRepo := postgres.NewViewRepository(database)
 	viewsRepo = tracing.ViewRepositoryMiddleware(dbTracer, viewsRepo)
+	viewCache := rediscache.NewViewCache(cacheClient)
+	viewCache = tracing.ViewCacheMiddleware(cacheTracer, viewCache)
 
 	variablesRepo := postgres.NewVariableRepository(database)
 	variablesRepo = tracing.VariableRepositoryMiddleware(dbTracer, variablesRepo)
-
 	variableCache := rediscache.NewVariableCache(cacheClient)
 	variableCache = tracing.VariableCacheMiddleware(cacheTracer, variableCache)
 
-	viewCache := rediscache.NewViewCache(cacheClient)
-	viewCache = tracing.ViewCacheMiddleware(cacheTracer, viewCache)
+	modelsRepo := postgres.NewModelRepository(database)
+	modelsRepo = tracing.ModelRepositoryMiddleware(dbTracer, modelsRepo)
+	modelCache := rediscache.NewModelCache(cacheClient)
+	modelCache = tracing.ModelCacheMiddleware(cacheTracer, modelCache)
+
 	idp := uuid.New()
 
 	np := natspub.NewPublisher(nc, chanID, logger)
-	svc := v2ms.New(auth, viewsRepo, variablesRepo, viewCache, variableCache, idp, np)
+	svc := v2ms.New(auth, viewsRepo, variablesRepo, modelsRepo, viewCache, variableCache, modelCache, idp, np)
 	//svc = rediscache.NewEventStoreMiddleware(svc, esClient)
 	svc = api.LoggingMiddleware(svc, logger)
 	svc = api.MetricsMiddleware(

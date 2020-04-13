@@ -170,3 +170,70 @@ func (lm *loggingMiddleware) SaveStates(msg *mainflux.Message) (err error) {
 
 	return lm.svc.SaveStates(msg)
 }
+
+// Models
+
+func (lm *loggingMiddleware) AddModel(ctx context.Context, token string, model v2ms.Model) (saved v2ms.Model, err error) {
+	defer func(begin time.Time) {
+		message := fmt.Sprintf("Method add_variable for token %s and model %s took %s to complete", token, model.ID, time.Since(begin))
+		if err != nil {
+			lm.logger.Warn(fmt.Sprintf("%s with error: %s.", message, err))
+			return
+		}
+		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
+	}(time.Now())
+
+	return lm.svc.AddModel(ctx, token, model)
+}
+
+func (lm *loggingMiddleware) UpdateModel(ctx context.Context, token string, model v2ms.Model) (err error) {
+	defer func(begin time.Time) {
+		message := fmt.Sprintf("Method update_variable for token %s and model %s took %s to complete", token, model.ID, time.Since(begin))
+		if err != nil {
+			lm.logger.Warn(fmt.Sprintf("%s with error: %s.", message, err))
+			return
+		}
+		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
+	}(time.Now())
+
+	return lm.svc.UpdateModel(ctx, token, model)
+}
+
+func (lm *loggingMiddleware) ViewModel(ctx context.Context, token, id string) (viewed v2ms.Model, err error) {
+	defer func(begin time.Time) {
+		message := fmt.Sprintf("Method view_variable for token %s and model %s took %s to complete", token, id, time.Since(begin))
+		if err != nil {
+			lm.logger.Warn(fmt.Sprintf("%s with error: %s.", message, err))
+			return
+		}
+		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
+	}(time.Now())
+
+	return lm.svc.ViewModel(ctx, token, id)
+}
+
+func (lm *loggingMiddleware) ListModels(ctx context.Context, token string, offset uint64, limit uint64, name string, metadata v2ms.Metadata) (tw v2ms.ModelsPage, err error) {
+	defer func(begin time.Time) {
+		message := fmt.Sprintf("Method list_variables for token %s took %s to complete", token, time.Since(begin))
+		if err != nil {
+			lm.logger.Warn(fmt.Sprintf("%s with error: %s.", message, err))
+			return
+		}
+		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
+	}(time.Now())
+
+	return lm.svc.ListModels(ctx, token, offset, limit, name, metadata)
+}
+
+func (lm *loggingMiddleware) RemoveModel(ctx context.Context, token, id string) (err error) {
+	defer func(begin time.Time) {
+		message := fmt.Sprintf("Method remove_variable for token %s and model %s took %s to complete", token, id, time.Since(begin))
+		if err != nil {
+			lm.logger.Warn(fmt.Sprintf("%s with error: %s.", message, err))
+			return
+		}
+		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
+	}(time.Now())
+
+	return lm.svc.RemoveModel(ctx, token, id)
+}

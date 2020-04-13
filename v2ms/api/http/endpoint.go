@@ -139,6 +139,8 @@ func removeViewEndpoint(svc v2ms.Service) endpoint.Endpoint {
 	}
 }
 
+// Variable
+
 func addVariableEndpoint(svc v2ms.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(addVariableReq)
@@ -262,6 +264,137 @@ func removeVariableEndpoint(svc v2ms.Service) endpoint.Endpoint {
 		}
 
 		if err := svc.RemoveView(ctx, req.token, req.id); err != nil {
+			return nil, err
+		}
+
+		return removeRes{}, nil
+	}
+}
+
+// Model
+
+func addModelEndpoint(svc v2ms.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(addModelReq)
+
+		if err := req.validate(); err != nil {
+			return nil, err
+		}
+
+		model := v2ms.Model{
+			Name:     req.Name,
+			Metadata: req.Metadata,
+		}
+		saved, err := svc.AddModel(ctx, req.token, model)
+		if err != nil {
+			return nil, err
+		}
+
+		res := modelRes{
+			id:      saved.ID,
+			created: true,
+		}
+		return res, nil
+	}
+}
+
+func updateModelEndpoint(svc v2ms.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(updateModelReq)
+
+		if err := req.validate(); err != nil {
+			return nil, err
+		}
+
+		model := v2ms.Model{
+			ID:       req.id,
+			Name:     req.Name,
+			Metadata: req.Metadata,
+		}
+
+		if err := svc.UpdateModel(ctx, req.token, model); err != nil {
+			return nil, err
+		}
+
+		res := variableRes{id: req.id, created: false}
+		return res, nil
+	}
+}
+
+func viewModelEndpoint(svc v2ms.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(viewModelReq)
+
+		if err := req.validate(); err != nil {
+			return nil, err
+		}
+
+		view, err := svc.ViewModel(ctx, req.token, req.id)
+		if err != nil {
+			return nil, err
+		}
+
+		res := viewModelRes{
+			Owner:    view.Owner,
+			ID:       view.ID,
+			Name:     view.Name,
+			Created:  view.Created,
+			Updated:  view.Updated,
+			Revision: view.Revision,
+			Metadata: view.Metadata,
+		}
+		return res, nil
+	}
+}
+
+func listModelsEndpoint(svc v2ms.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(listModelReq)
+
+		if err := req.validate(); err != nil {
+			return nil, err
+		}
+
+		page, err := svc.ListModels(ctx, req.token, req.offset, req.limit, req.name, req.metadata)
+		if err != nil {
+			return nil, err
+		}
+
+		res := modelsPageRes{
+			pageRes: pageRes{
+				Total:  page.Total,
+				Offset: page.Offset,
+				Limit:  page.Limit,
+			},
+			Models: []viewModelRes{},
+		}
+		for _, variable := range page.Models {
+			model := viewModelRes{
+				Owner:    variable.Owner,
+				ID:       variable.ID,
+				Name:     variable.Name,
+				Created:  variable.Created,
+				Updated:  variable.Updated,
+				Revision: variable.Revision,
+				Metadata: variable.Metadata,
+			}
+			res.Models = append(res.Models, model)
+		}
+
+		return res, nil
+	}
+}
+
+func removeModelEndpoint(svc v2ms.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(viewModelReq)
+
+		err := req.validate()
+		if err != nil {
+			return nil, err
+		}
+
+		if err := svc.RemoveModel(ctx, req.token, req.id); err != nil {
 			return nil, err
 		}
 

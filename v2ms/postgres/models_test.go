@@ -10,25 +10,24 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cloustone/pandas/v2ms"
 	"github.com/cloustone/pandas/v2ms/postgres"
 	"github.com/cloustone/pandas/v2ms/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestModelsSave(t *testing.T) {
+func TestVariablesSave(t *testing.T) {
 	dbMiddleware := postgres.NewDatabase(db)
-	modelRepo := postgres.NewModelRepository(dbMiddleware)
+	variableRepo := postgres.NewVariableRepository(dbMiddleware)
 
-	email := "model-save@example.com"
+	email := "variable-save@example.com"
 
 	var chid string
-	chs := []v2ms.Model{}
+	chs := []v2ms.Variable{}
 	for i := 1; i <= 5; i++ {
 		chid, err := uuid.New().ID()
 		require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-		ch := v2ms.Model{
+		ch := v2ms.Variable{
 			ID:    chid,
 			Owner: email,
 		}
@@ -36,24 +35,24 @@ func TestModelsSave(t *testing.T) {
 	}
 
 	cases := []struct {
-		desc   string
-		models []v2ms.Model
-		err    error
+		desc      string
+		variables []v2ms.Variable
+		err       error
 	}{
 		{
-			desc:   "create new models",
-			models: chs,
-			err:    nil,
+			desc:      "create new variables",
+			variables: chs,
+			err:       nil,
 		},
 		{
-			desc:   "create models that already exist",
-			models: chs,
-			err:    v2ms.ErrConflict,
+			desc:      "create variables that already exist",
+			variables: chs,
+			err:       v2ms.ErrConflict,
 		},
 		{
-			desc: "create model with invalid ID",
-			models: []v2ms.Model{
-				v2ms.Model{
+			desc: "create variable with invalid ID",
+			variables: []v2ms.Variable{
+				v2ms.Variable{
 					ID:    "invalid",
 					Owner: email,
 				},
@@ -61,9 +60,9 @@ func TestModelsSave(t *testing.T) {
 			err: v2ms.ErrMalformedEntity,
 		},
 		{
-			desc: "create model with invalid name",
-			models: []v2ms.Model{
-				v2ms.Model{
+			desc: "create variable with invalid name",
+			variables: []v2ms.Variable{
+				v2ms.Variable{
 					ID:    chid,
 					Owner: email,
 					Name:  invalidName,
@@ -72,9 +71,9 @@ func TestModelsSave(t *testing.T) {
 			err: v2ms.ErrMalformedEntity,
 		},
 		{
-			desc: "create model with invalid name",
-			models: []v2ms.Model{
-				v2ms.Model{
+			desc: "create variable with invalid name",
+			variables: []v2ms.Variable{
+				v2ms.Variable{
 					ID:    chid,
 					Owner: email,
 					Name:  invalidName,
@@ -85,19 +84,19 @@ func TestModelsSave(t *testing.T) {
 	}
 
 	for _, cc := range cases {
-		_, err := modelRepo.Save(context.Background(), cc.models...)
+		_, err := variableRepo.Save(context.Background(), cc.variables...)
 		assert.Equal(t, cc.err, err, fmt.Sprintf("%s: expected %s got %s\n", cc.desc, cc.err, err))
 	}
 }
 
-func TestModelUpdate(t *testing.T) {
-	email := "model-update@example.com"
+func TestVariableUpdate(t *testing.T) {
+	email := "variable-update@example.com"
 	dbMiddleware := postgres.NewDatabase(db)
-	chanRepo := postgres.NewModelRepository(dbMiddleware)
+	chanRepo := postgres.NewVariableRepository(dbMiddleware)
 
 	cid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
-	ch := v2ms.Model{
+	ch := v2ms.Variable{
 		ID:    cid,
 		Owner: email,
 	}
@@ -109,34 +108,34 @@ func TestModelUpdate(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
 	cases := []struct {
-		desc  string
-		model v2ms.Model
-		err   error
+		desc     string
+		variable v2ms.Variable
+		err      error
 	}{
 		{
-			desc:  "update existing model",
-			model: ch,
-			err:   nil,
+			desc:     "update existing variable",
+			variable: ch,
+			err:      nil,
 		},
 		{
-			desc: "update non-existing model with existing user",
-			model: v2ms.Model{
+			desc: "update non-existing variable with existing user",
+			variable: v2ms.Variable{
 				ID:    nonexistentChanID,
 				Owner: email,
 			},
 			err: v2ms.ErrNotFound,
 		},
 		{
-			desc: "update existing model ID with non-existing user",
-			model: v2ms.Model{
+			desc: "update existing variable ID with non-existing user",
+			variable: v2ms.Variable{
 				ID:    ch.ID,
 				Owner: wrongValue,
 			},
 			err: v2ms.ErrNotFound,
 		},
 		{
-			desc: "update non-existing model with non-existing user",
-			model: v2ms.Model{
+			desc: "update non-existing variable with non-existing user",
+			variable: v2ms.Variable{
 				ID:    nonexistentChanID,
 				Owner: wrongValue,
 			},
@@ -145,16 +144,16 @@ func TestModelUpdate(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		err := chanRepo.Update(context.Background(), tc.model)
+		err := chanRepo.Update(context.Background(), tc.variable)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
 
-func TestSingleModelRetrieval(t *testing.T) {
-	email := "model-single-retrieval@example.com"
+func TestSingleVariableRetrieval(t *testing.T) {
+	email := "variable-single-retrieval@example.com"
 	dbMiddleware := postgres.NewDatabase(db)
-	chanRepo := postgres.NewModelRepository(dbMiddleware)
-	modelRepo := postgres.NewThingRepository(dbMiddleware)
+	chanRepo := postgres.NewVariableRepository(dbMiddleware)
+	variableRepo := postgres.NewThingRepository(dbMiddleware)
 
 	thid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
@@ -167,12 +166,12 @@ func TestSingleModelRetrieval(t *testing.T) {
 		Owner: email,
 		Key:   thkey,
 	}
-	sths, _ := modelRepo.Save(context.Background(), th)
+	sths, _ := variableRepo.Save(context.Background(), th)
 	th.ID = sths[0].ID
 
 	chid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
-	ch := v2ms.Model{
+	ch := v2ms.Variable{
 		ID:    chid,
 		Owner: email,
 	}
@@ -189,22 +188,22 @@ func TestSingleModelRetrieval(t *testing.T) {
 		ID    string
 		err   error
 	}{
-		"retrieve model with existing user": {
+		"retrieve variable with existing user": {
 			owner: ch.Owner,
 			ID:    ch.ID,
 			err:   nil,
 		},
-		"retrieve model with existing user, non-existing model": {
+		"retrieve variable with existing user, non-existing variable": {
 			owner: ch.Owner,
 			ID:    nonexistentChanID,
 			err:   v2ms.ErrNotFound,
 		},
-		"retrieve model with non-existing owner": {
+		"retrieve variable with non-existing owner": {
 			owner: wrongValue,
 			ID:    ch.ID,
 			err:   v2ms.ErrNotFound,
 		},
-		"retrieve model with malformed ID": {
+		"retrieve variable with malformed ID": {
 			owner: ch.Owner,
 			ID:    wrongValue,
 			err:   v2ms.ErrNotFound,
@@ -217,12 +216,12 @@ func TestSingleModelRetrieval(t *testing.T) {
 	}
 }
 
-func TestMultiModelRetrieval(t *testing.T) {
+func TestMultiVariableRetrieval(t *testing.T) {
 	dbMiddleware := postgres.NewDatabase(db)
-	chanRepo := postgres.NewModelRepository(dbMiddleware)
+	chanRepo := postgres.NewVariableRepository(dbMiddleware)
 
-	email := "model-multi-retrieval@example.com"
-	name := "model_name"
+	email := "variable-multi-retrieval@example.com"
+	name := "variable_name"
 	metadata := v2ms.Metadata{
 		"field": "value",
 	}
@@ -240,20 +239,20 @@ func TestMultiModelRetrieval(t *testing.T) {
 		chid, err := uuid.New().ID()
 		require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-		ch := v2ms.Model{
+		ch := v2ms.Variable{
 			ID:    chid,
 			Owner: email,
 		}
 
-		// Create Models with name.
+		// Create Variables with name.
 		if i < chNameNum {
 			ch.Name = name
 		}
-		// Create Models with metadata.
+		// Create Variables with metadata.
 		if i >= chNameNum && i < chNameNum+chMetaNum {
 			ch.Metadata = metadata
 		}
-		// Create Models with name and metadata.
+		// Create Variables with name and metadata.
 		if i >= n-chNameMetaNum {
 			ch.Metadata = metadata
 			ch.Name = name
@@ -271,28 +270,28 @@ func TestMultiModelRetrieval(t *testing.T) {
 		total    uint64
 		metadata v2ms.Metadata
 	}{
-		"retrieve all models with existing owner": {
+		"retrieve all variables with existing owner": {
 			owner:  email,
 			offset: 0,
 			limit:  n,
 			size:   n,
 			total:  n,
 		},
-		"retrieve subset of models with existing owner": {
+		"retrieve subset of variables with existing owner": {
 			owner:  email,
 			offset: n / 2,
 			limit:  n,
 			size:   n / 2,
 			total:  n,
 		},
-		"retrieve models with non-existing owner": {
+		"retrieve variables with non-existing owner": {
 			owner:  wrongValue,
 			offset: n / 2,
 			limit:  n,
 			size:   0,
 			total:  0,
 		},
-		"retrieve models with existing name": {
+		"retrieve variables with existing name": {
 			owner:  email,
 			offset: offset,
 			limit:  n,
@@ -300,7 +299,7 @@ func TestMultiModelRetrieval(t *testing.T) {
 			size:   chNameNum + chNameMetaNum - offset,
 			total:  chNameNum + chNameMetaNum,
 		},
-		"retrieve all models with non-existing name": {
+		"retrieve all variables with non-existing name": {
 			owner:  email,
 			offset: 0,
 			limit:  n,
@@ -308,7 +307,7 @@ func TestMultiModelRetrieval(t *testing.T) {
 			size:   0,
 			total:  0,
 		},
-		"retrieve all models with existing metadata": {
+		"retrieve all variables with existing metadata": {
 			owner:    email,
 			offset:   0,
 			limit:    n,
@@ -316,14 +315,14 @@ func TestMultiModelRetrieval(t *testing.T) {
 			total:    chMetaNum + chNameMetaNum,
 			metadata: metadata,
 		},
-		"retrieve all models with non-existing metadata": {
+		"retrieve all variables with non-existing metadata": {
 			owner:    email,
 			offset:   0,
 			limit:    n,
 			total:    0,
 			metadata: wrongMeta,
 		},
-		"retrieve all models with existing name and metadata": {
+		"retrieve all variables with existing name and metadata": {
 			owner:    email,
 			offset:   0,
 			limit:    n,
@@ -336,24 +335,24 @@ func TestMultiModelRetrieval(t *testing.T) {
 
 	for desc, tc := range cases {
 		page, err := chanRepo.RetrieveAll(context.Background(), tc.owner, tc.offset, tc.limit, tc.name, tc.metadata)
-		size := uint64(len(page.Models))
+		size := uint64(len(page.Variables))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected size %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.total, page.Total, fmt.Sprintf("%s: expected total %d got %d\n", desc, tc.total, page.Total))
 		assert.Nil(t, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
 	}
 }
 
-func TestMultiModelRetrievalByThing(t *testing.T) {
-	email := "model-multi-retrieval-by-model@example.com"
+func TestMultiVariableRetrievalByThing(t *testing.T) {
+	email := "variable-multi-retrieval-by-variable@example.com"
 	idp := uuid.New()
 	dbMiddleware := postgres.NewDatabase(db)
-	chanRepo := postgres.NewModelRepository(dbMiddleware)
-	modelRepo := postgres.NewThingRepository(dbMiddleware)
+	chanRepo := postgres.NewVariableRepository(dbMiddleware)
+	variableRepo := postgres.NewThingRepository(dbMiddleware)
 
 	thid, err := idp.ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	sths, err := modelRepo.Save(context.Background(), v2ms.Thing{
+	sths, err := variableRepo.Save(context.Background(), v2ms.Thing{
 		ID:    thid,
 		Owner: email,
 	})
@@ -364,7 +363,7 @@ func TestMultiModelRetrievalByThing(t *testing.T) {
 	for i := uint64(0); i < n; i++ {
 		chid, err := uuid.New().ID()
 		require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
-		ch := v2ms.Model{
+		ch := v2ms.Variable{
 			ID:    chid,
 			Owner: email,
 		}
@@ -379,77 +378,77 @@ func TestMultiModelRetrievalByThing(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
 	cases := map[string]struct {
-		owner  string
-		model  string
-		offset uint64
-		limit  uint64
-		size   uint64
-		err    error
+		owner    string
+		variable string
+		offset   uint64
+		limit    uint64
+		size     uint64
+		err      error
 	}{
-		"retrieve all models by model with existing owner": {
-			owner:  email,
-			model:  tid,
-			offset: 0,
-			limit:  n,
-			size:   n,
+		"retrieve all variables by variable with existing owner": {
+			owner:    email,
+			variable: tid,
+			offset:   0,
+			limit:    n,
+			size:     n,
 		},
-		"retrieve subset of models by model with existing owner": {
-			owner:  email,
-			model:  tid,
-			offset: n / 2,
-			limit:  n,
-			size:   n / 2,
+		"retrieve subset of variables by variable with existing owner": {
+			owner:    email,
+			variable: tid,
+			offset:   n / 2,
+			limit:    n,
+			size:     n / 2,
 		},
-		"retrieve models by model with non-existing owner": {
-			owner:  wrongValue,
-			model:  tid,
-			offset: n / 2,
-			limit:  n,
-			size:   0,
+		"retrieve variables by variable with non-existing owner": {
+			owner:    wrongValue,
+			variable: tid,
+			offset:   n / 2,
+			limit:    n,
+			size:     0,
 		},
-		"retrieve models by non-existent model": {
-			owner:  email,
-			model:  nonexistentThingID,
-			offset: 0,
-			limit:  n,
-			size:   0,
+		"retrieve variables by non-existent variable": {
+			owner:    email,
+			variable: nonexistentThingID,
+			offset:   0,
+			limit:    n,
+			size:     0,
 		},
-		"retrieve models with malformed UUID": {
-			owner:  email,
-			model:  wrongValue,
-			offset: 0,
-			limit:  n,
-			size:   0,
-			err:    v2ms.ErrNotFound,
+		"retrieve variables with malformed UUID": {
+			owner:    email,
+			variable: wrongValue,
+			offset:   0,
+			limit:    n,
+			size:     0,
+			err:      v2ms.ErrNotFound,
 		},
 	}
 
 	for desc, tc := range cases {
-		page, err := chanRepo.RetrieveByThing(context.Background(), tc.owner, tc.model, tc.offset, tc.limit)
-		size := uint64(len(page.Models))
+		page, err := chanRepo.RetrieveByThing(context.Background(), tc.owner, tc.variable, tc.offset, tc.limit)
+		size := uint64(len(page.Variables))
 		assert.Equal(t, tc.size, size, fmt.Sprintf("%s: expected %d got %d\n", desc, tc.size, size))
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected no error got %d\n", desc, err))
 	}
 }
 
-func TestModelRemoval(t *testing.T) {
-	email := "model-removal@example.com"
+func TestVariableRemoval(t *testing.T) {
+	email := "variable-removal@example.com"
 	dbMiddleware := postgres.NewDatabase(db)
-	chanRepo := postgres.NewModelRepository(dbMiddleware)
+	chanRepo := postgres.NewVariableRepository(dbMiddleware)
 
 	chid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
-	schs, _ := chanRepo.Save(context.Background(), v2ms.Model{
+	schs, _ := chanRepo.Save(context.Background(), v2ms.Variable{
 		ID:    chid,
 		Owner: email,
 	})
 	chanID := schs[0].ID
 
 	// show that the removal works the same for both existing and non-existing
-	// (removed) model
+	// (removed) variable
 	for i := 0; i < 2; i++ {
 		err := chanRepo.Remove(context.Background(), email, chanID)
-		require.Nil(t, err, fmt.Sprintf("#%d: failed to remove model due to: %s", i, err))
+		require.Nil(t, err, fmt.Sprintf("#%d: failed to remove variable due to: %s", i, err))
 
 		_, err = chanRepo.RetrieveByID(context.Background(), email, chanID)
 		require.Equal(t, v2ms.ErrNotFound, err, fmt.Sprintf("#%d: expected %s got %s", i, v2ms.ErrNotFound, err))
@@ -457,29 +456,29 @@ func TestModelRemoval(t *testing.T) {
 }
 
 func TestConnect(t *testing.T) {
-	email := "model-connect@example.com"
+	email := "variable-connect@example.com"
 	dbMiddleware := postgres.NewDatabase(db)
-	modelRepo := postgres.NewThingRepository(dbMiddleware)
+	variableRepo := postgres.NewThingRepository(dbMiddleware)
 
 	thid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 	thkey, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	model := v2ms.Thing{
+	variable := v2ms.Thing{
 		ID:       thid,
 		Owner:    email,
 		Key:      thkey,
 		Metadata: v2ms.Metadata{},
 	}
-	sths, _ := modelRepo.Save(context.Background(), model)
-	modelID := sths[0].ID
+	sths, _ := variableRepo.Save(context.Background(), variable)
+	variableID := sths[0].ID
 
-	chanRepo := postgres.NewModelRepository(dbMiddleware)
+	chanRepo := postgres.NewVariableRepository(dbMiddleware)
 
 	chid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
-	schs, _ := chanRepo.Save(context.Background(), v2ms.Model{
+	schs, _ := chanRepo.Save(context.Background(), v2ms.Variable{
 		ID:    chid,
 		Owner: email,
 	})
@@ -492,83 +491,83 @@ func TestConnect(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
 	cases := []struct {
-		desc    string
-		owner   string
-		chanID  string
-		modelID string
-		err     error
+		desc       string
+		owner      string
+		chanID     string
+		variableID string
+		err        error
 	}{
 		{
-			desc:    "connect existing user, model and model",
-			owner:   email,
-			chanID:  chanID,
-			modelID: modelID,
-			err:     nil,
+			desc:       "connect existing user, variable and variable",
+			owner:      email,
+			chanID:     chanID,
+			variableID: variableID,
+			err:        nil,
 		},
 		{
-			desc:    "connect connected model and model",
-			owner:   email,
-			chanID:  chanID,
-			modelID: modelID,
-			err:     v2ms.ErrConflict,
+			desc:       "connect connected variable and variable",
+			owner:      email,
+			chanID:     chanID,
+			variableID: variableID,
+			err:        v2ms.ErrConflict,
 		},
 		{
-			desc:    "connect with non-existing user",
-			owner:   wrongValue,
-			chanID:  chanID,
-			modelID: modelID,
-			err:     v2ms.ErrNotFound,
+			desc:       "connect with non-existing user",
+			owner:      wrongValue,
+			chanID:     chanID,
+			variableID: variableID,
+			err:        v2ms.ErrNotFound,
 		},
 		{
-			desc:    "connect non-existing model",
-			owner:   email,
-			chanID:  nonexistentChanID,
-			modelID: modelID,
-			err:     v2ms.ErrNotFound,
+			desc:       "connect non-existing variable",
+			owner:      email,
+			chanID:     nonexistentChanID,
+			variableID: variableID,
+			err:        v2ms.ErrNotFound,
 		},
 		{
-			desc:    "connect non-existing model",
-			owner:   email,
-			chanID:  chanID,
-			modelID: nonexistentThingID,
-			err:     v2ms.ErrNotFound,
+			desc:       "connect non-existing variable",
+			owner:      email,
+			chanID:     chanID,
+			variableID: nonexistentThingID,
+			err:        v2ms.ErrNotFound,
 		},
 	}
 
 	for _, tc := range cases {
-		err := chanRepo.Connect(context.Background(), tc.owner, []string{tc.chanID}, []string{tc.modelID})
+		err := chanRepo.Connect(context.Background(), tc.owner, []string{tc.chanID}, []string{tc.variableID})
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
 
 func TestDisconnect(t *testing.T) {
-	email := "model-disconnect@example.com"
+	email := "variable-disconnect@example.com"
 	dbMiddleware := postgres.NewDatabase(db)
-	modelRepo := postgres.NewThingRepository(dbMiddleware)
+	variableRepo := postgres.NewThingRepository(dbMiddleware)
 
 	thid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 	thkey, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	model := v2ms.Thing{
+	variable := v2ms.Thing{
 		ID:       thid,
 		Owner:    email,
 		Key:      thkey,
 		Metadata: map[string]interface{}{},
 	}
-	sths, _ := modelRepo.Save(context.Background(), model)
-	modelID := sths[0].ID
+	sths, _ := variableRepo.Save(context.Background(), variable)
+	variableID := sths[0].ID
 
-	chanRepo := postgres.NewModelRepository(dbMiddleware)
+	chanRepo := postgres.NewVariableRepository(dbMiddleware)
 	chid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
-	schs, _ := chanRepo.Save(context.Background(), v2ms.Model{
+	schs, _ := chanRepo.Save(context.Background(), v2ms.Variable{
 		ID:    chid,
 		Owner: email,
 	})
 	chanID := schs[0].ID
-	chanRepo.Connect(context.Background(), email, []string{chanID}, []string{modelID})
+	chanRepo.Connect(context.Background(), email, []string{chanID}, []string{variableID})
 
 	nonexistentThingID, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
@@ -577,82 +576,82 @@ func TestDisconnect(t *testing.T) {
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
 	cases := []struct {
-		desc    string
-		owner   string
-		chanID  string
-		modelID string
-		err     error
+		desc       string
+		owner      string
+		chanID     string
+		variableID string
+		err        error
 	}{
 		{
-			desc:    "disconnect connected model",
-			owner:   email,
-			chanID:  chanID,
-			modelID: modelID,
-			err:     nil,
+			desc:       "disconnect connected variable",
+			owner:      email,
+			chanID:     chanID,
+			variableID: variableID,
+			err:        nil,
 		},
 		{
-			desc:    "disconnect non-connected model",
-			owner:   email,
-			chanID:  chanID,
-			modelID: modelID,
-			err:     v2ms.ErrNotFound,
+			desc:       "disconnect non-connected variable",
+			owner:      email,
+			chanID:     chanID,
+			variableID: variableID,
+			err:        v2ms.ErrNotFound,
 		},
 		{
-			desc:    "disconnect non-existing user",
-			owner:   wrongValue,
-			chanID:  chanID,
-			modelID: modelID,
-			err:     v2ms.ErrNotFound,
+			desc:       "disconnect non-existing user",
+			owner:      wrongValue,
+			chanID:     chanID,
+			variableID: variableID,
+			err:        v2ms.ErrNotFound,
 		},
 		{
-			desc:    "disconnect non-existing model",
-			owner:   email,
-			chanID:  nonexistentChanID,
-			modelID: modelID,
-			err:     v2ms.ErrNotFound,
+			desc:       "disconnect non-existing variable",
+			owner:      email,
+			chanID:     nonexistentChanID,
+			variableID: variableID,
+			err:        v2ms.ErrNotFound,
 		},
 		{
-			desc:    "disconnect non-existing model",
-			owner:   email,
-			chanID:  chanID,
-			modelID: nonexistentThingID,
-			err:     v2ms.ErrNotFound,
+			desc:       "disconnect non-existing variable",
+			owner:      email,
+			chanID:     chanID,
+			variableID: nonexistentThingID,
+			err:        v2ms.ErrNotFound,
 		},
 	}
 
 	for _, tc := range cases {
-		err := chanRepo.Disconnect(context.Background(), tc.owner, tc.chanID, tc.modelID)
+		err := chanRepo.Disconnect(context.Background(), tc.owner, tc.chanID, tc.variableID)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 	}
 }
 
 func TestHasThing(t *testing.T) {
-	email := "model-access-check@example.com"
+	email := "variable-access-check@example.com"
 	dbMiddleware := postgres.NewDatabase(db)
-	modelRepo := postgres.NewThingRepository(dbMiddleware)
+	variableRepo := postgres.NewThingRepository(dbMiddleware)
 
 	thid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 	thkey, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	model := v2ms.Thing{
+	variable := v2ms.Thing{
 		ID:    thid,
 		Owner: email,
 		Key:   thkey,
 	}
-	sths, _ := modelRepo.Save(context.Background(), model)
-	modelID := sths[0].ID
+	sths, _ := variableRepo.Save(context.Background(), variable)
+	variableID := sths[0].ID
 
-	chanRepo := postgres.NewModelRepository(dbMiddleware)
+	chanRepo := postgres.NewVariableRepository(dbMiddleware)
 	chid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
-	schs, _ := chanRepo.Save(context.Background(), v2ms.Model{
+	schs, _ := chanRepo.Save(context.Background(), v2ms.Variable{
 		ID:    chid,
 		Owner: email,
 	})
 	chanID := schs[0].ID
-	chanRepo.Connect(context.Background(), email, []string{chanID}, []string{modelID})
+	chanRepo.Connect(context.Background(), email, []string{chanID}, []string{variableID})
 
 	nonexistentChanID, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
@@ -662,19 +661,19 @@ func TestHasThing(t *testing.T) {
 		key       string
 		hasAccess bool
 	}{
-		"access check for model that has access": {
+		"access check for variable that has access": {
 			chanID:    chanID,
-			key:       model.Key,
+			key:       variable.Key,
 			hasAccess: true,
 		},
-		"access check for model without access": {
+		"access check for variable without access": {
 			chanID:    chanID,
 			key:       wrongValue,
 			hasAccess: false,
 		},
-		"access check for non-existing model": {
+		"access check for non-existing variable": {
 			chanID:    nonexistentChanID,
-			key:       model.Key,
+			key:       variable.Key,
 			hasAccess: false,
 		},
 	}
@@ -687,22 +686,22 @@ func TestHasThing(t *testing.T) {
 }
 
 func TestHasThingByID(t *testing.T) {
-	email := "model-access-check@example.com"
+	email := "variable-access-check@example.com"
 	dbMiddleware := postgres.NewDatabase(db)
-	modelRepo := postgres.NewThingRepository(dbMiddleware)
+	variableRepo := postgres.NewThingRepository(dbMiddleware)
 
 	thid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 	thkey, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	model := v2ms.Thing{
+	variable := v2ms.Thing{
 		ID:    thid,
 		Owner: email,
 		Key:   thkey,
 	}
-	sths, _ := modelRepo.Save(context.Background(), model)
-	modelID := sths[0].ID
+	sths, _ := variableRepo.Save(context.Background(), variable)
+	variableID := sths[0].ID
 
 	disconnectedThID, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
@@ -714,51 +713,51 @@ func TestHasThingByID(t *testing.T) {
 		Owner: email,
 		Key:   disconnectedThKey,
 	}
-	sths, _ = modelRepo.Save(context.Background(), disconnectedThing)
+	sths, _ = variableRepo.Save(context.Background(), disconnectedThing)
 	disconnectedThingID := sths[0].ID
 
-	chanRepo := postgres.NewModelRepository(dbMiddleware)
+	chanRepo := postgres.NewVariableRepository(dbMiddleware)
 	chid, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
-	schs, _ := chanRepo.Save(context.Background(), v2ms.Model{
+	schs, _ := chanRepo.Save(context.Background(), v2ms.Variable{
 		ID:    chid,
 		Owner: email,
 	})
 	chanID := schs[0].ID
-	chanRepo.Connect(context.Background(), email, []string{chanID}, []string{modelID})
+	chanRepo.Connect(context.Background(), email, []string{chanID}, []string{variableID})
 
 	nonexistentChanID, err := uuid.New().ID()
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
 	cases := map[string]struct {
-		chanID    string
-		modelID   string
-		hasAccess bool
+		chanID     string
+		variableID string
+		hasAccess  bool
 	}{
-		"access check for model that has access": {
-			chanID:    chanID,
-			modelID:   modelID,
-			hasAccess: true,
+		"access check for variable that has access": {
+			chanID:     chanID,
+			variableID: variableID,
+			hasAccess:  true,
 		},
-		"access check for model without access": {
-			chanID:    chanID,
-			modelID:   disconnectedThingID,
-			hasAccess: false,
+		"access check for variable without access": {
+			chanID:     chanID,
+			variableID: disconnectedThingID,
+			hasAccess:  false,
 		},
-		"access check for non-existing model": {
-			chanID:    nonexistentChanID,
-			modelID:   modelID,
-			hasAccess: false,
+		"access check for non-existing variable": {
+			chanID:     nonexistentChanID,
+			variableID: variableID,
+			hasAccess:  false,
 		},
-		"access check for non-existing model": {
-			chanID:    chanID,
-			modelID:   wrongValue,
-			hasAccess: false,
+		"access check for non-existing variable": {
+			chanID:     chanID,
+			variableID: wrongValue,
+			hasAccess:  false,
 		},
 	}
 
 	for desc, tc := range cases {
-		err := chanRepo.HasThingByID(context.Background(), tc.chanID, tc.modelID)
+		err := chanRepo.HasThingByID(context.Background(), tc.chanID, tc.variableID)
 		hasAccess := err == nil
 		assert.Equal(t, tc.hasAccess, hasAccess, fmt.Sprintf("%s: expected %t got %t\n", desc, tc.hasAccess, hasAccess))
 	}

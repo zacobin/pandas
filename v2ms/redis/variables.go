@@ -12,51 +12,51 @@ import (
 )
 
 const (
-	keyPrefix = "variable_key"
-	idPrefix  = "variable"
+	modelKeyPrefix = "model_key"
+	modelIdPrefix  = "model"
 )
 
-var _ v2ms.VariableCache = (*variableCache)(nil)
+var _ v2ms.ModelCache = (*modelCache)(nil)
 
-type variableCache struct {
+type modelCache struct {
 	client *redis.Client
 }
 
-// NewVariableCache returns redis variable cache implementation.
-func NewVariableCache(client *redis.Client) v2ms.VariableCache {
-	return &variableCache{
+// NewModelCache returns redis model cache implementation.
+func NewModelCache(client *redis.Client) v2ms.ModelCache {
+	return &modelCache{
 		client: client,
 	}
 }
 
-func (tc *variableCache) Save(_ context.Context, variableKey string, variableID string) error {
-	tkey := fmt.Sprintf("%s:%s", keyPrefix, variableKey)
-	if err := tc.client.Set(tkey, variableID, 0).Err(); err != nil {
+func (tc *modelCache) Save(_ context.Context, modelKey string, modelID string) error {
+	tkey := fmt.Sprintf("%s:%s", modelKeyPrefix, modelKey)
+	if err := tc.client.Set(tkey, modelID, 0).Err(); err != nil {
 		return err
 	}
 
-	tid := fmt.Sprintf("%s:%s", idPrefix, variableID)
-	return tc.client.Set(tid, variableKey, 0).Err()
+	tid := fmt.Sprintf("%s:%s", modelIdPrefix, modelID)
+	return tc.client.Set(tid, modelKey, 0).Err()
 }
 
-func (tc *variableCache) ID(_ context.Context, variableKey string) (string, error) {
-	tkey := fmt.Sprintf("%s:%s", keyPrefix, variableKey)
-	variableID, err := tc.client.Get(tkey).Result()
+func (tc *modelCache) ID(_ context.Context, modelKey string) (string, error) {
+	tkey := fmt.Sprintf("%s:%s", modelKeyPrefix, modelKey)
+	modelID, err := tc.client.Get(tkey).Result()
 	if err != nil {
 		return "", err
 	}
 
-	return variableID, nil
+	return modelID, nil
 }
 
-func (tc *variableCache) Remove(_ context.Context, variableID string) error {
-	tid := fmt.Sprintf("%s:%s", idPrefix, variableID)
+func (tc *modelCache) Remove(_ context.Context, modelID string) error {
+	tid := fmt.Sprintf("%s:%s", modelIdPrefix, modelID)
 	key, err := tc.client.Get(tid).Result()
 	if err != nil {
 		return err
 	}
 
-	tkey := fmt.Sprintf("%s:%s", keyPrefix, key)
+	tkey := fmt.Sprintf("%s:%s", modelKeyPrefix, key)
 
 	return tc.client.Del(tkey, tid).Err()
 }
