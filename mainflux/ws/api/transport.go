@@ -13,11 +13,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/broker"
-	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/mainflux/transformers/senml"
 	"github.com/cloustone/pandas/mainflux/ws"
+	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/go-zoo/bone"
 	"github.com/gorilla/websocket"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -60,7 +61,7 @@ func MakeHandler(svc ws.Service, tc mainflux.ThingsServiceClient, l log.Logger) 
 	mux := bone.New()
 	mux.GetFunc("/channels/:id/messages", handshake(svc))
 	mux.GetFunc("/channels/:id/messages/*", handshake(svc))
-	mux.GetFunc("/version", mainflux.Version("websocket"))
+	mux.GetFunc("/version", pandas.Version("websocket"))
 	mux.Handle("/metrics", promhttp.Handler())
 
 	return mux

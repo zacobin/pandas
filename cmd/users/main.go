@@ -15,6 +15,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/email"
 	"github.com/cloustone/pandas/users"
@@ -163,53 +164,53 @@ func main() {
 }
 
 func loadConfig() config {
-	timeout, err := strconv.ParseInt(mainflux.Env(envAuthnTimeout, defAuthnTimeout), 10, 64)
+	timeout, err := strconv.ParseInt(pandas.Env(envAuthnTimeout, defAuthnTimeout), 10, 64)
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envAuthnTimeout, err.Error())
 	}
 
-	tls, err := strconv.ParseBool(mainflux.Env(envAuthnTLS, defAuthnTLS))
+	tls, err := strconv.ParseBool(pandas.Env(envAuthnTLS, defAuthnTLS))
 	if err != nil {
 		log.Fatalf("Invalid value passed for %s\n", envAuthnTLS)
 	}
 
 	dbConfig := postgres.Config{
-		Host:        mainflux.Env(envDBHost, defDBHost),
-		Port:        mainflux.Env(envDBPort, defDBPort),
-		User:        mainflux.Env(envDBUser, defDBUser),
-		Pass:        mainflux.Env(envDBPass, defDBPass),
-		Name:        mainflux.Env(envDBName, defDBName),
-		SSLMode:     mainflux.Env(envDBSSLMode, defDBSSLMode),
-		SSLCert:     mainflux.Env(envDBSSLCert, defDBSSLCert),
-		SSLKey:      mainflux.Env(envDBSSLKey, defDBSSLKey),
-		SSLRootCert: mainflux.Env(envDBSSLRootCert, defDBSSLRootCert),
+		Host:        pandas.Env(envDBHost, defDBHost),
+		Port:        pandas.Env(envDBPort, defDBPort),
+		User:        pandas.Env(envDBUser, defDBUser),
+		Pass:        pandas.Env(envDBPass, defDBPass),
+		Name:        pandas.Env(envDBName, defDBName),
+		SSLMode:     pandas.Env(envDBSSLMode, defDBSSLMode),
+		SSLCert:     pandas.Env(envDBSSLCert, defDBSSLCert),
+		SSLKey:      pandas.Env(envDBSSLKey, defDBSSLKey),
+		SSLRootCert: pandas.Env(envDBSSLRootCert, defDBSSLRootCert),
 	}
 
 	emailConf := email.Config{
-		Driver:      mainflux.Env(envEmailDriver, defEmailDriver),
-		FromAddress: mainflux.Env(envEmailFromAddress, defEmailFromAddress),
-		FromName:    mainflux.Env(envEmailFromName, defEmailFromName),
-		Host:        mainflux.Env(envEmailHost, defEmailHost),
-		Port:        mainflux.Env(envEmailPort, defEmailPort),
-		Username:    mainflux.Env(envEmailUsername, defEmailUsername),
-		Password:    mainflux.Env(envEmailPassword, defEmailPassword),
-		Template:    mainflux.Env(envEmailTemplate, defEmailTemplate),
+		Driver:      pandas.Env(envEmailDriver, defEmailDriver),
+		FromAddress: pandas.Env(envEmailFromAddress, defEmailFromAddress),
+		FromName:    pandas.Env(envEmailFromName, defEmailFromName),
+		Host:        pandas.Env(envEmailHost, defEmailHost),
+		Port:        pandas.Env(envEmailPort, defEmailPort),
+		Username:    pandas.Env(envEmailUsername, defEmailUsername),
+		Password:    pandas.Env(envEmailPassword, defEmailPassword),
+		Template:    pandas.Env(envEmailTemplate, defEmailTemplate),
 	}
 
 	return config{
-		logLevel:      mainflux.Env(envLogLevel, defLogLevel),
+		logLevel:      pandas.Env(envLogLevel, defLogLevel),
 		dbConfig:      dbConfig,
-		authnHTTPPort: mainflux.Env(envAuthnHTTPPort, defAuthnHTTPPort),
-		authnGRPCPort: mainflux.Env(envAuthnGRPCPort, defAuthnGRPCPort),
-		authnURL:      mainflux.Env(envAuthnURL, defAuthnURL),
+		authnHTTPPort: pandas.Env(envAuthnHTTPPort, defAuthnHTTPPort),
+		authnGRPCPort: pandas.Env(envAuthnGRPCPort, defAuthnGRPCPort),
+		authnURL:      pandas.Env(envAuthnURL, defAuthnURL),
 		authnTimeout:  time.Duration(timeout) * time.Second,
 		authnTLS:      tls,
 		emailConf:     emailConf,
-		httpPort:      mainflux.Env(envHTTPPort, defHTTPPort),
-		serverCert:    mainflux.Env(envServerCert, defServerCert),
-		serverKey:     mainflux.Env(envServerKey, defServerKey),
-		jaegerURL:     mainflux.Env(envJaegerURL, defJaegerURL),
-		resetURL:      mainflux.Env(envTokenResetEndpoint, defTokenResetEndpoint),
+		httpPort:      pandas.Env(envHTTPPort, defHTTPPort),
+		serverCert:    pandas.Env(envServerCert, defServerCert),
+		serverKey:     pandas.Env(envServerKey, defServerKey),
+		jaegerURL:     pandas.Env(envJaegerURL, defJaegerURL),
+		resetURL:      pandas.Env(envTokenResetEndpoint, defTokenResetEndpoint),
 	}
 
 }

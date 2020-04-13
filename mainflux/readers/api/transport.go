@@ -11,10 +11,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/cloustone/pandas"
+	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/mainflux/readers"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-zoo/bone"
-	"github.com/cloustone/pandas/mainflux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -49,7 +50,7 @@ func MakeHandler(svc readers.MessageRepository, tc mainflux.ThingsServiceClient,
 		opts...,
 	))
 
-	mux.GetFunc("/version", mainflux.Version(svcName))
+	mux.GetFunc("/version", pandas.Version(svcName))
 	mux.Handle("/metrics", promhttp.Handler())
 
 	return mux

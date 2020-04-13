@@ -12,11 +12,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/bootstrap"
+	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/errors"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-zoo/bone"
-	"github.com/cloustone/pandas/mainflux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -108,7 +109,7 @@ func MakeHandler(svc bootstrap.Service, reader bootstrap.ConfigReader) http.Hand
 		encodeResponse,
 		opts...))
 
-	r.GetFunc("/version", mainflux.Version("bootstrap"))
+	r.GetFunc("/version", pandas.Version("bootstrap"))
 	r.Handle("/metrics", promhttp.Handler())
 
 	return r

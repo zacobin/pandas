@@ -18,25 +18,39 @@ MAINFLUX_SERVICES = http ws coap lora influxdb-writer influxdb-reader mongodb-wr
 
 UNAME = $(shell uname)
 DOCKER_REPO = docker.io
-IMAGES = apimachinery dmms pms rulechain headmast lbs authn
+IMAGES = apimachinery rulechain headmast lbs authn authz things bootstrap twins users
 IMAGE_NAME_PREFIX := pandas-
 IMAGE_DIR := $(IMAGE_NAME)
 ifeq ($(IMAGE_NAME),bridge)
     IMAGE_DIR := edge/$(IMAGE_NAME)
-else ifneq (,$(filter $(IMAGE_NAME), apimachinery dmms pms rulechain headmast lbs authn))
+else ifneq (,$(filter $(IMAGE_NAME), apimachinery  rulechain headmast lbs authn))
     IMAGE_DIR := cmd/$(IMAGE_NAME)
 else ifeq ($(IMAGE_NAME),cabinet)
     IMAGE_DIR := security/$(IMAGE_NAME)
 endif
 
 GCFLAGS  := -gcflags="-N -l"
+export GOARCH=amd64
+
+DOCKERS_DEV = $(addprefix docker_dev_,$(IMAGES))
+define make_docker_dev
+	$(eval svc=$(subst docker_dev_,,$(1)))
+	@echo building $(IMAGE_NAME_PREFIX)$(svc) image ...
+	@if [ ! -d "cmd/$(svc)/bin/" ]; then mkdir cmd/$(svc)/bin/ ; fi
+	@cp scripts/dockerize cmd/$(svc)/bin/
+	cp bin/$(svc) cmd/$(svc)/bin/main
+	@full_img_name=$(IMAGE_NAME_PREFIX)$(svc); \
+		cd ./cmd/$(svc)/ && \
+			docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/$$full_img_name ../../../. -f Dockerfile.dev 
+	@rm -rf cmd/$(svc)/bin
+endef
 
 .PHONY: all
 all: build
 
 .PHONY: docker
 docker: export GOOS=linux
-docker: pandas-base $(addprefix docker-build-, $(IMAGES)) 
+docker: $(addprefix docker-build-, $(IMAGES)) 
 	docker images | grep '<none>' | awk '{print $3}' | xargs docker rmi
 	@echo "docker building completed!" 
 
@@ -58,9 +72,15 @@ $(addprefix docker-build-, $(IMAGES)): docker-build-%: %
 	@"./scripts/push.sh" $(IMAGE_NAME)
 	# @kubectl delete pod $$(kubectl get pod -n pandas | grep $(IMAGE_NAME) | awk '{print $$1}') -n pandas 
 
-pandas-base:
+pandas-base: export GOOS=linux
+pandas-base: 
 	@echo building $(IMAGE_NAME_PREFIX)pandas-base image ...
 	docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/pandas-base . -f docker/base/Dockerfile
+
+.PHONY: dockers_dev
+$(DOCKERS_DEV):
+	$(call make_docker_dev,$(@))
+dockers_dev: $(DOCKERS_DEV)
 
 .PHONY: deploy
 deploy:
@@ -80,22 +100,13 @@ undeploy:
 all: build
 
 .PHONY: build
-build: apimachinery  dmms  pms rulechain lbs headmast  authn  users bootstrap realms
+build: apimachinery  rulechain lbs headmast  authn  users bootstrap realms authz things twins v2ms pms adaptors readers writers 
 
 .PHONY: apimachinery 
 apimachinery: 
 	@echo "building api server (apimachinery)..."
 	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/apimachinery 
 
-.PHONY: dmms 
-dmms: cmd/dmms 
-	@echo "building device management server (dmms)..."
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/dmms
-
-.PHONY: pms 
-pms: cmd/pms 
-	@echo "building project management server (pms)..."
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/pms
 
 .PHONY: rulechain 
 rulechain: cmd/rulechain
@@ -113,54 +124,134 @@ headmast: cmd/headmast
 	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/headmast
 
 .PHONY: authn 
-authn: 
-	@echo "building key management service (authn)..."
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/authn
+authn: cmd/authn
+	@echo "building key management service (authn)...$(GOOS)$(GOARCH)"
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/authn
 
 .PHONY: authz
-authz: 
-	@echo "building authorization service (authn)..."
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/authz
+authz: cmd/authz
+	@echo "building authorization service (authz)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/authz
 
 
 .PHONY: users 
-users: 
+users: cmd/users 
 	@echo "building user management service (users)..."
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/users
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/users
 
 .PHONY: realms 
-realms: 
+realms: cmd/realms 
 	@echo "building identify authentiation management service (realms)..."
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/realms
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/realms
+
+.PHONY: pms 
+pms: cmd/pms
+	@echo "building project management service (pms)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/pms
 
 
+
+.PHONY: v2ms 
+v2ms: cmd/v2ms
+	@echo "building view and variable management service (v2ms)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/v2ms
 
 .PHONY: bootstrap 
 bootstrap: cmd/bootstrap 
 	@echo "building bootstrap service (bootstrap)..."
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/bootstrap
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/bootstrap
+
+.PHONY: things 
+things: cmd/things 
+	@echo "building things service (things)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/things
+
+.PHONY: twins 
+twins: cmd/twins 
+	@echo "building twins service (twins)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/twins
+
+#### mainflux
+.PHONY: adaptors
+adaptors: http ws mqtt coap opcua lora
+
+.PHONY: http 
+http: cmd/http
+	@echo "building http adaptor service (http)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/http
+
+.PHONY: ws 
+ws: cmd/ws
+	@echo "building web socket adaptor service (ws)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/ws
+
+.PHONY: mqtt 
+mqtt: cmd/mqtt
+	@echo "building mqtt adaptor service (mqtt)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/mqtt
+
+.PHONY: coap 
+coap: cmd/coap
+	@echo "building coap adaptor service (coap)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/coap
+
+.PHONY: lora 
+lora: cmd/lora
+	@echo "building lora adaptor service (lora)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/lora
+
+.PHONY: opcua 
+opcua: cmd/opcua
+	@echo "building opcua adaptor service (opcua)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/opcua
+
+.PHONY: readers
+readers: mongodb-reader influxdb-reader cassandra-reader postgres-reader
+
+.PHONY: mongodb-reader 
+mongodb-reader: cmd/mongodb-reader
+	@echo "building mongodb-reader service (mongodb-reader)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/mongodb-reader
+
+.PHONY: influxdb-reader 
+influxdb-reader: cmd/influxdb-reader
+	@echo "building influxdb-reader service (influxdb-readers)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/influxdb-reader
+
+.PHONY: cassandra-reader 
+cassandra-reader: cmd/cassandra-reader
+	@echo "building cassandra-reader service (cassandra-readers)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/cassandra-reader
+
+.PHONY: postgres-reader 
+postgres-reader: cmd/postgres-reader
+	@echo "building postgres-reader service (postgres-readers)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/postgres-reader
 
 
-.PHONY: mainflux 
-mainflux: 
-	@echo "building backend service (mainflux)..."
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/things
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/twins
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/ws
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/postgres-writer
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/postgres-reader
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/opcua
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/mqtt
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/mongodb-writer
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/mongodb-reader
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/lora
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/influxdb-writer
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/influxdb-reader
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/http
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/coap
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/cassandra-writer
-	$Q CGO_ENABLED=1 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/mainflux/cmd/cassandra-reader
 
+.PHONY: writers
+writers: mongodb-writer influxdb-writer cassandra-writer postgres-writer
+
+.PHONY: mongodb-writer
+mongodb-writer: cmd/mongodb-writer
+	@echo "building mongodb-writer service (mongodb-writer)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/mongodb-writer
+
+.PHONY: influxdb-writer
+influxdb-writer: cmd/influxdb-writer
+	@echo "building influxdb-writer service (influxdb-writer)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/influxdb-writer
+
+.PHONY: cassandra-writer
+cassandra-writer: cmd/cassandra-writer
+	@echo "building cassandra-writer service (cassandra-readers)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/cassandra-writer
+
+.PHONY: postgres-writer
+postgres-writer: cmd/postgres-writer
+	@echo "building postgres-writer service (postgres-writer)..."
+	$Q CGO_ENABLED=0 go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/postgres-writer
 
 .PHONY: test
 test: 

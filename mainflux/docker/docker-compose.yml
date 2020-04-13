@@ -8,10 +8,10 @@ networks:
     driver: bridge
 
 volumes:
-  mainflux-authn-db-volume:
-  mainflux-users-db-volume:
-  mainflux-things-db-volume:
-  mainflux-things-redis-volume:
+  pandas-authn-db-volume:
+  pandas-users-db-volume:
+  pandas-things-db-volume:
+  pandas-things-redis-volume:
   mainflux-es-redis-volume:
   mainflux-mqtt-broker-volume:
 
@@ -58,7 +58,7 @@ services:
 
   authn-db:
     image: postgres:10.8-alpine
-    container_name: mainflux-authn-db
+    container_name: pandas-authn-db
     restart: on-failure
     environment:
       POSTGRES_USER: ${MF_AUTHN_DB_USER}
@@ -67,11 +67,11 @@ services:
     networks:
       - mainflux-base-net
     volumes:
-      - mainflux-authn-db-volume:/var/lib/postgresql/data
+      - pandas-authn-db-volume:/var/lib/postgresql/data
 
   authn:
-    image: mainflux/authn:latest
-    container_name: mainflux-authn
+    image: cloustone/pandas-authn:latest
+    container_name: pandas-authn
     depends_on:
       - authn-db
     expose:
@@ -96,7 +96,7 @@ services:
 
   users-db:
     image: postgres:10.8-alpine
-    container_name: mainflux-users-db
+    container_name: pandas-users-db
     restart: on-failure
     environment:
       POSTGRES_USER: ${MF_USERS_DB_USER}
@@ -105,11 +105,11 @@ services:
     networks:
       - mainflux-base-net
     volumes:
-      - mainflux-users-db-volume:/var/lib/postgresql/data
+      - pandas-users-db-volume:/var/lib/postgresql/data
 
   users:
-    image: mainflux/users:latest
-    container_name: mainflux-users
+    image: cloustone/pandas-users:latest
+    container_name: pandas-users
     volumes:
       - ./users/emailer/templates/${MF_EMAIL_TEMPLATE}:/${MF_EMAIL_TEMPLATE}
     depends_on:
@@ -142,7 +142,7 @@ services:
 
   things-db:
     image: postgres:10.8-alpine
-    container_name: mainflux-things-db
+    container_name: pandas-things-db
     restart: on-failure
     environment:
       POSTGRES_USER: ${MF_THINGS_DB_USER}
@@ -151,20 +151,20 @@ services:
     networks:
       - mainflux-base-net
     volumes:
-      - mainflux-things-db-volume:/var/lib/postgresql/data
+      - pandas-things-db-volume:/var/lib/postgresql/data
 
   things-redis:
     image: redis:5.0-alpine
-    container_name: mainflux-things-redis
+    container_name: pandas-things-redis
     restart: on-failure
     networks:
       - mainflux-base-net
     volumes:
-      - mainflux-things-redis-volume:/data
+      - pandas-things-redis-volume:/data
 
   things:
-    image: mainflux/things:latest
-    container_name: mainflux-things
+    image: cloustone/pandas-things:latest
+    container_name: pandas-things
     depends_on:
       - things-db
       - authn
@@ -211,9 +211,9 @@ services:
       DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL: debug
     networks:
       - mainflux-base-net
-    volumes: 
+    volumes:
       - mainflux-mqtt-broker-volume:/var/lib/vernemq
-  
+
   mqtt-adapter:
     image: mainflux/mqtt:latest
     container_name: mainflux-mqtt
@@ -236,7 +236,6 @@ services:
       MF_MQTT_ADAPTER_WS_TARGET_PORT: ${MF_MQTT_BROKER_WS_PORT}
     networks:
       - mainflux-base-net
-
 
   ws-adapter:
     image: mainflux/ws:latest

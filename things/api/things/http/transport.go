@@ -12,11 +12,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cloustone/pandas"
+	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas/things"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-zoo/bone"
-	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/things"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -171,7 +172,7 @@ func MakeHandler(tracer opentracing.Tracer, svc things.Service) http.Handler {
 		opts...,
 	))
 
-	r.GetFunc("/version", mainflux.Version("things"))
+	r.GetFunc("/version", pandas.Version("things"))
 	r.Handle("/metrics", promhttp.Handler())
 
 	return r
