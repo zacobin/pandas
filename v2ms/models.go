@@ -8,15 +8,13 @@ import (
 // Model represents a model. Each model is binded iwth one thing, and
 // is assigned with the unique identifier.
 type Model struct {
-	Owner          string
-	ID             string
-	Name           string
-	ThingID        string
-	ThingAttribute string
-	Created        time.Time
-	Updated        time.Time
-	Revision       int
-	Metadata       Metadata
+	Owner    string
+	ID       string
+	Name     string
+	Created  time.Time
+	Updated  time.Time
+	Revision int
+	Metadata Metadata
 }
 
 // ModelsPage contains page related metadata as well as a list of models that

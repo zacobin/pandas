@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -119,6 +120,10 @@ func (cr variableRepository) RetrieveByID(ctx context.Context, owner, id string)
 	}
 
 	return toVariable(dbch), nil
+}
+
+func (cr variableRepository) RetrieveByAttribute(ctx context.Context, channel, subtopic string) ([]string, error) {
+	return nil, errors.New("no implemented")
 }
 
 func (cr variableRepository) RetrieveAll(ctx context.Context, owner string, offset, limit uint64, name string, metadata v2ms.Metadata) (v2ms.VariablesPage, error) {

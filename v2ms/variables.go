@@ -16,6 +16,8 @@ type Variable struct {
 	Name           string
 	ThingID        string
 	ThingAttribute string
+	Channel        string
+	SubTopic       string
 	Created        time.Time
 	Updated        time.Time
 	Revision       int
@@ -51,6 +53,10 @@ type VariableRepository interface {
 
 	// RetrieveAll retrieves the subset of things owned by the specified user.
 	RetrieveAll(context.Context, string, uint64, uint64, string, Metadata) (VariablesPage, error)
+
+	// RetrieveByAttribute retrieves twin ids whose definition contains
+	// the attribute with given channel and subtopic
+	RetrieveByAttribute(ctx context.Context, channel, subtopic string) ([]string, error)
 
 	// Remove removes the variable having the provided identifier.
 	Remove(ctx context.Context, owner, id string) error
