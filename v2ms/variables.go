@@ -11,18 +11,19 @@ type Metadata map[string]interface{}
 // Variable represents a variable. Each variable is binded iwth one thing, and
 // is assigned with the unique identifier.
 type Variable struct {
-	Owner          string
-	ID             string
-	Name           string
-	ThingID        string
-	ModelID        string
-	ThingAttribute string
-	Channel        string
-	SubTopic       string
-	Created        time.Time
-	Updated        time.Time
-	Revision       int
-	Metadata       Metadata
+	Owner         string
+	ID            string
+	Name          string
+	ThingID       string
+	ModelID       string
+	AttributeName string
+	AttributeVal  interface{}
+	Channel       string
+	SubTopic      string
+	Created       time.Time
+	Updated       time.Time
+	Revision      int
+	Metadata      Metadata
 }
 
 // PageMetadata contains page metadata that helps navigation.
