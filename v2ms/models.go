@@ -33,6 +33,10 @@ type ModelRepository interface {
 	// returned to indicate operation failure.
 	Update(context.Context, Model) error
 
+	// Retrieve retrieves the model having the provied identifier without
+	// owner, using only internal
+	Retrieve(ctx context.Context, id string) (Model, error)
+
 	// RetrieveByID retrieves the model having the provided identifier.
 	RetrieveByID(ctx context.Context, owner, id string) (Model, error)
 

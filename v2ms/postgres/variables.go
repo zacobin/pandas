@@ -122,7 +122,7 @@ func (cr variableRepository) RetrieveByID(ctx context.Context, owner, id string)
 	return toVariable(dbch), nil
 }
 
-func (cr variableRepository) RetrieveByAttribute(ctx context.Context, channel, subtopic string) ([]string, error) {
+func (cr variableRepository) RetrieveByAttribute(ctx context.Context, channel, subtopic string) ([]v2ms.Variable, error) {
 	return nil, errors.New("no implemented")
 }
 

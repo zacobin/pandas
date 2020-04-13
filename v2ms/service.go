@@ -393,26 +393,22 @@ func (v2m *v2mService) ListVariables(ctx context.Context, token string, offset u
 }
 
 func (v2m *v2mService) SaveStates(msg *mainflux.Message) error {
-	ids, err := v2m.variables.RetrieveByAttribute(context.TODO(), msg.Channel, msg.Subtopic)
+	variables, err := v2m.variables.RetrieveByAttribute(context.TODO(), msg.Channel, msg.Subtopic)
 	if err != nil {
 		return err
 	}
-	for _, id := range ids {
-		if err := v2m.saveState(msg, id); err != nil {
+	for _, variable := range variables {
+		if err := v2m.saveState(msg, variable); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (v2m *v2mService) saveState(msg *mainflux.Message, id string) error {
-	var b []byte
-	var err error
-	defer v2m.nats.Publish(&id, &err, crudOp["stateSucc"], crudOp["stateFail"], &b)
-
-	variable, err := v2m.variables.RetrieveByID(context.TODO(), "", id)
+func (v2m *v2mService) saveState(msg *mainflux.Message, variable Variable) error {
+	model, err := v2m.models.Retrieve(context.TODO(), variable.ModelID)
 	if err != nil {
-		return fmt.Errorf("Retrieving twin for %s failed: %s", msg.Publisher, err)
+		return fmt.Errorf("Retrieving model %s for %s failed: %s", variable.ModelID, msg.Publisher, err)
 	}
 
 	var recs []senml.Record
@@ -421,20 +417,17 @@ func (v2m *v2mService) saveState(msg *mainflux.Message, id string) error {
 	}
 
 	for _, rec := range recs {
-		if updatedVar, err := v2m.updateVariable(variable, rec, msg); err != nil {
-			return fmt.Errorf("Update variable %s for %s failed: %s", id, msg.Publisher, err)
+		if updatedVar, err := v2m.updateVariable(variable, model, rec, msg); err != nil {
+			return fmt.Errorf("Update variable %s for %s failed: %s", variable.ID, msg.Publisher, err)
 		} else {
 			v2m.variables.Update(context.TODO(), updatedVar)
 		}
 	}
 
-	id = msg.Publisher
-	b = msg.Payload
-
 	return nil
 }
 
-func (v2m *v2mService) updateVariable(variable Variable, rec senml.Record, msg *mainflux.Message) (Variable, error) {
+func (v2m *v2mService) updateVariable(variable Variable, model Model, rec senml.Record, msg *mainflux.Message) (Variable, error) {
 	return Variable{}, errors.New("not implemented") // TODO
 }
 

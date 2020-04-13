@@ -93,6 +93,24 @@ func (cr modelRepository) Update(ctx context.Context, model v2ms.Model) error {
 	return nil
 }
 
+func (cr modelRepository) Retrieve(ctx context.Context, id string) (v2ms.Model, error) {
+	q := `SELECT name, metadata FROM models WHERE id = $1;`
+
+	dbch := dbModel{
+		ID: id,
+	}
+	if err := cr.db.QueryRowxContext(ctx, q, id).StructScan(&dbch); err != nil {
+		empty := v2ms.Model{}
+		pqErr, ok := err.(*pq.Error)
+		if err == sql.ErrNoRows || ok && errInvalid == pqErr.Code.Name() {
+			return empty, v2ms.ErrNotFound
+		}
+		return empty, err
+	}
+
+	return toModel(dbch), nil
+}
+
 func (cr modelRepository) RetrieveByID(ctx context.Context, owner, id string) (v2ms.Model, error) {
 	q := `SELECT name, metadata FROM models WHERE id = $1 AND owner = $2;`
 

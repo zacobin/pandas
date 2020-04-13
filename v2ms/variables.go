@@ -15,6 +15,7 @@ type Variable struct {
 	ID             string
 	Name           string
 	ThingID        string
+	ModelID        string
 	ThingAttribute string
 	Channel        string
 	SubTopic       string
@@ -56,7 +57,7 @@ type VariableRepository interface {
 
 	// RetrieveByAttribute retrieves twin ids whose definition contains
 	// the attribute with given channel and subtopic
-	RetrieveByAttribute(ctx context.Context, channel, subtopic string) ([]string, error)
+	RetrieveByAttribute(ctx context.Context, channel, subtopic string) ([]Variable, error)
 
 	// Remove removes the variable having the provided identifier.
 	Remove(ctx context.Context, owner, id string) error

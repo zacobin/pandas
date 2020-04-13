@@ -66,7 +66,7 @@ func (trm variableRepositoryMiddleware) RetrieveByID(ctx context.Context, owner,
 	return trm.repo.RetrieveByID(ctx, owner, id)
 }
 
-func (trm variableRepositoryMiddleware) RetrieveByAttribute(ctx context.Context, channel, subtopic string) ([]string, error) {
+func (trm variableRepositoryMiddleware) RetrieveByAttribute(ctx context.Context, channel, subtopic string) ([]v2ms.Variable, error) {
 	span := createSpan(ctx, trm.tracer, retrieveVariableByIDOp)
 	defer span.Finish()
 	ctx = opentracing.ContextWithSpan(ctx, span)
