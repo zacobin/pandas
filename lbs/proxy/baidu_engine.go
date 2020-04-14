@@ -21,7 +21,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cloustone/pandas/lbs/grpc_lbs_v1"
 	serveroptions "github.com/cloustone/pandas/pkg/server/options"
 	"github.com/sirupsen/logrus"
 )
@@ -168,7 +167,7 @@ type baiduCreateCircleGeofenceRequest struct {
 
 type baiduCreateCircleGeofenceResponse struct {
 	baiduLbsResponse
-	FenceId int `json:"fence_id"`
+	FenceId string `json:"fence_id"`
 }
 
 func (b *baiduLbsManager) CreateCircleGeofence(c CircleGeofence) (string, error) {
@@ -230,7 +229,7 @@ type baiduCreatePolyGeofenceRequest struct {
 
 type baiduCreatePolyGeofenceResponse struct {
 	baiduLbsResponse
-	FenceId int `json:"fence_id"`
+	FenceId string `json:"fence_id"`
 }
 
 func (b *baiduLbsManager) CreatePolyGeofence(c PolyGeofence) (string, error) {
@@ -451,13 +450,12 @@ func (b *baiduLbsManager) ListGeofence(fenceIds []string, objects []string) ([]*
 
 type baiduAddObjectRequest struct {
 	baiduLbsRequest
-	FenceId         int    `json:"fence_id,noempty"`
+	FenceId         string `json:"fence_id,noempty"`
 	MonitoredObject string `json:"monitored_person,noempty"`
 }
 
 func (b *baiduLbsManager) AddMonitoredObject(fenceId string, objects []string) error {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/addmonitoredperson"
-	id, err := strconv.Atoi(fenceId)
 
 	baiduReq := baiduAddObjectRequest{
 		baiduLbsRequest: baiduLbsRequest{
@@ -465,7 +463,7 @@ func (b *baiduLbsManager) AddMonitoredObject(fenceId string, objects []string) e
 			ServiceId: b.serviceId,
 		},
 		MonitoredObject: strings.Join(objects, ","),
-		FenceId:         id,
+		FenceId:         fenceId,
 	}
 	sn, _ := caculateAKSN(baiduYYurl, baiduReq)
 
@@ -484,7 +482,6 @@ func (b *baiduLbsManager) AddMonitoredObject(fenceId string, objects []string) e
 
 func (b *baiduLbsManager) RemoveMonitoredObject(fenceId string, objects []string) error {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/deletemonitoredperson"
-	id, _ := strconv.Atoi(fenceId)
 
 	baiduReq := baiduAddObjectRequest{
 		baiduLbsRequest: baiduLbsRequest{
@@ -492,7 +489,7 @@ func (b *baiduLbsManager) RemoveMonitoredObject(fenceId string, objects []string
 			ServiceId: b.serviceId,
 		},
 		MonitoredObject: strings.Join(objects, ","),
-		FenceId:         id,
+		FenceId:         fenceId,
 	}
 	sn, _ := caculateAKSN(baiduYYurl, baiduReq)
 	resp, err := http.PostForm(baiduYYurl, url.Values{"ak": {b.accessKey}, "service_id": {b.serviceId},
@@ -627,9 +624,9 @@ type HistoryPrePoint struct {
 }
 
 type AlarmHistory struct {
-	FenceId         int               `json:"fence_id"`
+	FenceId         string            `json:"fence_id"`
 	FenceName       string            `json:"fence_name"`
-	MonitoredPerson string            `json:"monitored_person"`
+	MonitoredPerson []string          `json:"monitored_person"`
 	Action          string            `json:"action"`
 	AlarmPoint      HistoryAlarmPoint `json:"alarm_point"`
 	PrePoint        HistoryPrePoint   `json:"pre_point"`
@@ -682,7 +679,15 @@ type BaiduBatchHistoryAlarmsResp struct {
 	Alarms  []AlarmHistory `json:"alarms"`
 }
 
-func (b *baiduLbsManager) BatchGetHistoryAlarms(input *grpc_lbs_v1.BatchGetHistoryAlarmsRequest) (BaiduBatchHistoryAlarmsResp, error) {
+type BatchGetHistoryAlarmsRequest struct {
+	CoordTypeOutput string `protobuf:"bytes,3,opt,name=coord_type_output,json=coordTypeOutput" json:"coord_type_output,omitempty", bson:"coord_type_output,omitempty"`
+	EndTime         string `protobuf:"bytes,4,opt,name=end_time,json=endTime" json:"end_time,omitempty", bson:"end_time,omitempty"`
+	StartTime       string `protobuf:"bytes,5,opt,name=start_time,json=startTime" json:"start_time,omitempty", bson:"start_time,omitempty"`
+	PageIndex       int32  `protobuf:"varint,7,opt,name=page_index,json=pageIndex" json:"page_index,omitempty", bson:"page_index,omitempty"`
+	PageSize        int32  `protobuf:"varint,8,opt,name=page_size,json=pageSize" json:"page_size,omitempty", bson:"page_size,omitempty"`
+}
+
+func (b *baiduLbsManager) BatchGetHistoryAlarms(input *BatchGetHistoryAlarmsRequest) (BaiduBatchHistoryAlarmsResp, error) {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/batchhistoryalarm"
 
 	startTime := int(getUnixTimeStamp(input.StartTime))
@@ -739,8 +744,17 @@ type BaiduGetStayPointResp struct {
 	EndPoint   Point   `json:"end_point"`
 	Points     []Point `json:"points"`
 }
+type GetStayPointsRequest struct {
+	EndTime         string   `protobuf:"bytes,3,opt,name=end_time,json=endTime" json:"end_time,omitempty", bson:"end_time,omitempty"`
+	EntityName      string   `protobuf:"bytes,4,opt,name=entity_name,json=entityName" json:"entity_name,omitempty", bson:"entity_name,omitempty"`
+	FenceIds        []string `protobuf:"bytes,5,rep,name=fence_ids,json=fenceIds" json:"fence_ids,omitempty", bson:"fence_ids,omitempty"`
+	PageIndex       int32    `protobuf:"varint,6,opt,name=page_index,json=pageIndex" json:"page_index,omitempty", bson:"page_index,omitempty"`
+	PageSize        int32    `protobuf:"varint,7,opt,name=page_size,json=pageSize" json:"page_size,omitempty", bson:"page_size,omitempty"`
+	StartTime       string   `protobuf:"bytes,8,opt,name=start_time,json=startTime" json:"start_time,omitempty", bson:"start_time,omitempty"`
+	CoordTypeOutput string   `protobuf:"bytes,9,opt,name=coord_type_output,json=coordTypeOutput" json:"coord_type_output,omitempty", bson:"coord_type_output,omitempty"`
+}
 
-func (b *baiduLbsManager) GetStayPoints(input *grpc_lbs_v1.GetStayPointsRequest) (BaiduGetStayPointResp, error) {
+func (b *baiduLbsManager) GetStayPoints(input *GetStayPointsRequest) (BaiduGetStayPointResp, error) {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/track/gettrack"
 
 	startTime := int(getUnixTimeStamp(input.StartTime))
@@ -822,7 +836,7 @@ type baiduListEntityRequest struct {
 type baiduListEntityResponse struct {
 }
 
-func (b *baiduLbsManager) ListEntity(userId string, collectionId string, CoordTypeOutput string, PageIndex int32, pageSize int32) (int, baiduListEntityStruct) {
+func (b *baiduLbsManager) ListEntity(collectionId string, CoordTypeOutput string, PageIndex int32, pageSize int32) (int, baiduListEntityStruct) {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/entity/list"
 
 	baiduReq := baiduListEntityRequest{
@@ -936,12 +950,12 @@ func (b *baiduLbsManager) DeleteEntity(entityName string) error {
 }
 
 type baiduLocationPoint struct {
-	Longitude  float64    `json:"longitude"`
-	Latitude   float64    `json:"latitude"`
-	Radius     int        `json:"radius"`
-	CoordType  string     `json:"coord_type"`
-	LocTime    *time.Time `json:"loc_time"`
-	CreateTime *time.Time `json:"create_time"`
+	Longitude  float64 `json:"longitude"`
+	Latitude   float64 `json:"latitude"`
+	Radius     int     `json:"radius"`
+	CoordType  string  `json:"coord_type"`
+	LocTime    string  `json:"loc_time"`
+	CreateTime string  `json:"create_time"`
 }
 
 type baiduAlarm struct {
