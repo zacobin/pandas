@@ -1,0 +1,13 @@
+FROM cloustone/pandas-base 
+
+LABEL vendor=cloustone
+LABEL product=pandas
+
+# ADD certs/* /etc/ssl/pandas
+ADD pandas/cmd/mongodb-writer/bin/* /
+RUN chmod 755 /main
+RUN chmod 755 /dockerize
+
+USER root
+
+CMD ["/main"]
