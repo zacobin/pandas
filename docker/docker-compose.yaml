@@ -1,0 +1,346 @@
+version: "2"
+
+volumes:
+  pandas-authn-db-volume:
+  pandas-users-db-volume:
+  pandas-things-db-volume:
+  pandas-things-redis-volume:
+  mainflux-es-redis-volume:
+  mainflux-mqtt-broker-volume:
+
+services:
+  db:
+    image: postgres:10.10
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: pandas
+      POSTGRES_USER: pandas
+      PGDATA: /data/docker/postgres
+    volumes:
+      - /data/docker/postgres:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime
+      - /etc/timezone/timezone:/etc/timezone
+
+  etcd:
+    image: elcolio/etcd
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    restart: always
+    command:
+      [
+        "--name",
+        "etcd",
+        "--initial-advertise-peer-urls",
+        "http://etcd:2380",
+        "--listen-peer-urls",
+        "http://0.0.0.0:2380",
+        "--listen-client-urls",
+        "http://0.0.0.0:2379",
+        "--advertise-client-urls",
+        "http://etcd:2379",
+        "--initial-cluster",
+        "etcd=http://etcd:2380",
+        "--initial-cluster-state",
+        "new",
+      ]
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: always
+
+  apiserver:
+    image: cloustone/pandas-apimachinery
+    ports:
+      - "30001:30001"
+    restart: always
+    depends_on:
+      - etcd
+    environment:
+      PANDAS_PORT: 30001
+      PANDAS_DNS_SERVER: "docker-compose"
+    command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
+
+  dmms:
+    image: cloustone/pandas-dmms
+    ports:
+      - "30011:30011"
+    restart: always
+    depends_on:
+      - etcd
+    environment:
+      PANDAS_PORT: 30011
+      PANDAS_DNS_SERVER: "docker-compose"
+    command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
+
+  pms:
+    image: cloustone/pandas-pms
+    ports:
+      - "30012:30012"
+    restart: always
+    depends_on:
+      - etcd
+    environment:
+      PANDAS_PORT: 30012
+      PANDAS_DNS_SERVER: "docker-compose"
+    command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
+
+  headmast:
+    image: cloustone/pandas-headmast
+    ports:
+      - "30013:30013"
+    restart: always
+    depends_on:
+      - etcd
+    environment:
+      PANDAS_PORT: 30013
+      PANDAS_DNS_SERVER: "docker-compose"
+    command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
+
+  rulechain:
+    image: cloustone/pandas-rulechain
+    ports:
+      - "30014:30014"
+    restart: always
+    environment:
+      PANDAS_PORT: 30014
+      PANDAS_DNS_SERVER: "docker-compose"
+
+  lbs:
+    image: cloustone/pandas-lbs
+    ports:
+      - "30015:30015"
+    restart: always
+    environment:
+      PANDAS_PORT: 30015
+      PANDAS_DNS_SERVER: "docker-compose"
+
+  nats:
+    image: nats:1.3.0
+    container_name: pandas-nats
+    command: "-c /etc/nats/nats.conf"
+    restart: on-failure
+    volumes:
+      - ./nats/:/etc/nats
+  jaeger:
+    image: jaegertracing/all-in-one:1.13
+    container_name: pandas-jaeger
+    ports:
+      - ${MF_JAEGER_PORT}:${MF_JAEGER_PORT}/udp
+      - ${MF_JAEGER_FRONTEND}:${MF_JAEGER_FRONTEND}
+      - ${MF_JAEGER_COLLECTOR}:${MF_JAEGER_COLLECTOR}
+      - ${MF_JAEGER_CONFIGS}:${MF_JAEGER_CONFIGS}
+
+  authn-db:
+    image: postgres:10.8-alpine
+    container_name: pandas-authn-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${MF_AUTHN_DB_USER}
+      POSTGRES_PASSWORD: ${MF_AUTHN_DB_PASS}
+      POSTGRES_DB: ${MF_AUTHN_DB}
+    volumes:
+      - pandas-authn-db-volume:/var/lib/postgresql/data
+
+  authn:
+    image: cloustone/pandas-authn:latest
+    container_name: pandas-authn
+    depends_on:
+      - authn-db
+    expose:
+      - ${MF_AUTHN_GRPC_PORT}
+    ports:
+      - ${MF_AUTHN_HTTP_PORT}:${MF_AUTHN_HTTP_PORT}
+      - ${MF_AUTHN_GRPC_PORT}:${MF_AUTHN_GRPC_PORT}
+    restart: always
+    environment:
+      PANDAS_PORT: 30016
+      PANDAS_DNS_SERVER: "docker-compose"
+      MF_AUTHN_LOG_LEVEL: ${MF_AUTHN_LOG_LEVEL}
+      MF_AUTHN_DB_HOST: authn-db
+      MF_AUTHN_DB_PORT: ${MF_AUTHN_DB_PORT}
+      MF_AUTHN_DB_USER: ${MF_AUTHN_DB_USER}
+      MF_AUTHN_DB_PASS: ${MF_AUTHN_DB_PASS}
+      MF_AUTHN_DB: ${MF_AUTHN_DB}
+      MF_AUTHN_HTTP_PORT: ${MF_AUTHN_HTTP_PORT}
+      MF_AUTHN_GRPC_PORT: ${MF_AUTHN_GRPC_PORT}
+      MF_AUTHN_SECRET: ${MF_AUTHN_SECRET}
+      MF_JAEGER_URL: ${MF_JAEGER_URL}
+
+  things-db:
+    image: postgres:10.8-alpine
+    container_name: pandas-things-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${MF_THINGS_DB_USER}
+      POSTGRES_PASSWORD: ${MF_THINGS_DB_PASS}
+      POSTGRES_DB: ${MF_THINGS_DB}
+    volumes:
+      - pandas-things-db-volume:/var/lib/postgresql/data
+
+  things-redis:
+    image: redis:5.0-alpine
+    container_name: pandas-things-redis
+    restart: on-failure
+    volumes:
+      - pandas-things-redis-volume:/data
+
+  things:
+    image: cloustone/pandas-things:latest
+    container_name: pandas-things
+    depends_on:
+      - things-db
+      - authn
+    restart: on-failure
+    environment:
+      MF_THINGS_LOG_LEVEL: ${MF_THINGS_LOG_LEVEL}
+      MF_THINGS_DB_HOST: things-db
+      MF_THINGS_DB_PORT: ${MF_THINGS_DB_PORT}
+      MF_THINGS_DB_USER: ${MF_THINGS_DB_USER}
+      MF_THINGS_DB_PASS: ${MF_THINGS_DB_PASS}
+      MF_THINGS_DB: ${MF_THINGS_DB}
+      MF_THINGS_CACHE_URL: things-redis:${MF_REDIS_TCP_PORT}
+      MF_THINGS_ES_URL: es-redis:${MF_REDIS_TCP_PORT}
+      MF_THINGS_HTTP_PORT: ${MF_THINGS_HTTP_PORT}
+      MF_THINGS_AUTH_HTTP_PORT: ${MF_THINGS_AUTH_HTTP_PORT}
+      MF_THINGS_AUTH_GRPC_PORT: ${MF_THINGS_AUTH_GRPC_PORT}
+      MF_AUTH_URL: authn:${MF_AUTHN_GRPC_PORT}
+      MF_THINGS_SECRET: ${MF_THINGS_SECRET}
+      MF_JAEGER_URL: ${MF_JAEGER_URL}
+    ports:
+      - ${MF_THINGS_HTTP_PORT}:${MF_THINGS_HTTP_PORT}
+      - ${MF_THINGS_AUTH_HTTP_PORT}:${MF_THINGS_AUTH_HTTP_PORT}
+      - ${MF_THINGS_AUTH_GRPC_PORT}:${MF_THINGS_AUTH_GRPC_PORT}
+
+  users-db:
+    image: postgres:10.8-alpine
+    container_name: pandas-users-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${MF_USERS_DB_USER}
+      POSTGRES_PASSWORD: ${MF_USERS_DB_PASS}
+      POSTGRES_DB: ${MF_USERS_DB}
+    volumes:
+      - pandas-users-db-volume:/var/lib/postgresql/data
+
+  users:
+    image: cloustone/pandas-users:latest
+    container_name: pandas-users
+    volumes:
+      - ./users/emailer/templates/${MF_EMAIL_TEMPLATE}:/${MF_EMAIL_TEMPLATE}
+    depends_on:
+      - users-db
+      - authn
+    restart: on-failure
+    environment:
+      MF_USERS_LOG_LEVEL: ${MF_USERS_LOG_LEVEL}
+      MF_USERS_DB_HOST: users-db
+      MF_USERS_DB_PORT: ${MF_USERS_DB_PORT}
+      MF_USERS_DB_USER: ${MF_USERS_DB_USER}
+      MF_USERS_DB_PASS: ${MF_USERS_DB_PASS}
+      MF_USERS_DB: ${MF_USERS_DB}
+      MF_USERS_HTTP_PORT: ${MF_USERS_HTTP_PORT}
+      MF_JAEGER_URL: ${MF_JAEGER_URL}
+      MF_EMAIL_DRIVER: ${MF_EMAIL_DRIVER}
+      MF_EMAIL_HOST: ${MF_EMAIL_HOST}
+      MF_EMAIL_PORT: ${MF_EMAIL_PORT}
+      MF_EMAIL_USERNAME: ${MF_EMAIL_USERNAME}
+      MF_EMAIL_PASSWORD: ${MF_EMAIL_PASSWORD}
+      MF_EMAIL_FROM_ADDRESS: ${MF_EMAIL_FROM_ADDRESS}
+      MF_EMAIL_FROM_NAME: ${MF_EMAIL_FROM_NAME}
+      MF_EMAIL_TEMPLATE: ${MF_EMAIL_TEMPLATE}
+      MF_TOKEN_RESET_ENDPOINT: ${MF_TOKEN_RESET_ENDPOINT}
+      MF_AUTHN_URL: authn:${MF_AUTHN_GRPC_PORT}
+    ports:
+      - ${MF_USERS_HTTP_PORT}:${MF_USERS_HTTP_PORT}
+
+  vernemq:
+    image: mainflux/vernemq:1.10.1-alpine
+    container_name: pandas-vernemq
+    restart: on-failure
+    environment:
+      DOCKER_VERNEMQ_ALLOW_ANONYMOUS: "on"
+      DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL: debug
+    volumes:
+      - mainflux-mqtt-broker-volume:/var/lib/vernemq
+
+  mqtt-adapter:
+    image: mainflux/mqtt:latest
+    container_name: pandas-mqtt
+    depends_on:
+      - vernemq
+      - things
+      - nats
+    restart: on-failure
+    environment:
+      MF_MQTT_ADAPTER_LOG_LEVEL: ${MF_MQTT_ADAPTER_LOG_LEVEL}
+      MF_MQTT_ADAPTER_PORT: ${MF_MQTT_ADAPTER_PORT}
+      MF_MQTT_ADAPTER_WS_PORT: ${MF_MQTT_ADAPTER_WS_PORT}
+      MF_MQTT_ADAPTER_ES_URL: es-redis:${MF_REDIS_TCP_PORT}
+      MF_NATS_URL: ${MF_NATS_URL}
+      MF_THINGS_URL: things:${MF_THINGS_AUTH_GRPC_PORT}
+      MF_JAEGER_URL: ${MF_JAEGER_URL}
+      MF_MQTT_ADAPTER_MQTT_TARGET_HOST: vernemq
+      MF_MQTT_ADAPTER_MQTT_TARGET_PORT: ${MF_MQTT_BROKER_PORT}
+      MF_MQTT_ADAPTER_WS_TARGET_HOST: vernemq
+      MF_MQTT_ADAPTER_WS_TARGET_PORT: ${MF_MQTT_BROKER_WS_PORT}
+
+  ws-adapter:
+    image: mainflux/ws:latest
+    container_name: pandas-ws
+    depends_on:
+      - things
+      - nats
+    restart: on-failure
+    environment:
+      MF_WS_ADAPTER_LOG_LEVEL: ${MF_WS_ADAPTER_LOG_LEVEL}
+      MF_WS_ADAPTER_PORT: ${MF_WS_ADAPTER_PORT}
+      MF_NATS_URL: ${MF_NATS_URL}
+      MF_THINGS_URL: things:${MF_THINGS_AUTH_GRPC_PORT}
+      MF_JAEGER_URL: ${MF_JAEGER_URL}
+    ports:
+      - ${MF_WS_ADAPTER_PORT}:${MF_WS_ADAPTER_PORT}
+
+  http-adapter:
+    image: mainflux/http:latest
+    container_name: pandas-http
+    depends_on:
+      - things
+      - nats
+    restart: on-failure
+    environment:
+      MF_HTTP_ADAPTER_LOG_LEVEL: debug
+      MF_HTTP_ADAPTER_PORT: ${MF_HTTP_ADAPTER_PORT}
+      MF_NATS_URL: ${MF_NATS_URL}
+      MF_THINGS_URL: things:${MF_THINGS_AUTH_GRPC_PORT}
+      MF_JAEGER_URL: ${MF_JAEGER_URL}
+    ports:
+      - ${MF_HTTP_ADAPTER_PORT}:${MF_HTTP_ADAPTER_PORT}
+
+  es-redis:
+    image: redis:5.0-alpine
+    container_name: pandas-es-redis
+    restart: on-failure
+    volumes:
+      - mainflux-es-redis-volume:/data
+
+  coap-adapter:
+    image: mainflux/coap:latest
+    container_name: pandas-coap
+    depends_on:
+      - things
+      - nats
+    restart: on-failure
+    environment:
+      MF_COAP_ADAPTER_LOG_LEVEL: ${MF_COAP_ADAPTER_LOG_LEVEL}
+      MF_COAP_ADAPTER_PORT: ${MF_COAP_ADAPTER_PORT}
+      MF_NATS_URL: ${MF_NATS_URL}
+      MF_THINGS_URL: things:${MF_THINGS_AUTH_GRPC_PORT}
+      MF_JAEGER_URL: ${MF_JAEGER_URL}
+    ports:
+      - ${MF_COAP_ADAPTER_PORT}:${MF_COAP_ADAPTER_PORT}/udp
+      - ${MF_COAP_ADAPTER_PORT}:${MF_COAP_ADAPTER_PORT}/tcp
