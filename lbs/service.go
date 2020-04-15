@@ -5,136 +5,302 @@ import (
 	"fmt"
 	"strings"
 
-	pb "github.com/cloustone/pandas/lbs/grpc_lbs_v1"
 	lbp "github.com/cloustone/pandas/lbs/proxy"
-	"github.com/cloustone/pandas/pkg/auth"
+	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas/pkg/errors"
 	"github.com/cloustone/pandas/pkg/message"
 	logr "github.com/sirupsen/logrus"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
-var gerrf = status.Errorf
+var _ Service = (*LbsService)(nil)
+var (
+	// ErrMalformedEntity indicates malformed entity specification (e.g.
+	// invalid username or password).
+	ErrMalformedEntity = errors.New("malformed entity specification")
 
-type LbsService struct {
-	Proxy *lbp.Proxy
+	// ErrUnauthorizedAccess indicates missing or invalid credentials provided
+	// when accessing a protected resource.
+	ErrUnauthorizedAccess = errors.New("missing or invalid credentials provided")
+
+	// ErrNotFound indicates a non-existent entity request.
+	ErrNotFound = errors.New("non-existent entity")
+
+	// ErrConflict indicates that entity already exists.
+	ErrConflict = errors.New("entity already exists")
+
+	// ErrScanMetadata indicates problem with metadata in db
+	ErrScanMetadata = errors.New("Failed to scan metadata")
+)
+
+// Service specifies an API that must be fullfiled by the domain service
+// implementation, and all of its decorators (e.g. logging & metrics).
+type Service interface {
+	ListCollections(ctx context.Context, token string) ([]string, error)
+
+	// Geofence
+	CreateCircleGeofence(ctx context.Context, token string, projectId string, fence *CircleGeofence) (string, error)
+	UpdateCircleGeofence(ctx context.Context, token string, projectId string, fence *CircleGeofence) error
+	DeleteGeofence(ctx context.Context, token string, projectId string, fenceIds []string, objects []string) error
+	ListGeofences(ctx context.Context, token string, projectId string, fenceIds []string, objects []string) ([]*Geofence, error)
+	AddMonitoredObject(ctx context.Context, token string, projectId string, fenceId string, objects []string) error
+	RemoveMonitoredObject(ctx context.Context, token string, projectId string, fenceId string, objects []string) error
+	ListMonitoredObjects(ctx context.Context, token string, projectId string, fenceId string, pageIndex int32, pageSize int32) (int32, []string, error)
+	CreatePolyGeofence(ctx context.Context, token string, projectId string, fence *PolyGeofence) (string, error)
+	UpdatePolyGeofence(ctx context.Context, token string, projectId string, fence *PolyGeofence) error
+	GetFenceIds(ctx context.Context, token string, projectId string) ([]string, error)
+
+	// Alarm
+	QueryStatus(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (*lbp.QueryStatus, error)
+	GetHistoryAlarms(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (*lbp.HistoryAlarms, error)
+	BatchGetHistoryAlarms(ct context.Context, token string, projectId string, input *lbp.BatchGetHistoryAlarmsRequest) (*lbp.HistoryAlarms, error)
+	GetStayPoints(ctx context.Context, token string, projectId string, input *lbp.GetStayPointsRequest) (*lbp.StayPoints, error)
+
+	// NotifyAlarms is used by apiserver to provide asynchrous notication
+	NotifyAlarms(ctx context.Context, token string, projectId string, content []byte) error
+	GetFenceUserId(ctx context.Context, token string, fenceId string) (string, error)
+
+	//Entity
+	AddEntity(ctx context.Context, token string, projectId string, entityName string, entityDesc string) error
+	UpdateEntity(ctx context.Context, token string, projectId string, entityName string, entityDesc string) error
+	DeleteEntity(ctx context.Context, token string, projectId string, entityName string) error
+
+	ListEntity(ctx context.Context, token string, projectId string, coordTypeOutput string, pageIndex int32, pageSize int32) (int32, []*EntityInfo, error)
 }
 
 // Geofence
-func (l *LbsService) CreateCircleGeofence(ctx context.Context, in *pb.CreateCircleGeofenceRequest) (*pb.CreateCircleGeofenceResponse, error) {
-	logr.Debugf("CreateCircleGeofence (%s)", in.String())
+type CircleGeofence struct {
+	Name             string
+	MonitoredObjects []string
+	Longitude        float64
+	Latitude         float64
+	Radius           float64
+	CoordType        string
+	Denoise          int32
+	FenceId          string
+}
 
-	name := fmt.Sprintf("%s-%s-%s", in.UserId, in.ProjectId, in.Fence.Name)
+type Geofence struct {
+	FenceId         string
+	FenceName       string
+	MonitoredObject []string
+	Shape           string
+	Longitude       float64
+	Latitude        float64
+	Radius          float64
+	CoordType       string
+	Denoise         int32
+	CreateTime      string
+	UpdateTime      string
+	Vertexes        []*Vertexe
+}
+type Vertexe struct {
+	Longitude float64
+	Latitude  float64
+}
+
+type PolyGeofence struct {
+	Name             string
+	MonitoredObjects []string
+	Vertexes         string
+	CoordType        string
+	Denoise          int32
+	FenceId          string
+}
+
+type LbsService struct {
+	auth  mainflux.AuthNServiceClient
+	Proxy lbp.Proxy
+}
+
+// Alarm
+type MonitoredStatus struct {
+	FenceId         int32
+	MonitoredStatus string
+}
+
+type AlarmPoint struct {
+	Longitude  float64
+	Latitude   float64
+	Radius     int32
+	CoordType  string
+	LocTime    string
+	CreateTime string
+}
+
+type PrePoint struct {
+	Longitude  float64
+	Latitude   float64
+	Radius     int32
+	CoordType  string
+	LocTime    string
+	CreateTime string
+}
+
+type Alarm struct {
+	FenceId         int32
+	FenceName       string
+	MonitoredPerson string
+	Action          string
+	AlarmPoint      *AlarmPoint
+	PrePoint        *PrePoint
+}
+
+type EntityInfo struct {
+	EntityName string
+	Latitude   float64
+	Longitude  float64
+}
+
+// New instantiates the lbs service implementation.
+func New(proxy lbp.Proxy) Service {
+	return &LbsService{
+		Proxy: proxy,
+	}
+}
+
+// Geofence
+func (l *LbsService) CreateCircleGeofence(ctx context.Context, token string, projectId string, fence *CircleGeofence) (string, error) {
+	logr.Debugf("CreateCircleGeofence ()")
+
+	res, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return "", ErrUnauthorizedAccess
+	}
+	userId := res.GetValue()
+
+	name := fmt.Sprintf("%s-%s-%s", userId, projectId, fence.Name)
 	fenceId, err := l.Proxy.CreateCircleGeofence(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
 		lbp.CircleGeofence{
 			Name:             name,
-			MonitoredObjects: strings.Join(in.Fence.MonitoredObjects, ","),
-			Longitude:        in.Fence.Longitude,
-			Latitude:         in.Fence.Latitude,
-			Radius:           in.Fence.Radius,
-			Denoise:          int(in.Fence.Denoise),
-			CoordType:        lbp.CoordType(in.Fence.CoordType),
+			MonitoredObjects: strings.Join(fence.MonitoredObjects, ","),
+			Longitude:        fence.Longitude,
+			Latitude:         fence.Latitude,
+			Radius:           fence.Radius,
+			Denoise:          int(fence.Denoise),
+			CoordType:        lbp.CoordType(fence.CoordType),
 		})
 	if err != nil {
 		logr.WithError(err).Errorf("create circle geofence failed")
-		return nil, gerrf(codes.Internal, "create circle geofence failed")
+		return "", errors.Wrap(errors.New("create circle geofence failed"), err)
 	}
-	return &pb.CreateCircleGeofenceResponse{FenceId: fenceId}, nil
+	return fenceId, nil
 }
 
-func (l *LbsService) CreatePolyGeofence(ctx context.Context, in *pb.CreatePolyGeofenceRequest) (*pb.CreatePolyGeofenceResponse, error) {
-	logr.Debugf("CreatePolyGeofence (%s)", in.String())
+func (l *LbsService) CreatePolyGeofence(ctx context.Context, token string, projectId string, fence *PolyGeofence) (string, error) {
+	logr.Debugf("CreatePolyGeofence (%s)", fence.Name)
 
-	name := fmt.Sprintf("%s-%s-%s", in.UserId, in.ProjectId, in.Fence.Name)
+	res, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return "", ErrUnauthorizedAccess
+	}
+	userId := res.GetValue()
+
+	name := fmt.Sprintf("%s-%s-%s", userId, projectId, fence.Name)
 	fenceId, err := l.Proxy.CreatePolyGeofence(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
 		lbp.PolyGeofence{
 			Name:             name,
-			MonitoredObjects: strings.Join(in.Fence.MonitoredObjects, ","),
-			Vertexes:         in.Fence.Vertexes,
-			Denoise:          int(in.Fence.Denoise),
-			CoordType:        lbp.CoordType(in.Fence.CoordType),
+			MonitoredObjects: strings.Join(fence.MonitoredObjects, ","),
+			Vertexes:         fence.Vertexes,
+			Denoise:          int(fence.Denoise),
+			CoordType:        lbp.CoordType(fence.CoordType),
 		})
 	if err != nil {
 		logr.WithError(err).Errorf("create poly geofence failed")
-		return nil, gerrf(codes.Internal, "create poly geofence failed")
+		return "", errors.Wrap(errors.New("create poly geofence failed"), err)
 	}
-	return &pb.CreatePolyGeofenceResponse{FenceId: fenceId}, nil
+	return fenceId, nil
 }
 
-func (l *LbsService) UpdatePolyGeofence(ctx context.Context, in *pb.UpdatePolyGeofenceRequest) (*pb.UpdatePolyGeofenceResponse, error) {
-	logr.Debugf("UpdatePolyGeofence (%s)", in.String())
+func (l *LbsService) UpdatePolyGeofence(ctx context.Context, token string, projectId string, fence *PolyGeofence) error {
+	logr.Debugf("UpdatePolyGeofence (%s)", fence.Name)
 
-	name := fmt.Sprintf("%s-%s-%s", in.UserId, in.ProjectId, in.Fence.Name)
+	res, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ErrUnauthorizedAccess
+	}
+	userId := res.GetValue()
 
-	err := l.Proxy.UpdatePolyGeofence(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
+	name := fmt.Sprintf("%s-%s-%s", userId, projectId, fence.Name)
+
+	err = l.Proxy.UpdatePolyGeofence(
 		lbp.PolyGeofence{
 			Name:             name,
-			MonitoredObjects: strings.Join(in.Fence.MonitoredObjects, ","),
-			Vertexes:         in.Fence.Vertexes,
-			Denoise:          int(in.Fence.Denoise),
-			FenceId:          in.Fence.FenceId,
-			CoordType:        lbp.CoordType(in.Fence.CoordType),
+			MonitoredObjects: strings.Join(fence.MonitoredObjects, ","),
+			Vertexes:         fence.Vertexes,
+			Denoise:          int(fence.Denoise),
+			FenceId:          fence.FenceId,
+			CoordType:        lbp.CoordType(fence.CoordType),
 		})
 	if err != nil {
 		logr.WithError(err).Errorf("update poly geofence failed")
-		return nil, gerrf(codes.Internal, "update poly geofence failed")
+		return errors.Wrap(errors.New("update poly geofence failed"), err)
 	}
-	return &pb.UpdatePolyGeofenceResponse{}, nil
+	return nil
 }
 
-func (l *LbsService) UpdateCircleGeofence(ctx context.Context, in *pb.UpdateCircleGeofenceRequest) (*pb.UpdateCircleGeofenceResponse, error) {
-	logr.Debugf("UpdateCircleGeofence (%s)", in.String())
+func (l *LbsService) UpdateCircleGeofence(ctx context.Context, token string, projectId string, fence *CircleGeofence) error {
+	logr.Debugf("UpdateCircleGeofence ()")
 
-	name := fmt.Sprintf("%s-%s-%s", in.UserId, in.ProjectId, in.Fence.Name)
+	res, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ErrUnauthorizedAccess
+	}
+	userId := res.GetValue()
 
-	err := l.Proxy.UpdateCircleGeofence(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
+	name := fmt.Sprintf("%s-%s-%s", userId, projectId, fence.Name)
+
+	err = l.Proxy.UpdateCircleGeofence(
 		lbp.CircleGeofence{
 			Name:             name,
-			MonitoredObjects: strings.Join(in.Fence.MonitoredObjects, ","),
-			Longitude:        in.Fence.Longitude,
-			Latitude:         in.Fence.Latitude,
-			Radius:           in.Fence.Radius,
-			Denoise:          int(in.Fence.Denoise),
-			FenceId:          in.Fence.FenceId,
-			CoordType:        lbp.CoordType(in.Fence.CoordType),
+			MonitoredObjects: strings.Join(fence.MonitoredObjects, ","),
+			Longitude:        fence.Longitude,
+			Latitude:         fence.Latitude,
+			Radius:           fence.Radius,
+			Denoise:          int(fence.Denoise),
+			FenceId:          fence.FenceId,
+			CoordType:        lbp.CoordType(fence.CoordType),
 		})
 	if err != nil {
 		logr.WithError(err).Errorf("update circle geofence failed")
-		return nil, gerrf(codes.Internal, "update circle geofence failed")
+		return errors.Wrap(errors.New("update circle geofence failed"), err)
 	}
-	return &pb.UpdateCircleGeofenceResponse{}, nil
+	return nil
 }
 
-func (l *LbsService) DeleteGeofence(ctx context.Context, in *pb.DeleteGeofenceRequest) (*pb.DeleteGeofenceResponse, error) {
-	logr.Debugf("DeleteGeofence (%s)", in.String())
+func (l *LbsService) DeleteGeofence(ctx context.Context, token string, projectId string, fenceIds []string, objects []string) error {
+	logr.Debugf("DeleteGeofence (%s)", fenceIds)
 
-	fenceIds, err := l.Proxy.DeleteGeofence(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in.FenceIds, in.Objects)
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ErrUnauthorizedAccess
+	}
+
+	_, err = l.Proxy.DeleteGeofence(
+		fenceIds, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("delete geofence failed")
-		return nil, gerrf(codes.Internal, "delete geofence failed")
+		return errors.Wrap(errors.New("delete geofence failed"), err)
 	}
-	return &pb.DeleteGeofenceResponse{FenceIds: fenceIds}, nil
+	return nil
 }
 
-func (l *LbsService) ListGeofences(ctx context.Context, in *pb.ListGeofencesRequest) (*pb.ListGeofencesResponse, error) {
-	logr.Debugf("ListGeofence (%s)", in.String())
+func (l *LbsService) ListGeofences(ctx context.Context, token string, projectId string, fenceIds []string, objects []string) ([]*Geofence, error) {
+	logr.Debugf("ListGeofence (%s)", fenceIds)
+
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return nil, ErrUnauthorizedAccess
+	}
 
 	fences, err := l.Proxy.ListGeofence(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in.FenceIds, in.Objects)
+		fenceIds, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("list geofence failed")
-		return nil, gerrf(codes.Internal, "list geofence failed")
+		return nil, errors.Wrap(errors.New("list geofence failed"), err)
 	}
-	fenceList := []*pb.Geofence{}
+	fenceList := []*Geofence{}
 	for _, f := range fences {
-		fence := &pb.Geofence{
+		fence := &Geofence{
 			FenceId:         fmt.Sprint(f.FenceId),
 			FenceName:       f.FenceName,
 			MonitoredObject: strings.Split(f.MonitoredObject, ","),
@@ -148,7 +314,7 @@ func (l *LbsService) ListGeofences(ctx context.Context, in *pb.ListGeofencesRequ
 			UpdateTime:      f.UpdateTime,
 		}
 		for _, vtx := range f.Vertexes {
-			vertexe := &pb.Vertexe{
+			vertexe := &Vertexe{
 				Latitude:  vtx.Latitude,
 				Longitude: vtx.Longitude,
 			}
@@ -156,266 +322,210 @@ func (l *LbsService) ListGeofences(ctx context.Context, in *pb.ListGeofencesRequ
 		}
 		fenceList = append(fenceList, fence)
 	}
-	return &pb.ListGeofencesResponse{Fences: fenceList}, nil
+	return fenceList, nil
 }
 
-func (l *LbsService) AddMonitoredObject(ctx context.Context, in *pb.AddMonitoredObjectRequest) (*pb.AddMonitoredObjectResponse, error) {
-	logr.Debugf("AddMonitoredObject (%s)", in.String())
+func (l *LbsService) AddMonitoredObject(ctx context.Context, token string, projectId string, fenceId string, objects []string) error {
+	logr.Debugf("AddMonitoredObject (%s)", fenceId)
 
-	err := l.Proxy.AddMonitoredObject(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in.FenceId, in.Objects)
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ErrUnauthorizedAccess
+	}
+
+	err = l.Proxy.AddMonitoredObject(
+		fenceId, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("add monitored object failed")
-		return nil, gerrf(codes.Internal, "add monitored object failed")
+		return errors.Wrap(errors.New("ladd monitored object failed"), err)
 	}
-	return &pb.AddMonitoredObjectResponse{}, nil
+	return nil
 }
 
-func (l *LbsService) RemoveMonitoredObject(ctx context.Context, in *pb.RemoveMonitoredObjectRequest) (*pb.RemoveMonitoredObjectResponse, error) {
-	logr.Debugf("RemoveMonitoredObject(%s)", in.String())
+func (l *LbsService) RemoveMonitoredObject(ctx context.Context, token string, projectId string, fenceId string, objects []string) error {
+	logr.Debugf("RemoveMonitoredObject(%s)", fenceId)
 
-	err := l.Proxy.RemoveMonitoredObject(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in.FenceId, in.Objects)
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ErrUnauthorizedAccess
+	}
+
+	err = l.Proxy.RemoveMonitoredObject(
+		fenceId, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("remove monitored object failed")
-		return nil, gerrf(codes.Internal, "remove monitored object failed")
+		return errors.Wrap(errors.New("remove monitored object failed"), err)
 	}
-	return &pb.RemoveMonitoredObjectResponse{}, nil
+	return nil
 }
 
-func (l *LbsService) ListMonitoredObjects(ctx context.Context, in *pb.ListMonitoredObjectsRequest) (*pb.ListMonitoredObjectsResponse, error) {
-	logr.Debugf("ListMonitoredObjects(%s)", in.String())
+func (l *LbsService) ListMonitoredObjects(ctx context.Context, token string, projectId string, fenceId string, pageIndex int32, pageSize int32) (int32, []string, error) {
+	logr.Debugf("ListMonitoredObjects(%s)", fenceId)
+
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return 0, nil, ErrUnauthorizedAccess
+	}
 
 	total, objects := l.Proxy.ListMonitoredObjects(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in.FenceId, int(in.PageIndex), int(in.PageSize))
+		fenceId, int(pageIndex), int(pageSize))
 
-	return &pb.ListMonitoredObjectsResponse{TotalFences: int32(total), Objects: objects}, nil
+	return int32(total), objects, nil
 }
 
-func (l *LbsService) QueryStatus(ctx context.Context, in *pb.QueryStatusRequest) (*pb.QueryStatusResponse, error) {
-	logr.Debugf("QueryStatus(%s)", in.String())
-
-	fenceStatus, err := l.Proxy.QueryStatus(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in.MonitoredPerson, in.FenceIds)
-	if err != nil {
-		logr.Errorln("QueryStatus failed:", err)
-		return nil, gerrf(codes.NotFound, "not found")
-	}
-
-	rsp := getMonitoredStatus(fenceStatus)
-
-	return rsp, nil
-}
-
-func getMonitoredStatus(fenceStatus lbp.BaiduQueryStatusResponse) *pb.QueryStatusResponse {
-	rsp := &pb.QueryStatusResponse{
-		Status:  int32(fenceStatus.Status),
-		Message: fenceStatus.Message,
-		Size:    int32(fenceStatus.Size),
-	}
-	for _, mpVal := range fenceStatus.MonitoredStatuses {
-		monitoredStatus := &pb.MonitoredStatus{
-			FenceId:         int32(mpVal.FenceId),
-			MonitoredStatus: mpVal.MonitoredStatus,
-		}
-		rsp.MonitoredStatuses = append(rsp.MonitoredStatuses, monitoredStatus)
-	}
-	logr.Debugln("get monitered status:", rsp)
-	return rsp
-}
-
-func (l *LbsService) GetHistoryAlarms(ctx context.Context, in *pb.GetHistoryAlarmsRequest) (*pb.GetHistoryAlarmsResponse, error) {
-	logr.Debugf("GetHistoryAlarms (%s)", in.String())
-
-	alarmPoint, err := l.Proxy.GetHistoryAlarms(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in.MonitoredPerson, in.FenceIds)
-	if err != nil {
-		logr.Errorln("GetHistoryAlarms failed:", err)
-		return nil, gerrf(codes.NotFound, "not found")
-	}
-
-	rsp := getHistoryAlarmPoint(alarmPoint)
-
-	return rsp, nil
-}
-
-func getHistoryAlarmPoint(alarmPoint lbp.BaiduGetHistoryAlarmsResponse) *pb.GetHistoryAlarmsResponse {
-	rsp := &pb.GetHistoryAlarmsResponse{
-		Status:  int32(alarmPoint.Status),
-		Message: alarmPoint.Message,
-		Size:    int32(alarmPoint.Size),
-	}
-	for _, haVal := range alarmPoint.Alarms {
-
-		alarm := &pb.Alarm{
-			FenceId:         int32(haVal.FenceId),
-			FenceName:       haVal.FenceName,
-			MonitoredPerson: haVal.MonitoredPerson,
-			Action:          haVal.Action,
-			AlarmPoint: &pb.AlarmPoint{
-				Longitude:  haVal.AlarmPoint.Longitude,
-				Latitude:   haVal.AlarmPoint.Latitude,
-				Radius:     int32(haVal.AlarmPoint.Radius),
-				CoordType:  haVal.AlarmPoint.CoordType,
-				LocTime:    haVal.AlarmPoint.LocTime,
-				CreateTime: haVal.AlarmPoint.CreateTime,
-			},
-			PrePoint: &pb.PrePoint{
-				Longitude:  haVal.AlarmPoint.Longitude,
-				Latitude:   haVal.AlarmPoint.Latitude,
-				Radius:     int32(haVal.AlarmPoint.Radius),
-				CoordType:  haVal.AlarmPoint.CoordType,
-				LocTime:    haVal.AlarmPoint.LocTime,
-				CreateTime: haVal.AlarmPoint.CreateTime,
-			},
-		}
-
-		rsp.Alarms = append(rsp.Alarms, alarm)
-	}
-	logr.Debugln("getHistoryAlarmPoint:", rsp)
-	return rsp
-}
-
-func (l *LbsService) BatchGetHistoryAlarms(ct context.Context, in *pb.BatchGetHistoryAlarmsRequest) (*pb.BatchGetHistoryAlarmsResponse, error) {
-	logr.Debugf("RemoveCollection (%s)", in.String())
-
-	historyAlarms, err := l.Proxy.BatchGetHistoryAlarms(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in)
-	if err != nil {
-		logr.Errorln("BatchGetHistoryAlarms failed:", err)
-		return nil, gerrf(codes.NotFound, "not found")
-	}
-
-	rsp := getBatchHistoryAlarmPoint(historyAlarms)
-
-	return rsp, nil
-
-}
-
-func getBatchHistoryAlarmPoint(historyAlarms lbp.BaiduBatchHistoryAlarmsResp) *pb.BatchGetHistoryAlarmsResponse {
-	rsp := &pb.BatchGetHistoryAlarmsResponse{
-		Status:  int32(historyAlarms.Status),
-		Message: historyAlarms.Message,
-		Size:    int32(historyAlarms.Size),
-		Total:   int32(historyAlarms.Total),
-	}
-	for _, haVal := range historyAlarms.Alarms {
-
-		alarm := &pb.Alarm{
-			FenceId:         int32(haVal.FenceId),
-			FenceName:       haVal.FenceName,
-			MonitoredPerson: haVal.MonitoredPerson,
-			Action:          haVal.Action,
-			AlarmPoint: &pb.AlarmPoint{
-				Longitude:  haVal.AlarmPoint.Longitude,
-				Latitude:   haVal.AlarmPoint.Latitude,
-				Radius:     int32(haVal.AlarmPoint.Radius),
-				CoordType:  haVal.AlarmPoint.CoordType,
-				LocTime:    haVal.AlarmPoint.LocTime,
-				CreateTime: haVal.AlarmPoint.CreateTime,
-			},
-			PrePoint: &pb.PrePoint{
-				Longitude:  haVal.AlarmPoint.Longitude,
-				Latitude:   haVal.AlarmPoint.Latitude,
-				Radius:     int32(haVal.AlarmPoint.Radius),
-				CoordType:  haVal.AlarmPoint.CoordType,
-				LocTime:    haVal.AlarmPoint.LocTime,
-				CreateTime: haVal.AlarmPoint.CreateTime,
-			},
-		}
-
-		rsp.Alarms = append(rsp.Alarms, alarm)
-	}
-	logr.Debugln("getHistoryAlarmPoint:", rsp)
-	return rsp
-}
-
-func (l *LbsService) GetStayPoints(ctx context.Context, in *pb.GetStayPointsRequest) (*pb.GetStayPointsResponse, error) {
-	logr.Debugf("GetStayPoints (%s)", in.String())
-
-	stayPoints, err := l.Proxy.GetStayPoints(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in)
-	if err != nil {
-		logr.Errorln("BatchGetHistoryAlarms failed:", err)
-		return nil, gerrf(codes.NotFound, "not found")
-	}
-
-	rsp := getGrpcStayPoints(stayPoints)
-
-	return rsp, nil
-}
-
-func getGrpcStayPoints(stayPoints lbp.BaiduGetStayPointResp) *pb.GetStayPointsResponse {
-	rsp := &pb.GetStayPointsResponse{
-		Status:  int32(stayPoints.Status),
-		Message: stayPoints.Message,
-		Size:    int32(stayPoints.Size),
-		Total:   int32(stayPoints.Total),
-		StartPoint: &pb.Point{
-			Latitude:  stayPoints.StartPoint.Latitude,
-			Longitude: stayPoints.StartPoint.Longitude,
-			CoordType: stayPoints.StartPoint.CoordType,
-			LocTime:   fmt.Sprint(stayPoints.StartPoint.LocTime),
-		},
-		EndPoint: &pb.Point{
-			Latitude:  stayPoints.EndPoint.Latitude,
-			Longitude: stayPoints.EndPoint.Longitude,
-			CoordType: stayPoints.EndPoint.CoordType,
-			LocTime:   fmt.Sprint(stayPoints.EndPoint.LocTime),
-		},
-	}
-	for _, val := range stayPoints.Points {
-		point := &pb.Point{
-			Latitude:  val.Latitude,
-			Longitude: val.Longitude,
-			CoordType: val.CoordType,
-			LocTime:   fmt.Sprint(val.LocTime),
-		}
-		rsp.Points = append(rsp.Points, point)
-	}
-	logr.Debugln("getGrpcStayPoints rsp:", rsp)
-	return rsp
-}
-
-func (l *LbsService) NotifyAlarms(ctx context.Context, in *pb.NotifyAlarmsRequest) (*pb.NotifyAlarmsResponse, error) {
-	logr.Debugf("NotifyAlarms(%s)", in.String())
-
-	alarm, err := l.Proxy.UnmarshalAlarmNotification(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in.Content)
-	if err != nil {
-		logr.WithError(err).Errorf("unmarshal alarm failed")
-		return nil, gerrf(codes.Internal, "unmarshal alarm failed")
-	}
-	config := message.NewConfigWithViper()
-	producer, err := message.NewProducer(config, false)
-	if err != nil {
-		logr.WithError(err).Errorf("create message producer failed")
-		return nil, gerrf(codes.Internal, "create message producer failed")
-	}
-
-	if err := producer.SendMessage(&lbp.AlarmTopic{Alarm: alarm}); err != nil {
-		logr.WithError(err).Errorf("send alarm failed")
-		return nil, gerrf(codes.Internal, "send alarm failed")
-	}
-	return &pb.NotifyAlarmsResponse{}, nil
-}
-
-func (l *LbsService) ListCollections(ctx context.Context, in *pb.ListCollectionsRequest) (*pb.ListCollectionsResponse, error) {
+func (l *LbsService) ListCollections(ctx context.Context, token string) ([]string, error) {
 	logr.Debugln("ListCollections")
+
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return nil, ErrUnauthorizedAccess
+	}
 
 	//	productList := getProductList(products)
 	//	logr.Debugln("productList:", productList)
 
 	//	return productList, nil
 	return nil, nil
+}
+
+func (l *LbsService) GetFenceIds(ctx context.Context, token string, projectId string) ([]string, error) {
+	logr.Debugf("GetFenceIds (%s)", projectId)
+
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return nil, ErrUnauthorizedAccess
+	}
+	/*
+
+		fences, err := l.Proxy.GetFenceIds(
+			auth.NewPrincipal(in.UserId, in.ProjectId))
+		if err != nil {
+			logr.WithError(err).Errorln("ListCollections err:", err)
+			return nil, err
+		}
+
+		fenceIds := getFenceIds(fences)
+
+		return fenceIds, nil
+	*/
+	return nil, nil
+}
+
+func (l *LbsService) QueryStatus(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (*lbp.QueryStatus, error) {
+	logr.Debugf("QueryStatus(%s)", fenceIds)
+
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return nil, ErrUnauthorizedAccess
+	}
+
+	fenceStatus, err := l.Proxy.QueryStatus(
+		monitoredPerson, fenceIds)
+	if err != nil {
+		logr.Errorln("QueryStatus failed:", err)
+		return nil, errors.Wrap(errors.New("not found"), err)
+	}
+
+	return fenceStatus, nil
+}
+
+func (l *LbsService) GetHistoryAlarms(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (*lbp.HistoryAlarms, error) {
+	logr.Debugf("GetHistoryAlarms (%s)", fenceIds)
+
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return nil, ErrUnauthorizedAccess
+	}
+
+	alarmPoint, err := l.Proxy.GetHistoryAlarms(
+		monitoredPerson, fenceIds)
+	if err != nil {
+		logr.Errorln("GetHistoryAlarms failed:", err)
+		return nil, errors.Wrap(errors.New("not found"), err)
+	}
+
+	return alarmPoint, nil
+}
+
+func (l *LbsService) BatchGetHistoryAlarms(ctx context.Context, token string, projectId string, input *lbp.BatchGetHistoryAlarmsRequest) (*lbp.HistoryAlarms, error) {
+	logr.Debugf("RemoveCollection ")
+
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return nil, ErrUnauthorizedAccess
+	}
+
+	historyAlarms, err := l.Proxy.BatchGetHistoryAlarms(
+		input)
+	if err != nil {
+		logr.Errorln("BatchGetHistoryAlarms failed:", err)
+		return nil, errors.Wrap(errors.New("not found"), err)
+	}
+
+	return historyAlarms, nil
+
+}
+
+func (l *LbsService) GetStayPoints(ctx context.Context, token string, projectId string, input *lbp.GetStayPointsRequest) (*lbp.StayPoints, error) {
+	logr.Debugf("GetStayPoints ()")
+
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return nil, ErrUnauthorizedAccess
+	}
+
+	stayPoints, err := l.Proxy.GetStayPoints(
+		input)
+	if err != nil {
+		logr.Errorln("BatchGetHistoryAlarms failed:", err)
+		return nil, errors.Wrap(errors.New("not found"), err)
+	}
+
+	return stayPoints, nil
+}
+
+func (l *LbsService) NotifyAlarms(ctx context.Context, token string, projectId string, content []byte) error {
+	logr.Debugf("NotifyAlarms(%s)", content)
+
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ErrUnauthorizedAccess
+	}
+
+	alarm, err := l.Proxy.UnmarshalAlarmNotification(
+		content)
+	if err != nil {
+		logr.WithError(err).Errorf("unmarshal alarm failed")
+		return errors.Wrap(errors.New("unmarshal alarm failed"), err)
+	}
+	config := message.NewConfigWithViper()
+	producer, err := message.NewProducer(config, false)
+	if err != nil {
+		logr.WithError(err).Errorf("create message producer failed")
+		return errors.Wrap(errors.New("create message producer failed"), err)
+	}
+
+	if err := producer.SendMessage(&lbp.AlarmTopic{Alarm: alarm}); err != nil {
+		logr.WithError(err).Errorf("send alarm failed")
+		return errors.Wrap(errors.New("send alarm failed"), err)
+	}
+	return nil
+}
+
+func (l *LbsService) GetFenceUserId(ctx context.Context, token string, fenceId string) (string, error) {
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return "", ErrUnauthorizedAccess
+	}
+	/*
+		userId, err := l.Proxy.GetFenceUserId(nil, fenceId)
+		if err != nil {
+			logr.WithError(err).Errorf("add collection '%s' failed", fenceId)
+			return nil, err
+		}
+		return userId, nil
+	*/
+	return "", nil
 }
 
 /*
@@ -428,41 +538,53 @@ func getProductList(products []*Collection) *pb.ListCollectionsResponse {
 }
 */
 
-func (l *LbsService) AddEntity(ctx context.Context, in *pb.AddEntityRequest) (*pb.AddEntityResponse, error) {
-	logr.Debugf("AddEntity (%s)", in.String())
+func (l *LbsService) AddEntity(ctx context.Context, token string, projectId string, entityName string, entityDesc string) error {
+	logr.Debugf("AddEntity (%s)", entityName)
 
-	err := l.Proxy.AddEntity(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in.EntityName, in.EntityDesc)
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ErrUnauthorizedAccess
+	}
+
+	err = l.Proxy.AddEntity(
+		entityName, entityDesc)
 	if err != nil {
 		logr.WithError(err).Errorf("AddEntity failed")
-		return nil, gerrf(codes.Internal, "AddEntity failed")
+		return errors.Wrap(errors.New("AddEntity failed"), err)
 	}
-	return &pb.AddEntityResponse{}, nil
+	return nil
 }
 
-func (l *LbsService) DeleteEntity(ctx context.Context, in *pb.DeleteEntityRequest) (*pb.DeleteEntityResponse, error) {
-	logr.Debugf("DeleteEntity (%s)", in.String())
+func (l *LbsService) DeleteEntity(ctx context.Context, token string, projectId string, entityName string) error {
+	logr.Debugf("DeleteEntity (%s)", entityName)
 
-	err := l.Proxy.DeleteEntity(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in.EntityName)
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ErrUnauthorizedAccess
+	}
+
+	err = l.Proxy.DeleteEntity(
+		entityName)
 	if err != nil {
 		logr.WithError(err).Errorf("DeleteEntity failed")
-		return nil, gerrf(codes.Internal, "DeleteEntity failed")
+		return errors.Wrap(errors.New("DeleteEntity failed"), err)
 	}
-	return &pb.DeleteEntityResponse{}, nil
+	return nil
 }
 
-func (l *LbsService) UpdateEntity(ctx context.Context, in *pb.UpdateEntityRequest) (*pb.UpdateEntityResponse, error) {
-	logr.Debugf("UpdateEntity (%s)", in.String())
+func (l *LbsService) UpdateEntity(ctx context.Context, token string, projectId string, entityName string, entityDesc string) error {
+	logr.Debugf("UpdateEntity (%s)", entityName)
 
-	err := l.Proxy.UpdateEntity(
-		auth.NewPrincipal(in.UserId, in.ProjectId),
-		in.EntityName, in.EntityDesc)
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return ErrUnauthorizedAccess
+	}
+
+	err = l.Proxy.UpdateEntity(
+		entityName, entityDesc)
 	if err != nil {
 		logr.WithError(err).Errorf("UpdateEntity failed")
-		return nil, gerrf(codes.Internal, "UpdateEntity failed")
+		return errors.Wrap(errors.New("UpdateEntity failed"), err)
 	}
 	/*
 		entity := EntityRecord{
@@ -473,29 +595,33 @@ func (l *LbsService) UpdateEntity(ctx context.Context, in *pb.UpdateEntityReques
 		}
 	*/
 
-	return &pb.UpdateEntityResponse{}, nil
+	return nil
 }
 
-func (l *LbsService) ListEntity(ctx context.Context, in *pb.ListEntityRequest) (*pb.ListEntityResponse, error) {
-	logr.Debugf("ListEntity (%s)", in.String())
+func (l *LbsService) ListEntity(ctx context.Context, token string, projectId string, coordTypeOutput string, pageIndex int32, pageSize int32) (int32, []*EntityInfo, error) {
+	logr.Debugf("ListEntity (%s)", coordTypeOutput)
+	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return 0, nil, ErrUnauthorizedAccess
+	}
 	/*
 		entitiesInfo, err := l.Proxy.GetEntity(
-			auth.NewPrincipal(in.UserId, in.ProjectId))
+			auth.NewPrincipal(userId, projectId))
 		if err != nil {
 			logr.WithError(err).Errorf("mongo get entities info failed")
-			return nil, gerrf(codes.Internal, "mongo get entities info failed")
+			return nil, nil, errors.Wrap(errors.New("mongo get entities info faile"), err)
 		}
 		entitiesName := getEntitiesName(entitiesInfo)
 
-		total, entityInfo := l.Proxy.ListEntity(in.UserId, in.ProjectId, in.CoordTypeOutput, in.PageIndex, in.PageSize)
+		total, entityInfo := l.Proxy.ListEntity(userId, projectId, coordTypeOutput, pageIndex, pageSize)
 		if total == -1 {
 			logr.Errorf("ListEntity failed")
-			return nil, gerrf(codes.Internal, "ListEntity failed")
+			return nil, nil, errors.Wrap(errors.New("ListEntity failed"), err)
 		}
 
-		entitys := &pb.ListEntityResponse{}
-		for _, val := range entityInfo.Entities {
-			entityInfo := &pb.EntityInfo{
+		entitys := &EntityInfo
+		for _, val := range entityInfo {
+			entityInfo := &EntityInfo{
 				EntityName: val.EntityName,
 				Longitude:  val.LastLocation.Longitude,
 				Latitude:   val.LastLocation.Latitude,
@@ -503,15 +629,15 @@ func (l *LbsService) ListEntity(ctx context.Context, in *pb.ListEntityRequest) (
 			if isEntityInCollection(val.EntityName, entitiesName) == false {
 				continue
 			}
-			entitys.EntityInfo = append(entitys.EntityInfo, entityInfo)
+			entitys = append(entitys, entityInfo)
 		}
-		entitys.Total = int32(len(entitys.EntityInfo))
+		Total = int32(len(entitys))
 
 		logr.Debugln("EntityInfo:", entityInfo, "total:", total)
 
-		return entitys, nil
+		return Total,entitys, nil
 	*/
-	return nil, nil
+	return 0, nil, nil
 }
 
 func getEntitiesName(entitiesInfo []*lbp.EntityRecord) []string {
@@ -531,24 +657,6 @@ func isEntityInCollection(entityName string, entitiesName []string) bool {
 	return isEntityExist
 }
 
-func (l *LbsService) GetFenceIds(ctx context.Context, in *pb.GetFenceIdsRequest) (*pb.GetFenceIdsResponse, error) {
-	logr.Debugf("GetFenceIds (%s)", in.String())
-	/*
-
-		fences, err := l.Proxy.GetFenceIds(
-			auth.NewPrincipal(in.UserId, in.ProjectId))
-		if err != nil {
-			logr.WithError(err).Errorln("ListCollections err:", err)
-			return nil, err
-		}
-
-		fenceIds := getFenceIds(fences)
-
-		return fenceIds, nil
-	*/
-	return nil, nil
-}
-
 /*
 func getFenceIds(fences []*GeofenceRecord) *pb.GetFenceIdsResponse {
 	fenceIdsResp := &pb.GetFenceIdsResponse{}
@@ -559,17 +667,3 @@ func getFenceIds(fences []*GeofenceRecord) *pb.GetFenceIdsResponse {
 	return fenceIdsResp
 }
 */
-func (l *LbsService) GetFenceUserId(ctx context.Context, in *pb.GetFenceUserIdRequest) (*pb.GetFenceUserIdResponse, error) {
-	/*
-		userId, err := l.Proxy.GetFenceUserId(nil, in.FenceId)
-		if err != nil {
-			logr.WithError(err).Errorf("add collection '%s' failed", in.FenceId)
-			return nil, err
-		}
-		rsp := &pb.GetFenceUserIdResponse{
-			UserId: userId,
-		}
-		return rsp, nil
-	*/
-	return nil, nil
-}

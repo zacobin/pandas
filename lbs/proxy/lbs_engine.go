@@ -12,9 +12,6 @@
 package proxy
 
 import (
-	"time"
-
-	"github.com/cloustone/pandas/lbs/grpc_lbs_v1"
 	serveroptions "github.com/cloustone/pandas/pkg/server/options"
 )
 
@@ -87,12 +84,12 @@ type Geofence struct {
 }
 
 type AlarmPoint struct {
-	Longitude  float64    `json:"longitude"`
-	Latitude   float64    `json:"latitude"`
-	Radius     int        `json:"radius"`
-	CoordType  string     `json:"coord_type"`
-	LocTime    *time.Time `json:"loc_time"`
-	CreateTime *time.Time `json:"create_time"`
+	Longitude  float64 `json:"longitude"`
+	Latitude   float64 `json:"latitude"`
+	Radius     int     `json:"radius"`
+	CoordType  string  `json:"coord_type"`
+	LocTime    string  `json:"loc_time"`
+	CreateTime string  `json:"create_time"`
 }
 
 type AlarmPointInfo struct {
@@ -107,7 +104,7 @@ type AlarmPointInfo struct {
 type Alarm struct {
 	FenceId          string     `json:"fence_id,noempty"`
 	FenceName        string     `json:"fence_name,noempty"`
-	MonitoredObjects []string   `json:"monitored_objects"`
+	MonitoredObjects []string   `json:"monitored_objexts"`
 	Action           string     `json:"action"`
 	AlarmPoint       AlarmPoint `json:"alarm_point"`
 	PrePoint         AlarmPoint `json:"pre_point"`
@@ -123,7 +120,7 @@ type Point struct {
 	Longitude float64 `json:"longitude"`
 	Latitude  float64 `json:"latitude"`
 	CoordType string  `json:"coord_type"`
-	LocTime   int     `json:"loc_time"`
+	LocTime   string  `json:"loc_time"`
 }
 
 type AlarmInfos struct {
@@ -140,6 +137,32 @@ type AlarmInfo struct {
 	AlarmPoint       AlarmPointInfo `json:"alarm_point"`
 	PrePoint         AlarmPointInfo `json:"pre_point"`
 	UserId           string
+}
+
+type QueryStatus struct {
+	Status            int32
+	Message           string
+	Size              int32
+	MonitoredStatuses []MonitoredStatus
+}
+
+type StayPoints struct {
+	Status     int32
+	Message    string
+	Total      int32
+	Size       int32
+	Distance   int32
+	EndPoint   *Point
+	StartPoint *Point
+	Points     []*Point
+}
+
+type HistoryAlarms struct {
+	Status  int32
+	Message string
+	Total   int32
+	Size    int32
+	Alarms  []*Alarm
 }
 
 type Engine interface {
@@ -168,15 +191,15 @@ type Engine interface {
 	// Alarms
 	QueryStatus(monitoredPerson string, fenceIds []string) (BaiduQueryStatusResponse, error)
 	GetHistoryAlarms(monitoredPerson string, fenceIds []string) (BaiduGetHistoryAlarmsResponse, error)
-	BatchGetHistoryAlarms(input *grpc_lbs_v1.BatchGetHistoryAlarmsRequest) (BaiduBatchHistoryAlarmsResp, error)
-	GetStayPoints(input *grpc_lbs_v1.GetStayPointsRequest) (BaiduGetStayPointResp, error)
+	BatchGetHistoryAlarms(input *BatchGetHistoryAlarmsRequest) (BaiduBatchHistoryAlarmsResp, error)
+	GetStayPoints(input *GetStayPointsRequest) (BaiduGetStayPointResp, error)
 	UnmarshalAlarmNotification(content []byte) (*AlarmNotification, error)
 
 	//Entity
 	AddEntity(EntityName string, EntityDesc string) error
 	UpdateEntity(EntityName string, EntityDesc string) error
 	DeleteEntity(EntityName string) error
-	ListEntity(userId string, collectionId string, CoordTypeOutput string, PageIndex int32, pageSize int32) (int, baiduListEntityStruct)
+	ListEntity(collectionId string, CoordTypeOutput string, PageIndex int32, pageSize int32) (int, baiduListEntityStruct)
 }
 
 func NewEngine(locationServingOptions *serveroptions.LocationServingOptions) (Engine, error) {

@@ -13,16 +13,88 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
 	"math/rand"
+	"net/http"
 	"os"
+	"os/signal"
+	"strconv"
+	"syscall"
 	"time"
 
-	"github.com/cloustone/pandas/cmd/lbs/app"
-	"github.com/cloustone/pandas/cmd/lbs/app/options"
-	"github.com/cloustone/pandas/pkg/util/flag"
-	"github.com/cloustone/pandas/pkg/util/logs"
-	"github.com/cloustone/pandas/pkg/util/wait"
-	"github.com/spf13/pflag"
+	"github.com/cloustone/pandas"
+	"github.com/cloustone/pandas/lbs"
+	"github.com/cloustone/pandas/lbs/api"
+	lbshttpapi "github.com/cloustone/pandas/lbs/api/http"
+	lbp "github.com/cloustone/pandas/lbs/proxy"
+	"github.com/cloustone/pandas/pkg/logger"
+	genericoptions "github.com/cloustone/pandas/pkg/server/options"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/opentracing/opentracing-go"
+	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	jconfig "github.com/uber/jaeger-client-go/config"
+)
+
+const (
+	defLogLevel        = "error"
+	defDBHost          = "localhost"
+	defDBPort          = "5432"
+	defDBUser          = "mainflux"
+	defDBPass          = "mainflux"
+	defDBName          = "things"
+	defDBSSLMode       = "disable"
+	defDBSSLCert       = ""
+	defDBSSLKey        = ""
+	defDBSSLRootCert   = ""
+	defClientTLS       = "false"
+	defCACerts         = ""
+	defCacheURL        = "localhost:6379"
+	defCachePass       = ""
+	defCacheDB         = "0"
+	defESURL           = "localhost:6379"
+	defESPass          = ""
+	defESDB            = "0"
+	defHTTPPort        = "8180"
+	defAuthHTTPPort    = "8989"
+	defAuthGRPCPort    = "8181"
+	defServerCert      = ""
+	defServerKey       = ""
+	defSingleUserEmail = ""
+	defSingleUserToken = ""
+	defJaegerURL       = ""
+	defAuthURL         = "localhost:8181"
+	defAuthTimeout     = "1" // in seconds
+
+	envLogLevel        = "MF_THINGS_LOG_LEVEL"
+	envDBHost          = "MF_THINGS_DB_HOST"
+	envDBPort          = "MF_THINGS_DB_PORT"
+	envDBUser          = "MF_THINGS_DB_USER"
+	envDBPass          = "MF_THINGS_DB_PASS"
+	envDBName          = "MF_THINGS_DB"
+	envDBSSLMode       = "MF_THINGS_DB_SSL_MODE"
+	envDBSSLCert       = "MF_THINGS_DB_SSL_CERT"
+	envDBSSLKey        = "MF_THINGS_DB_SSL_KEY"
+	envDBSSLRootCert   = "MF_THINGS_DB_SSL_ROOT_CERT"
+	envClientTLS       = "MF_THINGS_CLIENT_TLS"
+	envCACerts         = "MF_THINGS_CA_CERTS"
+	envCacheURL        = "MF_THINGS_CACHE_URL"
+	envCachePass       = "MF_THINGS_CACHE_PASS"
+	envCacheDB         = "MF_THINGS_CACHE_DB"
+	envESURL           = "MF_THINGS_ES_URL"
+	envESPass          = "MF_THINGS_ES_PASS"
+	envESDB            = "MF_THINGS_ES_DB"
+	envHTTPPort        = "MF_THINGS_HTTP_PORT"
+	envAuthHTTPPort    = "MF_THINGS_AUTH_HTTP_PORT"
+	envAuthGRPCPort    = "MF_THINGS_AUTH_GRPC_PORT"
+	envServerCert      = "MF_THINGS_SERVER_CERT"
+	envServerKey       = "MF_THINGS_SERVER_KEY"
+	envSingleUserEmail = "MF_THINGS_SINGLE_USER_EMAIL"
+	envSingleUserToken = "MF_THINGS_SINGLE_USER_TOKEN"
+	envJaegerURL       = "MF_JAEGER_URL"
+	envAuthURL         = "MF_AUTH_URL"
+	envAuthTimeout     = "MF_AUTH_TIMEOUT"
 )
 
 // inject by go build
@@ -31,23 +103,140 @@ var (
 	BuildTime = "2020-01-13-0802 UTC"
 )
 
+type config struct {
+	logLevel        string
+	clientTLS       bool
+	caCerts         string
+	httpPort        string
+	authHTTPPort    string
+	authGRPCPort    string
+	serverCert      string
+	serverKey       string
+	singleUserEmail string
+	singleUserToken string
+	jaegerURL       string
+	authURL         string
+	authTimeout     time.Duration
+}
+
 func init() {
 	fmt.Println("Version:", Version)
 	fmt.Println("BuildTime:", BuildTime)
 }
 
 func main() {
+	cfg := loadConfig()
+
+	logger, err := logger.New(os.Stdout, cfg.logLevel)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	lbsTracer, lbsCloser := initJaeger("lbs", cfg.jaegerURL, logger)
+	defer lbsCloser.Close()
+
+	location := genericoptions.NewLocationServingOptions()
+	svc := newService(location, logger)
+	errs := make(chan error, 2)
+
+	go startHTTPServer(lbshttpapi.MakeHandler(lbsTracer, svc), cfg.httpPort, cfg, logger, errs)
+
+	go func() {
+		c := make(chan os.Signal)
+		signal.Notify(c, syscall.SIGINT)
+		errs <- fmt.Errorf("%s", <-c)
+	}()
+
+	err = <-errs
+	logger.Error(fmt.Sprintf("Lbs service terminated: %s", err))
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	s := options.NewServerRunOptions()
-	s.AddFlags(pflag.CommandLine)
+}
 
-	flag.InitFlags()
-	logs.InitLogs()
-	defer logs.FlushLogs()
+func loadConfig() config {
+	tls, err := strconv.ParseBool(pandas.Env(envClientTLS, defClientTLS))
+	if err != nil {
+		log.Fatalf("Invalid value passed for %s\n", envClientTLS)
+	}
 
-	if err := app.Run(s, wait.NeverStop); err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
+	timeout, err := strconv.ParseInt(pandas.Env(envAuthTimeout, defAuthTimeout), 10, 64)
+	if err != nil {
+		log.Fatalf("Invalid %s value: %s", envAuthTimeout, err.Error())
+	}
+
+	return config{
+		logLevel:  pandas.Env(envLogLevel, defLogLevel),
+		clientTLS: tls,
+		caCerts:   pandas.Env(envCACerts, defCACerts),
+
+		httpPort:        pandas.Env(envHTTPPort, defHTTPPort),
+		authHTTPPort:    pandas.Env(envAuthHTTPPort, defAuthHTTPPort),
+		authGRPCPort:    pandas.Env(envAuthGRPCPort, defAuthGRPCPort),
+		serverCert:      pandas.Env(envServerCert, defServerCert),
+		serverKey:       pandas.Env(envServerKey, defServerKey),
+		singleUserEmail: pandas.Env(envSingleUserEmail, defSingleUserEmail),
+		singleUserToken: pandas.Env(envSingleUserToken, defSingleUserToken),
+		jaegerURL:       pandas.Env(envJaegerURL, defJaegerURL),
+		authURL:         pandas.Env(envAuthURL, defAuthURL),
+		authTimeout:     time.Duration(timeout) * time.Second,
+	}
+
+}
+
+func newService(location *genericoptions.LocationServingOptions, logger logger.Logger) lbs.Service {
+
+	proxy := lbp.NewProxy(location)
+
+	svc := lbs.New(*proxy)
+	svc = api.LoggingMiddleware(svc, logger)
+	svc = api.MetricsMiddleware(
+		svc,
+		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+			Namespace: "lbs",
+			Subsystem: "api",
+			Name:      "request_count",
+			Help:      "Number of requests received.",
+		}, []string{"method"}),
+		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+			Namespace: "lbs",
+			Subsystem: "api",
+			Name:      "request_latency_microseconds",
+			Help:      "Total duration of requests in microseconds.",
+		}, []string{"method"}),
+	)
+	return svc
+}
+func initJaeger(svcName, url string, logger logger.Logger) (opentracing.Tracer, io.Closer) {
+	if url == "" {
+		return opentracing.NoopTracer{}, ioutil.NopCloser(nil)
+	}
+
+	tracer, closer, err := jconfig.Configuration{
+		ServiceName: svcName,
+		Sampler: &jconfig.SamplerConfig{
+			Type:  "const",
+			Param: 1,
+		},
+		Reporter: &jconfig.ReporterConfig{
+			LocalAgentHostPort: url,
+			LogSpans:           true,
+		},
+	}.NewTracer()
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to init Jaeger client: %s", err))
 		os.Exit(1)
 	}
+
+	return tracer, closer
+}
+func startHTTPServer(handler http.Handler, port string, cfg config, logger logger.Logger, errs chan error) {
+	p := fmt.Sprintf(":%s", port)
+	if cfg.serverCert != "" || cfg.serverKey != "" {
+		logger.Info(fmt.Sprintf("Things service started using https on port %s with cert %s key %s",
+			port, cfg.serverCert, cfg.serverKey))
+		errs <- http.ListenAndServeTLS(p, cfg.serverCert, cfg.serverKey, handler)
+		return
+	}
+	logger.Info(fmt.Sprintf("Things service started using http on port %s", cfg.httpPort))
+	errs <- http.ListenAndServe(p, handler)
 }
