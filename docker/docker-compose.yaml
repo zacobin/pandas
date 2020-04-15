@@ -5,8 +5,8 @@ volumes:
   pandas-users-db-volume:
   pandas-things-db-volume:
   pandas-things-redis-volume:
-  mainflux-es-redis-volume:
-  mainflux-mqtt-broker-volume:
+  pandas-es-redis-volume:
+  pandas-mqtt-broker-volume:
 
 services:
   db:
@@ -266,10 +266,10 @@ services:
       DOCKER_VERNEMQ_ALLOW_ANONYMOUS: "on"
       DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL: debug
     volumes:
-      - mainflux-mqtt-broker-volume:/var/lib/vernemq
+      - pandas-mqtt-broker-volume:/var/lib/vernemq
 
   mqtt-adapter:
-    image: mainflux/mqtt:latest
+    image: cloustone/pandas-mqtt:latest
     container_name: pandas-mqtt
     depends_on:
       - vernemq
@@ -290,7 +290,7 @@ services:
       MF_MQTT_ADAPTER_WS_TARGET_PORT: ${MF_MQTT_BROKER_WS_PORT}
 
   ws-adapter:
-    image: mainflux/ws:latest
+    image: cloustone/pandas-ws:latest
     container_name: pandas-ws
     depends_on:
       - things
@@ -306,7 +306,7 @@ services:
       - ${MF_WS_ADAPTER_PORT}:${MF_WS_ADAPTER_PORT}
 
   http-adapter:
-    image: mainflux/http:latest
+    image: cloustone/pandas-http:latest
     container_name: pandas-http
     depends_on:
       - things
@@ -326,10 +326,10 @@ services:
     container_name: pandas-es-redis
     restart: on-failure
     volumes:
-      - mainflux-es-redis-volume:/data
+      - pandas-es-redis-volume:/data
 
   coap-adapter:
-    image: mainflux/coap:latest
+    image: cloustone/pandas-coap:latest
     container_name: pandas-coap
     depends_on:
       - things
