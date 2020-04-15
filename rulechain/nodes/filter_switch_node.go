@@ -12,7 +12,7 @@
 package nodes
 
 import (
-	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/rulechain/message"
 	"github.com/sirupsen/logrus"
 )
 
@@ -34,7 +34,7 @@ func (f switchFilterNodeFactory) Create(id string, meta Metadata) (Node, error) 
 	return decodePath(meta, node)
 }
 
-func (n *switchFilterNode) Handle(msg models.Message) error {
+func (n *switchFilterNode) Handle(msg message.Message) error {
 	logrus.Infof("%s handle message '%s'", n.Name(), msg.GetType())
 
 	scriptEngine := NewScriptEngine()

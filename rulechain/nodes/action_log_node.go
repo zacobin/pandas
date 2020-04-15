@@ -15,7 +15,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/rulechain/message"
 )
 
 type logNode struct {
@@ -35,7 +35,7 @@ func (f logNodeFactory) Create(id string, meta Metadata) (Node, error) {
 	return decodePath(meta, node)
 }
 
-func (n *logNode) Handle(msg models.Message) error {
+func (n *logNode) Handle(msg message.Message) error {
 	successLableNode := n.GetLinkedNode("Success")
 	failureLableNode := n.GetLinkedNode("Failure")
 

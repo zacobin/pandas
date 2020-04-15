@@ -14,7 +14,7 @@ package nodes
 import (
 	"fmt"
 
-	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/rulechain/message"
 )
 
 type SaveAttributesNode struct {
@@ -33,7 +33,7 @@ func (f saveAttributesNodeFactory) Create(id string, meta Metadata) (Node, error
 	return decodePath(meta, node)
 }
 
-func (n *SaveAttributesNode) Handle(msg models.Message) error {
+func (n *SaveAttributesNode) Handle(msg message.Message) error {
 	successLableNode := n.GetLinkedNode("Success")
 	failureLableNode := n.GetLinkedNode("Failure")
 	if successLableNode == nil || failureLableNode == nil {

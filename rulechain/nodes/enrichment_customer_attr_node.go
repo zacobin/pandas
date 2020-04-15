@@ -11,7 +11,7 @@
 //  under the License.
 package nodes
 
-import "github.com/cloustone/pandas/apimachinery/models"
+import "github.com/cloustone/pandas/rulechain/message"
 
 type enrichmentCustomerNode struct {
 	bareNode
@@ -29,6 +29,6 @@ func (f enrichmentCustomerAttrNodeFactory) Create(id string, meta Metadata) (Nod
 	return decodePath(meta, node)
 }
 
-func (n *enrichmentCustomerNode) Handle(msg models.Message) error {
+func (n *enrichmentCustomerNode) Handle(msg message.Message) error {
 	return nil
 }

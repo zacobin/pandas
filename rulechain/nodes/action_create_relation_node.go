@@ -12,7 +12,7 @@
 package nodes
 
 import (
-	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/rulechain/message"
 )
 
 type createRelationNode struct {
@@ -40,6 +40,6 @@ func (f createRelationNodeFactory) Create(id string, meta Metadata) (Node, error
 	return decodePath(meta, node)
 }
 
-func (n *createRelationNode) Handle(msg models.Message) error {
+func (n *createRelationNode) Handle(msg message.Message) error {
 	return nil
 }

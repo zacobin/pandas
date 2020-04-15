@@ -16,6 +16,8 @@ var (
 	errRevokeRulechainDB   = errors.New("Revoke rulechain failed")
 )
 
+const errDuplicate = "unique_violation"
+
 var _ rulechain.RuleChainRepository = (*rulechainRepository)(nil)
 
 type rulechainRepository struct {
@@ -23,7 +25,7 @@ type rulechainRepository struct {
 }
 
 //New new
-func New(db Database) rulechain.RuleChainRepository {
+func NewRuleChainRepository(db Database) rulechain.RuleChainRepository {
 	return &rulechainRepository{
 		db: db,
 	}
@@ -79,8 +81,9 @@ func (rr rulechainRepository) Revoke(ctx context.Context, UserID string, RuleCha
 	}
 	//this place is still not right          need id and userid
 	if _, err := rr.db.NamedExecContext(ctx, q, dbr); err != nil {
-		return errors.Wrap(errRevokeRulechainDB)
+		return errors.Wrap(errRevokeRulechainDB, err)
 	}
+	return nil
 }
 
 func (rr rulechainRepository) List(ctx context.Context, UserID string) ([]rulechain.RuleChain, error) {
@@ -89,7 +92,7 @@ func (rr rulechainRepository) List(ctx context.Context, UserID string) ([]rulech
 	dbrulechains := []dbRuleChain{}
 
 	if _, err := rr.db.NamedExecContext(ctx, q, dbrulechains); err != nil {
-		return []rulechain.RuleChain{}, errors.Wrap(errRetrieveDB, err)
+		return []rulechain.RuleChain{}, errors.Wrap(errRetrieveRulechainDB, err)
 	}
 
 	rulechains := []rulechain.RuleChain{}
@@ -101,24 +104,28 @@ func (rr rulechainRepository) List(ctx context.Context, UserID string) ([]rulech
 }
 
 type dbPayload []byte
-type dbCreateAt time.Time
-type dbLastUpdateAt time.Time
-type dbDataSource rulechain.DataSource
+
+// type dbCreateAt time.Time
+// type dbLastUpdateAt time.Time
+// type dbDataSource rulechain.DataSource
 
 type dbRuleChain struct {
-	Name         string
-	ID           string
-	Description  string
-	DebugMode    bool
-	UserID       string
-	Type         string
-	Domain       string
-	Status       string
-	Payload      dbPayload
-	Root         bool
-	CreateAt     dbCreateAt
-	LastUpdateAt dbLastUpdateAt
-	Datasource   dbDataSource
+	Name        string
+	ID          string
+	Description string
+	DebugMode   bool
+	UserID      string
+	Type        string
+	Domain      string
+	Status      string
+	Payload     dbPayload
+	Root        bool
+	// CreateAt     dbCreateAt
+	// LastUpdateAt dbLastUpdateAt
+	// Datasource   dbDataSource
+	CreateAt     time.Time
+	LastUpdateAt time.Time
+	Datasource   rulechain.DataSource
 }
 
 func toDBRulechain(r rulechain.RuleChain) dbRuleChain {
