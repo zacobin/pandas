@@ -33,20 +33,440 @@ func MakeHandler(tracer opentracing.Tracer, svc lbs.Service) http.Handler {
 
 	r := bone.New()
 
-	r.Post("/lbs/product/list", kithttp.NewServer(
+	r.Get("/lbs/product", kithttp.NewServer(
 		kitot.TraceServer(tracer, "list_collections")(listCollectionsEndpoint(svc)),
 		decodeListCollections,
 		encodeResponse,
 		opts...,
 	))
 
-	r.GetFunc("/version", pandas.Version("auth"))
+	r.Post("/lbs/circlefence/project/:projectId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "create_circlegeofence")(createCircleGeofenceEndpoint(svc)),
+		decodeCreateCircleGeofence,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Put("/lbs/circlefence/project/:projectId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "update_circlegeofence")(updateCircleGeofenceEndpoint(svc)),
+		decodeUpdateCircleGeofence,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Delete("/lbs/circlefence/project/:projectId/fence/:fenceId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "delete_circlegeofence")(deleteGeofenceEndpoint(svc)),
+		decodeDeleteGeofence,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Get("/lbs/fences", kithttp.NewServer(
+		kitot.TraceServer(tracer, "list_geofences")(listGeofencesEndpoint(svc)),
+		decodeListGeofences,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Post("/lbs/monitor/project/:projectId/fence/:fenceId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "add_monitoredobject")(addMonitoredObjectEndpoint(svc)),
+		decodeAddMonitoredObject,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Delete("/lbs/monitor/project/:projectId/fence/:fenceId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "remove_monitoredobject")(removeMonitoredObjectEndpoint(svc)),
+		decodeRemoveMonitoredObject,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Get("/lbs/monitor/project/:projectId/fence/:fenceId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "list_monitoredobject")(listMonitoredObjectsEndpoint(svc)),
+		decodeListMonitoredObjects,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Post("/lbs/polyfence/project/:projectId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "create_polygeofence")(createPolyGeofenceEndpoint(svc)),
+		decodeCreatePolyGeofence,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Put("/lbs/polyfence/project/:projectId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "list_polygeofence")(updatePolyGeofenceEndpoint(svc)),
+		decodeUpdatePolyGeofence,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Post("/lbs/fenceIds/project/:projectId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "get_fenceids")(getFenceIdsEndpoint(svc)),
+		decodeGetFenceIds,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Get("/lbs/alarm/status", kithttp.NewServer(
+		kitot.TraceServer(tracer, "query_status")(queryStatusEndpoint(svc)),
+		decodeQueryStatus,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Get("/lbs/historyalarms/project/:projectId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "get_historyalarms")(getHistoryAlarmsEndpoint(svc)),
+		decodeGetHistoryAlarms,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Get("/lbs/historyalarms", kithttp.NewServer(
+		kitot.TraceServer(tracer, "batch_get_historyalarms")(batchGetHistoryAlarmsEndpoint(svc)),
+		decodeBatchGetHistoryAlarms,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Get("/lbs/staypoints/project/:projectId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "get_staypoints")(getStayPointsEndpoint(svc)),
+		decodeGetStayPoints,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Post("/lbs/alarms/project/:projectId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "notify_alarms")(notifyAlarmsEndpoint(svc)),
+		decodeNotifyAlarms,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Get("/lbs/userId/:fenceId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "get_fenceuserid")(getFenceUserIdEndpoint(svc)),
+		decodeGetFenceUserId,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Post("/lbs/entity/project/:projectId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "add_entity")(addEntityEndpoint(svc)),
+		decodeAddEntity,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Put("/lbs/entity/project/:projectId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "update_entity")(updateEntityEndpoint(svc)),
+		decodeUpdateEntity,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Delete("/lbs/entity/project/:projectId", kithttp.NewServer(
+		kitot.TraceServer(tracer, "delete_entity")(deleteEntityEndpoint(svc)),
+		decodeDeleteEntity,
+		encodeResponse,
+		opts...,
+	))
+
+	r.Get("/lbs/entity", kithttp.NewServer(
+		kitot.TraceServer(tracer, "list_entity")(listEntityEndpoint(svc)),
+		decodeListEntity,
+		encodeResponse,
+		opts...,
+	))
+
+	r.GetFunc("/version", pandas.Version("lbs"))
 	r.Handle("/metrics", promhttp.Handler())
 
 	return r
 }
 
 func decodeListCollections(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeCreateCircleGeofence(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeUpdateCircleGeofence(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeDeleteGeofence(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeListGeofences(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeAddMonitoredObject(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeRemoveMonitoredObject(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeListMonitoredObjects(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeCreatePolyGeofence(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeUpdatePolyGeofence(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeGetFenceIds(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeQueryStatus(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeGetHistoryAlarms(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeBatchGetHistoryAlarms(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeGetStayPoints(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeNotifyAlarms(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeGetFenceUserId(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeAddEntity(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeUpdateEntity(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeDeleteEntity(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, errUnsupportedContentType
+	}
+	req := listCollectionsReq{
+		token: r.Header.Get("Authorization"),
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+func decodeListEntity(_ context.Context, r *http.Request) (interface{}, error) {
 	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
 		return nil, errUnsupportedContentType
 	}
