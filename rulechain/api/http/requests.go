@@ -1,14 +1,16 @@
 package http
 
-import "github.com/cloustone/pandas/rulechain"
+import (
+	"github.com/cloustone/pandas/rulechain"
+)
 
 type RuleChainRequestInfo struct {
-	UserID      string
+	token       string
 	RuleChainID string
 }
 
 func (req RuleChainRequestInfo) validate() error {
-	if req.UserID == "" {
+	if req.token == "" {
 		return rulechain.ErrUnauthorizedAccess
 	}
 	if req.RuleChainID == "" {
@@ -18,6 +20,7 @@ func (req RuleChainRequestInfo) validate() error {
 }
 
 type updateRuleChainReq struct {
+	token     string
 	rulechain rulechain.RuleChain
 }
 
@@ -32,11 +35,11 @@ func (req updateRuleChainReq) validate() error {
 }
 
 type listRuleChainReq struct {
-	UserID string
+	token string
 }
 
 func (req listRuleChainReq) validate() error {
-	if req.UserID == "" {
+	if req.token == "" {
 		return rulechain.ErrUnauthorizedAccess
 	}
 	return nil

@@ -113,20 +113,21 @@ func decodeNewRuleChainRequest(_ context.Context, r *http.Request) (interface{},
 	}
 
 	return updateRuleChainReq{
+		token:     r.Header.Get("Authorization"),
 		rulechain: ruleChain,
 	}, nil
 }
 
 func decodeListRuleChainRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	req := listRuleChainReq{
-		UserID: r.Header.Get("UserID"),
+		token: r.Header.Get("Authorization"),
 	}
 	return req, nil
 }
 
 func decodeRuleChainRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	req := RuleChainRequestInfo{
-		UserID:      r.Header.Get("UserID"),
+		token:       r.Header.Get("Authorization"),
 		RuleChainID: r.Header.Get("RuleChainID"),
 	}
 	return req, nil
@@ -139,6 +140,7 @@ func decodeUpdateRuleChainRequest(_ context.Context, r *http.Request) (interface
 		return nil, err
 	}
 	req := updateRuleChainReq{
+		token:     r.Header.Get("Authorization"),
 		rulechain: ruleChain,
 	}
 	return req, nil

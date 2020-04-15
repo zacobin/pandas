@@ -13,7 +13,7 @@ func addRuleChainEndpoint(svc rulechain.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		err := svc.AddNewRuleChain(ctx, req.rulechain)
+		err := svc.AddNewRuleChain(ctx, req.token, req.rulechain)
 		if err != nil {
 			return nil, err
 		}
@@ -27,7 +27,7 @@ func rulechainInfoEndpoint(svc rulechain.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		rulechain, err := svc.GetRuleChainInfo(ctx, req.UserID, req.RuleChainID)
+		rulechain, err := svc.GetRuleChainInfo(ctx, req.token, req.RuleChainID)
 		if err != nil {
 			return nil, err
 		}
@@ -41,7 +41,7 @@ func updateRuleChainEndpoint(svc rulechain.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		err := svc.UpdateRuleChain(ctx, req.rulechain)
+		err := svc.UpdateRuleChain(ctx, req.token, req.rulechain)
 		if err != nil {
 			return nil, err
 		}
@@ -56,7 +56,7 @@ func deleteRuleChainEndpoint(svc rulechain.Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		err := svc.RevokeRuleChain(ctx, req.UserID, req.RuleChainID)
+		err := svc.RevokeRuleChain(ctx, req.token, req.RuleChainID)
 		if err != nil {
 			return nil, err
 		}
@@ -71,7 +71,7 @@ func listRuleChainEndpoint(svc rulechain.Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		rulechains, err := svc.ListRuleChain(ctx, req.UserID)
+		rulechains, err := svc.ListRuleChain(ctx, req.token)
 		if err != nil {
 			return nil, err
 		}
@@ -86,7 +86,7 @@ func startRuleChainEndpoint(svc rulechain.Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		err := svc.StartRuleChain(ctx, req.UserID, req.RuleChainID)
+		err := svc.StartRuleChain(ctx, req.token, req.RuleChainID)
 		if err != nil {
 			return nil, err
 		}
@@ -101,7 +101,7 @@ func stopRuleChainEndpoint(svc rulechain.Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		err := svc.StopRuleChain(ctx, req.UserID, req.RuleChainID)
+		err := svc.StopRuleChain(ctx, req.token, req.RuleChainID)
 		if err != nil {
 			return nil, err
 		}

@@ -334,7 +334,7 @@ func newService(nc *nats.Conn, chanID string, db *sqlx.DB, cacheClient *redis.Cl
 	cache = tracing.RuleChainCacheMiddleware(cacheTracer, cache)
 
 	instancemanager := rulechain.NewInstanceManager()
-	svc := rulechain.New(repo, *instancemanager, cache)
+	svc := rulechain.New(auth, repo, *instancemanager, cache)
 	svc = api.LoggingMiddleware(svc, logger)
 	svc = api.MetricsMiddleware(
 		svc,

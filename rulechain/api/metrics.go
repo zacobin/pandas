@@ -30,67 +30,67 @@ func MetricsMiddleware(svc rulechain.Service, counter metrics.Counter, latency m
 	}
 }
 
-func (ms *metricsMiddleware) AddNewRuleChain(ctx context.Context, rulechain rulechain.RuleChain) error {
+func (ms *metricsMiddleware) AddNewRuleChain(ctx context.Context, token string, rulechain rulechain.RuleChain) error {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "addnewrulechain").Add(1)
 		ms.latency.With("method", "addnewrulechain").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.AddNewRuleChain(ctx, rulechain)
+	return ms.svc.AddNewRuleChain(ctx, token, rulechain)
 }
 
-func (ms *metricsMiddleware) GetRuleChainInfo(ctx context.Context, UserID string, RuleChainID string) (rulechain.RuleChain, error) {
+func (ms *metricsMiddleware) GetRuleChainInfo(ctx context.Context, token string, RuleChainID string) (rulechain.RuleChain, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "getrulechaininfo").Add(1)
 		ms.latency.With("method", "getrulechaininfo").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.GetRuleChainInfo(ctx, UserID, RuleChainID)
+	return ms.svc.GetRuleChainInfo(ctx, token, RuleChainID)
 }
 
-func (ms *metricsMiddleware) UpdateRuleChain(ctx context.Context, rulechain rulechain.RuleChain) error {
+func (ms *metricsMiddleware) UpdateRuleChain(ctx context.Context, token string, rulechain rulechain.RuleChain) error {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "updaterulechain").Add(1)
 		ms.latency.With("method", "updaterulechain").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.UpdateRuleChain(ctx, rulechain)
+	return ms.svc.UpdateRuleChain(ctx, token, rulechain)
 }
 
-func (ms *metricsMiddleware) RevokeRuleChain(ctx context.Context, UserID string, RuleChainID string) (err error) {
+func (ms *metricsMiddleware) RevokeRuleChain(ctx context.Context, token string, RuleChainID string) (err error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "revokerulechain").Add(1)
 		ms.latency.With("method", "revokerulechain").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.RevokeRuleChain(ctx, UserID, RuleChainID)
+	return ms.svc.RevokeRuleChain(ctx, token, RuleChainID)
 }
 
-func (ms *metricsMiddleware) ListRuleChain(ctx context.Context, UserID string) ([]rulechain.RuleChain, error) {
+func (ms *metricsMiddleware) ListRuleChain(ctx context.Context, token string) ([]rulechain.RuleChain, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "listrulechain").Add(1)
 		ms.latency.With("method", "listrulechain").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.ListRuleChain(ctx, UserID)
+	return ms.svc.ListRuleChain(ctx, token)
 }
 
-func (ms *metricsMiddleware) StartRuleChain(ctx context.Context, UserID string, RuleChainID string) error {
+func (ms *metricsMiddleware) StartRuleChain(ctx context.Context, token string, RuleChainID string) error {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "startrulechain").Add(1)
 		ms.latency.With("method", "startrulechain").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.StartRuleChain(ctx, UserID, RuleChainID)
+	return ms.svc.StartRuleChain(ctx, token, RuleChainID)
 }
 
-func (ms *metricsMiddleware) StopRuleChain(ctx context.Context, UserID string, RuleChainID string) error {
+func (ms *metricsMiddleware) StopRuleChain(ctx context.Context, token string, RuleChainID string) error {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "stoprulechain").Add(1)
 		ms.latency.With("method", "stoprulechain").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.StopRuleChain(ctx, UserID, RuleChainID)
+	return ms.svc.StopRuleChain(ctx, token, RuleChainID)
 }
 
 func (ms *metricsMiddleware) SaveStates(msg *mainflux.Message) error {

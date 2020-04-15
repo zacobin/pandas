@@ -49,9 +49,9 @@ var (
 
 //Service service
 type Service interface {
-	AddNewRuleChain(context.Context, RuleChain) error
+	AddNewRuleChain(context.Context, string, RuleChain) error
 	GetRuleChainInfo(context.Context, string, string) (RuleChain, error)
-	UpdateRuleChain(context.Context, RuleChain) error
+	UpdateRuleChain(context.Context, string, RuleChain) error
 	RevokeRuleChain(context.Context, string, string) error
 	ListRuleChain(context.Context, string) ([]RuleChain, error)
 	StartRuleChain(context.Context, string, string) error
@@ -62,6 +62,7 @@ type Service interface {
 var _ Service = (*rulechainService)(nil)
 
 type rulechainService struct {
+	auth       mainflux.AuthNServiceClient
 	rulechains RuleChainRepository
 	//mutex      sync.RWMutex
 	instancemanager instanceManager
@@ -69,20 +70,29 @@ type rulechainService struct {
 }
 
 //New new
-func New(rulechains RuleChainRepository, instancemanager instanceManager, rulechainscache RuleChainCache) Service {
+func New(auth mainflux.AuthNServiceClient, rulechains RuleChainRepository, instancemanager instanceManager, rulechainscache RuleChainCache) Service {
 	return &rulechainService{
+		auth:            auth,
 		rulechains:      rulechains,
 		instancemanager: instancemanager,
 		rulechainscache: rulechainscache,
 	}
 }
 
-func (svc rulechainService) AddNewRuleChain(ctx context.Context, rulechain RuleChain) error {
+func (svc rulechainService) AddNewRuleChain(ctx context.Context, token string, rulechain RuleChain) error {
+	_, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return err
+	}
 	return svc.rulechains.Save(ctx, rulechain)
 }
 
-func (svc rulechainService) GetRuleChainInfo(ctx context.Context, UserID string, RuleChainID string) (RuleChain, error) {
-	rulechain, err := svc.rulechains.Retrieve(ctx, UserID, RuleChainID)
+func (svc rulechainService) GetRuleChainInfo(ctx context.Context, token string, RuleChainID string) (RuleChain, error) {
+	res, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return RuleChain{}, err
+	}
+	rulechain, err := svc.rulechains.Retrieve(ctx, res.GetValue(), RuleChainID)
 	if err != nil {
 		return RuleChain{}, errors.Wrap(ErrRuleChainNotFound, err)
 	}
@@ -90,20 +100,32 @@ func (svc rulechainService) GetRuleChainInfo(ctx context.Context, UserID string,
 	return rulechain, nil
 }
 
-func (svc rulechainService) UpdateRuleChain(ctx context.Context, rulechain RuleChain) error {
-	rulechain, err := svc.rulechains.Retrieve(ctx, rulechain.UserID, rulechain.ID)
+func (svc rulechainService) UpdateRuleChain(ctx context.Context, token string, rulechain RuleChain) error {
+
+	res, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return err
+	}
+
+	old_rulechain, err := svc.rulechains.Retrieve(ctx, res.GetValue(), rulechain.ID)
 	if err != nil {
 		return errors.Wrap(ErrRuleChainNotFound, err)
 	}
-	if rulechain.Status == RULE_STATUS_STARTED {
+	if old_rulechain.Status == RULE_STATUS_STARTED {
 		return status.Error(codes.FailedPrecondition, "")
 	}
 
 	return svc.rulechains.Update(ctx, rulechain)
 }
 
-func (svc rulechainService) RevokeRuleChain(ctx context.Context, UserID string, RuleChainID string) error {
-	rulechain, err := svc.rulechains.Retrieve(ctx, UserID, RuleChainID)
+func (svc rulechainService) RevokeRuleChain(ctx context.Context, token string, RuleChainID string) error {
+
+	res, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return err
+	}
+
+	rulechain, err := svc.rulechains.Retrieve(ctx, res.GetValue(), RuleChainID)
 	if err != nil {
 		return errors.Wrap(ErrRuleChainNotFound, err)
 	}
@@ -111,15 +133,27 @@ func (svc rulechainService) RevokeRuleChain(ctx context.Context, UserID string, 
 		return status.Error(codes.FailedPrecondition, "")
 	}
 
-	return svc.rulechains.Revoke(ctx, UserID, RuleChainID)
+	return svc.rulechains.Revoke(ctx, res.GetValue(), RuleChainID)
 }
 
-func (svc rulechainService) ListRuleChain(ctx context.Context, UserID string) ([]RuleChain, error) {
-	return svc.rulechains.List(ctx, UserID)
+func (svc rulechainService) ListRuleChain(ctx context.Context, token string) ([]RuleChain, error) {
+
+	res, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return []RuleChain{}, err
+	}
+
+	return svc.rulechains.List(ctx, res.GetValue())
 }
 
-func (svc rulechainService) StartRuleChain(ctx context.Context, UserID string, RuleChainID string) error {
-	rulechain, err := svc.rulechains.Retrieve(ctx, UserID, RuleChainID)
+func (svc rulechainService) StartRuleChain(ctx context.Context, token string, RuleChainID string) error {
+
+	res, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return err
+	}
+
+	rulechain, err := svc.rulechains.Retrieve(ctx, res.GetValue(), RuleChainID)
 	if err != nil {
 		return errors.Wrap(ErrRuleChainNotFound, err)
 	}
@@ -130,8 +164,14 @@ func (svc rulechainService) StartRuleChain(ctx context.Context, UserID string, R
 	return svc.instancemanager.startRuleChain(&rulechain)
 }
 
-func (svc rulechainService) StopRuleChain(ctx context.Context, UserID string, RuleChainID string) error {
-	rulechain, err := svc.rulechains.Retrieve(ctx, UserID, RuleChainID)
+func (svc rulechainService) StopRuleChain(ctx context.Context, token string, RuleChainID string) error {
+
+	res, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return err
+	}
+
+	rulechain, err := svc.rulechains.Retrieve(ctx, res.GetValue(), RuleChainID)
 	if err != nil {
 		return errors.Wrap(ErrRuleChainNotFound, err)
 	}

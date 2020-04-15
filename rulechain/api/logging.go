@@ -25,7 +25,7 @@ func LoggingMiddleware(svc rulechain.Service, logger log.Logger) rulechain.Servi
 	return &loggingMiddleware{logger, svc}
 }
 
-func (lm *loggingMiddleware) AddNewRuleChain(ctx context.Context, rulechain rulechain.RuleChain) (err error) {
+func (lm *loggingMiddleware) AddNewRuleChain(ctx context.Context, token string, rulechain rulechain.RuleChain) (err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method AddNewRuleChain for rulechain %s took %s to complete", rulechain.ID, time.Since(begin))
 		if err != nil {
@@ -36,10 +36,10 @@ func (lm *loggingMiddleware) AddNewRuleChain(ctx context.Context, rulechain rule
 
 	}(time.Now())
 
-	return lm.svc.AddNewRuleChain(ctx, rulechain)
+	return lm.svc.AddNewRuleChain(ctx, token, rulechain)
 }
 
-func (lm *loggingMiddleware) GetRuleChainInfo(ctx context.Context, UserID string, RuleChainID string) (rulechain rulechain.RuleChain, err error) {
+func (lm *loggingMiddleware) GetRuleChainInfo(ctx context.Context, token string, RuleChainID string) (rulechain rulechain.RuleChain, err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method getrulechaininfo for rulechain %s took %s to complete", RuleChainID, time.Since(begin))
 		if err != nil {
@@ -49,10 +49,10 @@ func (lm *loggingMiddleware) GetRuleChainInfo(ctx context.Context, UserID string
 		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
 	}(time.Now())
 
-	return lm.svc.GetRuleChainInfo(ctx, UserID, RuleChainID)
+	return lm.svc.GetRuleChainInfo(ctx, token, RuleChainID)
 }
 
-func (lm *loggingMiddleware) UpdateRuleChain(ctx context.Context, rulechain rulechain.RuleChain) (err error) {
+func (lm *loggingMiddleware) UpdateRuleChain(ctx context.Context, token string, rulechain rulechain.RuleChain) (err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method updaterulechain for rulechain %s took %s to complete", rulechain.ID, time.Since(begin))
 		if err != nil {
@@ -62,10 +62,10 @@ func (lm *loggingMiddleware) UpdateRuleChain(ctx context.Context, rulechain rule
 		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
 	}(time.Now())
 
-	return lm.svc.UpdateRuleChain(ctx, rulechain)
+	return lm.svc.UpdateRuleChain(ctx, token, rulechain)
 }
 
-func (lm *loggingMiddleware) RevokeRuleChain(ctx context.Context, UserID string, RuleChainID string) (err error) {
+func (lm *loggingMiddleware) RevokeRuleChain(ctx context.Context, token string, RuleChainID string) (err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method revokerulechain for rulechain %s took %s to complete", RuleChainID, time.Since(begin))
 		if err != nil {
@@ -75,10 +75,10 @@ func (lm *loggingMiddleware) RevokeRuleChain(ctx context.Context, UserID string,
 		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
 	}(time.Now())
 
-	return lm.svc.RevokeRuleChain(ctx, UserID, RuleChainID)
+	return lm.svc.RevokeRuleChain(ctx, token, RuleChainID)
 }
 
-func (lm *loggingMiddleware) ListRuleChain(ctx context.Context, UserID string) (rulechains []rulechain.RuleChain, err error) {
+func (lm *loggingMiddleware) ListRuleChain(ctx context.Context, token string) (rulechains []rulechain.RuleChain, err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method listrulechain  took %s to complete", time.Since(begin))
 		if err != nil {
@@ -88,10 +88,10 @@ func (lm *loggingMiddleware) ListRuleChain(ctx context.Context, UserID string) (
 		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
 	}(time.Now())
 
-	return lm.svc.ListRuleChain(ctx, UserID)
+	return lm.svc.ListRuleChain(ctx, token)
 }
 
-func (lm *loggingMiddleware) StartRuleChain(ctx context.Context, UserID string, RuleChainID string) (err error) {
+func (lm *loggingMiddleware) StartRuleChain(ctx context.Context, token string, RuleChainID string) (err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method startrulechain for rulechain %s took %s to complete", RuleChainID, time.Since(begin))
 		if err != nil {
@@ -101,10 +101,10 @@ func (lm *loggingMiddleware) StartRuleChain(ctx context.Context, UserID string, 
 		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
 	}(time.Now())
 
-	return lm.svc.StartRuleChain(ctx, UserID, RuleChainID)
+	return lm.svc.StartRuleChain(ctx, token, RuleChainID)
 }
 
-func (lm *loggingMiddleware) StopRuleChain(ctx context.Context, UserID string, RuleChainID string) (err error) {
+func (lm *loggingMiddleware) StopRuleChain(ctx context.Context, token string, RuleChainID string) (err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method stoprulechain for rulechain %s took %s to complete", RuleChainID, time.Since(begin))
 		if err != nil {
@@ -114,7 +114,7 @@ func (lm *loggingMiddleware) StopRuleChain(ctx context.Context, UserID string, R
 		lm.logger.Info(fmt.Sprintf("%s without errors.", message))
 	}(time.Now())
 
-	return lm.svc.StopRuleChain(ctx, UserID, RuleChainID)
+	return lm.svc.StopRuleChain(ctx, token, RuleChainID)
 }
 
 func (lm *loggingMiddleware) SaveStates(msg *mainflux.Message) (err error) {
