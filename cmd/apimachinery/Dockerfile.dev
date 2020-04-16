@@ -5,6 +5,8 @@ LABEL product=pandas
 
 # ADD certs/* /etc/ssl/pandas
 ADD pandas/cmd/apimachinery/bin/* /
+RUN mkdir -p /scripts/tokens/keys
+ADD pandas/scripts/tokens/keys/* /scripts/tokens/keys/
 RUN chmod 755 /main
 RUN chmod 755 /dockerize
 
