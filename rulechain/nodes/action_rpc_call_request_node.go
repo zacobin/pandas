@@ -11,6 +11,11 @@
 //  under the License.
 package nodes
 
+type rPCCallRequestNode struct {
+	bareNode
+	TimeoutInSeconds int
+}
+
 type rpcCallRequestNodeFactory struct{}
 
 func (f rpcCallRequestNodeFactory) Name() string     { return "RPCCallRequestNode" }

@@ -12,7 +12,7 @@
 package nodes
 
 import (
-	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/rulechain/message"
 	"github.com/sirupsen/logrus"
 )
 
@@ -36,7 +36,7 @@ func (f inputNodeFactory) Create(id string, meta Metadata) (Node, error) {
 	return node, nil
 }
 
-func (n *inputNode) Handle(msg models.Message) error {
+func (n *inputNode) Handle(msg message.Message) error {
 	logrus.Infof("%s handle message '%s'", n.Name(), msg.GetType())
 
 	nodes := n.GetLinkedNodes()

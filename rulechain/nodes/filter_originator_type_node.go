@@ -12,7 +12,7 @@
 package nodes
 
 import (
-	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/rulechain/message"
 	"github.com/sirupsen/logrus"
 )
 
@@ -35,7 +35,7 @@ func (f originatorFilterNodeFactory) Create(id string, meta Metadata) (Node, err
 	return decodePath(meta, node)
 }
 
-func (n *originatorTypeFilterNode) Handle(msg models.Message) error {
+func (n *originatorTypeFilterNode) Handle(msg message.Message) error {
 	logrus.Infof("%s handle message '%s'", n.Name(), msg.GetType())
 
 	trueLabelNode := n.GetLinkedNode("True")

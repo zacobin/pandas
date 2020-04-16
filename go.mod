@@ -81,6 +81,7 @@ require (
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/tools v0.0.0-20200318150045-ba25ddc85566 // indirect
+	gonum.org/v1/gonum v0.0.0-20190808205415-ced62fe5104b
 	google.golang.org/grpc v1.27.1
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/macaron.v1 v1.3.5
