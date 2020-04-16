@@ -13,7 +13,7 @@ DOCKER_NAMESPACE := cloustone
 # Space separated patterns of packages to skip in list, test, format.
 IGNORED_PACKAGES := /vendor/
 
-SERVICES = apimachinery rulechain lbs authn authz things bootstrap twins users 
+SERVICES = apimachinery rulechain lbs authn authz things bootstrap twins users v2ms realms headmast
 	
 ADAPTOR_SERVICE = http ws coap lora opcua mqtt cli
 	
@@ -22,7 +22,7 @@ ADDONE_SERVICE = influxdb-writer influxdb-reader mongodb-writer mongodb-reader \
 
 UNAME = $(shell uname)
 DOCKER_REPO = docker.io
-IMAGES = apimachinery rulechain lbs authn authz things bootstrap twins users
+IMAGES = apimachinery rulechain lbs authn authz things bootstrap twins users v2ms realms headmast
 ADAPTOR_IMAGES = http ws coap lora opcua mqtt cli
 ADDONE_IMAGES = influxdb-writer influxdb-reader mongodb-writer mongodb-reader \
 				cassandra-writer cassandra-reader postgres-writer postgres-reader
@@ -42,7 +42,7 @@ GOARCH ?= amd64
 GOOS ?= linux
 
 define compile_service
-	@echo building service $(1) ...evironment is [CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH)]
+	@echo building service $(1) ...
 	$Q CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/$(1)
 endef
 
@@ -64,6 +64,7 @@ endef
 
 .PHONY: $(SERVICES) $(ADAPTOR_SERVICE) $(ADDONE_SERVICE)
 all: $(SERVICES) $(ADAPTOR_SERVICE) $(ADDONE_SERVICE)
+	@echo evironment is [CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH)]
 service: $(SERVICES)
 adaptor: $(ADAPTOR_SERVICE)
 addone: $(ADDONE_SERVICE)
