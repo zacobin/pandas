@@ -42,7 +42,7 @@ GOARCH ?= amd64
 GOOS ?= linux
 
 define compile_service
-	@echo building service $(1) ...evironment is [CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH)]
+	@echo building service $(1) ...
 	$Q CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o bin/$@ $(GCFLAGS) $(if $V,-v) $(VERSION_FLAGS) $(IMPORT_PATH)/cmd/$(1)
 endef
 
@@ -64,6 +64,7 @@ endef
 
 .PHONY: $(SERVICES) $(ADAPTOR_SERVICE) $(ADDONE_SERVICE)
 all: $(SERVICES) $(ADAPTOR_SERVICE) $(ADDONE_SERVICE)
+	@echo evironment is [CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH)]
 service: $(SERVICES)
 adaptor: $(ADAPTOR_SERVICE)
 addone: $(ADDONE_SERVICE)
