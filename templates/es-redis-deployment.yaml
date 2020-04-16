@@ -1,0 +1,51 @@
+{{ if .Values.redis.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}es-redis 
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}es-redis 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}es-redis 
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}es-redis 
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}es-redis 
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/redis:5.0-alpine
+{{ else }}
+          image: redis:5.0-alpine
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{ .Values.redis.port }}
+          volumeMounts:
+          - name: {{.Values.docker.image_prefix}}es-redis-volume
+            mountPath: /data
+      restartPolicy: Always
+      volumes:
+      - name: {{.Values.docker.image_prefix}}es-redis-volume
+        persistentVolumeClaim:
+          claimName: {{.Values.docker.image_prefix}}es-redis-volume
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}es-redis
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.redis.port }}
+    targetPort: {{ .Values.redis.port }}
+  selector:
+    service: {{.Values.docker.image_prefix}}es-redis
+{{ end }}

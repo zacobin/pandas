@@ -1,0 +1,89 @@
+{{ if .Values.users.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}users 
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}users 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}users
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}users
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}users
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}users:latest
+{{ else }}
+          image: {{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}users:latest
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{.Values.users.port }}
+          volumeMounts:
+          - name: email-tmpl
+            mountPath: /email.tmpl
+          env:
+          - name: MF_AUTHN_URL
+            value: {{.Values.authn.url }}
+          - name: MF_EMAIL_DRIVER
+            value: {{.Values.users.email.driver }}
+          - name: MF_EMAIL_FROM_ADDRESS
+            value: {{.Values.users.email.from.address }}
+          - name: MF_EMAIL_FROM_NAME
+            value: {{.Values.users.email.from.name }}
+          - name: MF_EMAIL_HOST
+            value: {{.Values.users.email.host }}
+          - name: MF_EMAIL_PASSWORD
+            value: {{.Values.users.email.pass }}
+          - name: MF_EMAIL_PORT
+            value: "2525"
+          - name: MF_EMAIL_TEMPLATE
+            value: {{.Values.users.email.temp }}
+          - name: MF_EMAIL_USERNAME
+            value: {{.Values.users.email.name }}
+          - name: MF_JAEGER_URL
+            value: {{.Values.jaeger.url }}
+          - name: MF_TOKEN_RESET_ENDPOINT
+            value: {{.Values.users.token }}
+          - name: MF_USERS_DB
+            value: {{.Values.users.db.name }}
+          - name: MF_USERS_DB_HOST
+            value: {{.Values.users.db.host }}
+          - name: MF_USERS_DB_PASS
+            value: {{.Values.users.db.pass }}
+          - name: MF_USERS_DB_PORT
+            value: "5432"
+          - name: MF_USERS_DB_USER
+            value: {{.Values.users.db.user }}
+          - name: MF_USERS_HTTP_PORT
+            value: "8180"
+          - name: MF_USERS_LOG_LEVEL
+            value: {{.Values.users.log_level }}
+      restartPolicy: Always
+      volumes:
+      - name: email-tmpl
+        configMap:
+          name: users-config
+  
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}users
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.users.port }}
+    targetPort: {{ .Values.users.targetport }}
+  selector:
+    service: {{.Values.docker.image_prefix}}users
+{{ end }}
