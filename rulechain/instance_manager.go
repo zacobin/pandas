@@ -24,7 +24,6 @@ import (
 type instanceManager struct {
 	mutex      sync.RWMutex
 	rulechains map[string]*ruleChainInstance
-	adaptors   map[string][]string
 }
 
 // newInstanceManager create controller instance used in rule chain service
@@ -32,21 +31,8 @@ func NewInstanceManager() *instanceManager {
 	controller := &instanceManager{
 		mutex:      sync.RWMutex{},
 		rulechains: make(map[string]*ruleChainInstance),
-		adaptors:   make(map[string][]string),
 	}
 	return controller
-}
-
-// getAdaptorRuleChains return all rule chains that handle incomming data from
-// specified adaptors
-func (r *instanceManager) getAdaptorRuleChains(adaptorID string) []*ruleChainInstance {
-	rulechains := []*ruleChainInstance{}
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
-	for _, rulechainID := range r.adaptors[adaptorID] {
-		rulechains = append(rulechains, r.rulechains[rulechainID])
-	}
-	return rulechains
 }
 
 // startRuleChain start the rule chain and receiving incoming data
