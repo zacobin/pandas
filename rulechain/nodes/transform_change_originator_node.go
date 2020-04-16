@@ -12,7 +12,7 @@
 package nodes
 
 import (
-	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/rulechain/message"
 	"github.com/cloustone/pandas/rulechain/runtime"
 	"github.com/sirupsen/logrus"
 )
@@ -39,7 +39,7 @@ func (f transformChangeOriginatorNodeFactory) Create(id string, meta Metadata) (
 	return decodePath(meta, node)
 }
 
-func (n *transformChangeOriginatorNode) Handle(msg models.Message) error {
+func (n *transformChangeOriginatorNode) Handle(msg message.Message) error {
 	logrus.Infof("%s handle message '%s'", n.Name(), msg.GetType())
 
 	successLabelNode := n.GetLinkedNode("Sucess")

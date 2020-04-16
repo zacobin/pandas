@@ -15,8 +15,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/cloustone/pandas/apimachinery/models"
-	"github.com/cloustone/pandas/rulechain/adaptors"
 	"github.com/cloustone/pandas/rulechain/manifest"
 	"github.com/cloustone/pandas/rulechain/nodes"
 	"github.com/sirupsen/logrus"
@@ -30,11 +28,13 @@ type ruleChainInstance struct {
 	firstRuleNodeId string
 	root            bool
 	debugMode       bool
+	channel         string
+	subTopic        string
 	configuration   map[string]interface{}
 	nodes           map[string]nodes.Node
 }
 
-func newRuleChainInstance(data []byte) (*ruleChainInstance, []error) {
+func newRuleChainInstance(Channel string, SubTopic string, data []byte) (*ruleChainInstance, []error) {
 	errors := []error{}
 
 	manifest, err := manifest.New(data)
@@ -43,11 +43,11 @@ func newRuleChainInstance(data []byte) (*ruleChainInstance, []error) {
 		logrus.WithError(err).Errorf("invalidi manifest file")
 		return nil, errors
 	}
-	return newInstanceWithManifest(manifest)
+	return newInstanceWithManifest(Channel, SubTopic, manifest)
 }
 
 // newWithManifest create rule chain by user's manifest file
-func newInstanceWithManifest(m *manifest.Manifest) (*ruleChainInstance, []error) {
+func newInstanceWithManifest(Channel string, SubTopic string, m *manifest.Manifest) (*ruleChainInstance, []error) {
 	errs := []error{}
 
 	r := &ruleChainInstance{
@@ -55,6 +55,8 @@ func newInstanceWithManifest(m *manifest.Manifest) (*ruleChainInstance, []error)
 		firstRuleNodeId: m.RuleChain.FirstRuleNodeId,
 		root:            m.RuleChain.Root,
 		debugMode:       m.RuleChain.DebugMode,
+		channel:         Channel,
+		subTopic:        SubTopic,
 		configuration:   m.RuleChain.Configuration,
 		nodes:           make(map[string]nodes.Node),
 	}
@@ -104,20 +106,4 @@ func newInstanceWithManifest(m *manifest.Manifest) (*ruleChainInstance, []error)
 	}
 
 	return r, errs
-}
-
-func (r *ruleChainInstance) OnAdaptorMessageAvailable(adaptor adaptors.Adaptor, data []byte) {
-	msg := models.NewMessage()
-	if err := msg.UnmarshalBinary(data); err != nil {
-		logrus.WithError(err).Errorf("rule chain instance receive message from adaptor '%s' failed", adaptor.Options().Name)
-		return
-	}
-	if node, found := r.nodes[r.firstRuleNodeId]; found {
-		go node.Handle(msg)
-		return
-	}
-	logrus.Errorf("node chain '%s' has no valid node", r.name)
-}
-
-func (r *ruleChainInstance) OnAdaptorError(adaptor adaptors.Adaptor) {
 }

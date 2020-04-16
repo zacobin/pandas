@@ -14,7 +14,7 @@ package nodes
 import (
 	"fmt"
 
-	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/rulechain/message"
 	"github.com/sirupsen/logrus"
 )
 
@@ -40,7 +40,7 @@ func (f createAlarmNodeFactory) Create(id string, meta Metadata) (Node, error) {
 	return decodePath(meta, node)
 }
 
-func (n *createAlarmNode) Handle(msg models.Message) error {
+func (n *createAlarmNode) Handle(msg message.Message) error {
 	logrus.Infof("%s handle message '%s'", n.Name(), msg.GetType())
 
 	node1 := n.GetLinkedNode("Created")

@@ -16,7 +16,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/rulechain/message"
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,11 +24,11 @@ const DelayNodeName = "DelayNode"
 
 type delayNode struct {
 	bareNode
-	PeriodTs           int              `json:"periodTs" yaml:"periodTs" jpath:"periodTs"`
-	MaxPendingMessages int              `json:"maxPendingMessages" yaml:"maxPendingMessages" jpath:"maxPendingMessages"`
-	messageQueue       []models.Message `jpath:"-"`
-	delayTimer         *time.Timer      `jpath:"-"`
-	lock               sync.Mutex       `jpath:"-"`
+	PeriodTs           int               `json:"periodTs" yaml:"periodTs" jpath:"periodTs"`
+	MaxPendingMessages int               `json:"maxPendingMessages" yaml:"maxPendingMessages" jpath:"maxPendingMessages"`
+	messageQueue       []message.Message `jpath:"-"`
+	delayTimer         *time.Timer       `jpath:"-"`
+	lock               sync.Mutex        `jpath:"-"`
 }
 
 type delayNodeFactory struct{}
@@ -43,11 +43,11 @@ func (f delayNodeFactory) Create(id string, meta Metadata) (Node, error) {
 		lock:     sync.Mutex{},
 	}
 	_, err := decodePath(meta, node)
-	node.messageQueue = make([]models.Message, node.MaxPendingMessages)
+	node.messageQueue = make([]message.Message, node.MaxPendingMessages)
 	return node, err
 }
 
-func (n *delayNode) Handle(msg models.Message) error {
+func (n *delayNode) Handle(msg message.Message) error {
 	logrus.Infof("%s handle message '%s'", n.Name(), msg.GetType())
 
 	successLabelNode := n.GetLinkedNode("Success")

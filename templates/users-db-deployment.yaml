@@ -1,0 +1,58 @@
+{{ if .Values.users_db.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}users-db 
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}users-db 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}users-db 
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}users-db 
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}users-db 
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/postgres:10.8-alpine
+{{ else }}
+          image: postgres:10.8-alpine
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{.Values.users_db.port }}
+          volumeMounts:
+          - name: {{.Values.docker.image_prefix}}users-db-volume
+            mountPath: /var/lib/postgresql/data
+          env:
+          - name: POSTGRES_USER
+            value: {{.Values.users_db.username }}
+          - name: POSTGRES_PASSWORD
+            value: {{.Values.users_db.password }}
+          - name: POSTGRES_DB
+            value: {{.Values.users_db.dbname }}
+      restartPolicy: Always
+      volumes:
+      - name: {{.Values.docker.image_prefix}}users-db-volume
+        persistentVolumeClaim:
+          claimName: pandas-users-db-volume
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-db
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.users_db.port }}
+    targetPort: {{ .Values.users_db.port }}
+  selector:
+    service: {{.Values.docker.image_prefix}}users-db
+{{ end }}

@@ -1,66 +1,182 @@
-//  Licensed under the Apache License, Version 2.0 (the "License"); you may
-//  not use p file except in compliance with the License. You may obtain
-//  a copy of the License at
-//
-//        http://www.apache.org/licenses/LICENSE-2.0
-//
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-//  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-//  License for the specific language governing permissions and limitations
-//  under the License.
 package rulechain
 
 import (
-	"github.com/cloustone/pandas/headmast"
-	"github.com/cloustone/pandas/apimachinery/models"
-	"github.com/cloustone/pandas/rulechain/options"
+	"context"
+
+	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas/pkg/errors"
+	"github.com/cloustone/pandas/rulechain/message"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-// RuleChainService implement all rulechain interface
-type RuleChainService struct {
-	standaloneService
-	instanceManager *instanceManager
-	headmastClient  *headmast.Client
+const (
+	RULE_STATUS_CREATED = "created"
+	RULE_STATUS_STARTED = "started"
+	RULE_STATUS_STOPPED = "stopped"
+	RULE_STATUS_UNKNOWN = "unknown"
+)
+
+var (
+	// ErrConflict indicates usage of the existing email during account
+	// registration.
+	ErrConflict = errors.New("email already taken")
+
+	// ErrMalformedEntity indicates malformed entity specification
+	// (e.g. invalid realmname or password).
+	ErrMalformedEntity = errors.New("malformed entity specification")
+
+	// ErrUnauthorizedAccess indicates missing or invalid credentials provided
+	// when accessing a protected resource.
+	ErrUnauthorizedAccess = errors.New("missing or invalid credentials provided")
+
+	// ErrNotFound indicates a non-existent entity request.
+	ErrNotFound = errors.New("non-existent entity")
+
+	// ErrRuleChainNotFound indicates a non-existent realm request.
+	ErrRuleChainNotFound = errors.New("non-existent rulechain")
+
+	// ErrScanMetadata indicates problem with metadata in db.
+	ErrScanMetadata = errors.New("Failed to scan metadata")
+
+	// ErrMissingEmail indicates missing email for password reset request.
+	ErrMissingEmail = errors.New("missing email for password reset")
+
+	// ErrUnauthorizedPrincipal indicate the pricipal can not be recognized
+	ErrUnauthorizedPrincipal = errors.New("unauthorized principal")
+)
+
+//Service service
+type Service interface {
+	AddNewRuleChain(context.Context, string, RuleChain) error
+	GetRuleChainInfo(context.Context, string, string) (RuleChain, error)
+	UpdateRuleChain(context.Context, string, RuleChain) (RuleChain, error)
+	RevokeRuleChain(context.Context, string, string) error
+	ListRuleChain(context.Context, string, uint64, uint64) (RuleChainPage, error)
+	UpdateRuleChainStatus(context.Context, string, string, string) error
+	SaveStates(*mainflux.Message) error
 }
 
-// NewRuleChainService return rulechain service object
-func NewRuleChainService(servingOptions *options.ServingOptions) *RuleChainService {
-	instanceManager := newInstanceManager(servingOptions)
-	s := &RuleChainService{
-		standaloneService: *newStandaloneService(servingOptions, instanceManager),
-		instanceManager:   instanceManager,
+var _ Service = (*rulechainService)(nil)
+
+type rulechainService struct {
+	auth       mainflux.AuthNServiceClient
+	rulechains RuleChainRepository
+	//mutex      sync.RWMutex
+	instancemanager instanceManager
+	rulechainscache RuleChainCache
+}
+
+//New new
+func New(auth mainflux.AuthNServiceClient, rulechains RuleChainRepository, instancemanager instanceManager, rulechainscache RuleChainCache) Service {
+	return &rulechainService{
+		auth:            auth,
+		rulechains:      rulechains,
+		instancemanager: instancemanager,
+		rulechainscache: rulechainscache,
+	}
+}
+
+func (svc rulechainService) AddNewRuleChain(ctx context.Context, token string, rulechain RuleChain) error {
+	_, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return err
+	}
+	return svc.rulechains.Save(ctx, rulechain)
+}
+
+func (svc rulechainService) GetRuleChainInfo(ctx context.Context, token string, RuleChainID string) (RuleChain, error) {
+	res, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return RuleChain{}, err
+	}
+	rulechain, err := svc.rulechains.Retrieve(ctx, res.GetValue(), RuleChainID)
+	if err != nil {
+		return RuleChain{}, errors.Wrap(ErrRuleChainNotFound, err)
 	}
 
-	if !servingOptions.IsStandalone() {
-		opts := &headmast.ClientOptions{ServerAddr: servingOptions.HeadmastEndpoint}
-		client := headmast.NewClient(opts)
-		err1 := client.WatchJobPath("/headmast/workers/"+servingOptions.ServiceID+"/jobs", s.onHeadmastJobAdded)
-		err2 := client.WatchJobPath("/headmast/workers/"+servingOptions.ServiceID+"/killer", s.onHeadmastJobDeleted)
-		if err1 != nil || err2 != nil {
-			logrus.Fatalf("watching headmast failed")
-			return nil
+	return rulechain, nil
+}
+
+func (svc rulechainService) UpdateRuleChain(ctx context.Context, token string, rulechain RuleChain) (RuleChain, error) {
+
+	res, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return RuleChain{}, err
+	}
+
+	old_rulechain, err := svc.rulechains.Retrieve(ctx, res.GetValue(), rulechain.ID)
+	if err != nil {
+		return RuleChain{}, errors.Wrap(ErrRuleChainNotFound, err)
+	}
+	if old_rulechain.Status == RULE_STATUS_STARTED {
+		return RuleChain{}, status.Error(codes.FailedPrecondition, "")
+	}
+
+	return svc.rulechains.Update(ctx, rulechain)
+}
+
+func (svc rulechainService) RevokeRuleChain(ctx context.Context, token string, RuleChainID string) error {
+
+	res, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return err
+	}
+
+	rulechain, err := svc.rulechains.Retrieve(ctx, res.GetValue(), RuleChainID)
+	if err != nil {
+		return errors.Wrap(ErrRuleChainNotFound, err)
+	}
+	if rulechain.Status == RULE_STATUS_STARTED {
+		return status.Error(codes.FailedPrecondition, "")
+	}
+
+	return svc.rulechains.Revoke(ctx, res.GetValue(), RuleChainID)
+}
+
+func (svc rulechainService) ListRuleChain(ctx context.Context, token string, offset uint64, limit uint64) (RuleChainPage, error) {
+
+	res, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return RuleChainPage{}, err
+	}
+
+	return svc.rulechains.List(ctx, res.GetValue(), offset, limit)
+}
+
+func (svc rulechainService) UpdateRuleChainStatus(ctx context.Context, token string, RuleChainID string, updatestatus string) error {
+	res, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return err
+	}
+	rulechain, err := svc.rulechains.Retrieve(ctx, res.GetValue(), RuleChainID)
+	if err != nil {
+		return errors.Wrap(ErrRuleChainNotFound, err)
+	}
+
+	switch updatestatus {
+	case "start":
+		if rulechain.Status != RULE_STATUS_CREATED && rulechain.Status != RULE_STATUS_STOPPED {
+			return status.Error(codes.FailedPrecondition, "")
 		}
-		s.headmastClient = client
+
+		return svc.instancemanager.startRuleChain(&rulechain)
+	case "stop":
+		if rulechain.Status != RULE_STATUS_STARTED {
+			return status.Error(codes.FailedPrecondition, "")
+		}
+
+		return svc.instancemanager.stopRuleChain(&rulechain)
 	}
-	return s
+	return nil
 }
 
-func (s *RuleChainService) onHeadmastJobAdded(path string, job *headmast.Job) {
-	rulechain := &models.RuleChain{}
-	if err := rulechain.UnmarshalBinary(job.Payload); err != nil {
-		logrus.WithError(err)
-		return
+func (svc rulechainService) SaveStates(msg *mainflux.Message) error {
+	rulechainmessage := message.NewMessage()
+	if err := rulechainmessage.UnmarshalBinary(msg.GetPayload()); err != nil {
+		logrus.WithError(err).Errorf("rulechain instance receive message failed")
+		return err
 	}
-	s.instanceManager.startRuleChain(rulechain) // TODO: how to deal with failed job
-}
-
-func (s *RuleChainService) onHeadmastJobDeleted(path string, job *headmast.Job) {
-	rulechain := &models.RuleChain{}
-	if err := rulechain.UnmarshalBinary(job.Payload); err != nil {
-		logrus.WithError(err)
-		return
-	}
-	s.instanceManager.deleteRuleChain(rulechain) // TODO: how to deal with failed job
+	return svc.instancemanager.HandleMessage(rulechainmessage, msg)
 }
