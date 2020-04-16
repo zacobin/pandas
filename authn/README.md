@@ -28,22 +28,22 @@ default values.
 
 | Variable                  | Description                                                              | Default       |
 |---------------------------|--------------------------------------------------------------------------|---------------|
-| MF_AUTHN_LOG_LEVEL        | Service level (debug, info, warn, error)                                | error          |
-| MF_AUTHN_DB_HOST          | Database host address                                                   | localhost      |
-| MF_AUTHN_DB_PORT          | Database host port                                                      | 5432           |
-| MF_AUTHN_DB_USER          | Database user                                                           | mainflux       |
-| MF_AUTHN_DB_PASSWORD      | Database password                                                       | mainflux       |
-| MF_AUTHN_DB               | Name of the database used by the service                                | auth           |
-| MF_AUTHN_DB_SSL_MODE      | Database connection SSL mode (disable, require, verify-ca, verify-full) | disable        |
-| MF_AUTHN_DB_SSL_CERT      | Path to the PEM encoded certificate file                                |                |
-| MF_AUTHN_DB_SSL_KEY       | Path to the PEM encoded key file                                        |                |
-| MF_AUTHN_DB_SSL_ROOT_CERT | Path to the PEM encoded root certificate file                           |                |
-| MF_AUTHN_HTTP_PORT        | Authn service HTTP port                                                 | 8180           |
-| MF_AUTHN_GRPC_PORT        | Authn service gRPC port                                                 | 8181           |
-| MF_AUTHN_SERVER_CERT      | Path to server certificate in pem format                                |                |
-| MF_AUTHN_SERVER_KEY       | Path to server key in pem format                                        |                |
-| MF_AUTHN_SECRET           | String used for signing tokens                                          | auth           |
-| MF_JAEGER_URL             | Jaeger server URL                                                       | localhost:6831 |
+| PD_AUTHN_LOG_LEVEL        | Service level (debug, info, warn, error)                                | error          |
+| PD_AUTHN_DB_HOST          | Database host address                                                   | localhost      |
+| PD_AUTHN_DB_PORT          | Database host port                                                      | 5432           |
+| PD_AUTHN_DB_USER          | Database user                                                           | mainflux       |
+| PD_AUTHN_DB_PASSWORD      | Database password                                                       | mainflux       |
+| PD_AUTHN_DB               | Name of the database used by the service                                | auth           |
+| PD_AUTHN_DB_SSL_MODE      | Database connection SSL mode (disable, require, verify-ca, verify-full) | disable        |
+| PD_AUTHN_DB_SSL_CERT      | Path to the PEM encoded certificate file                                |                |
+| PD_AUTHN_DB_SSL_KEY       | Path to the PEM encoded key file                                        |                |
+| PD_AUTHN_DB_SSL_ROOT_CERT | Path to the PEM encoded root certificate file                           |                |
+| PD_AUTHN_HTTP_PORT        | Authn service HTTP port                                                 | 8180           |
+| PD_AUTHN_GRPC_PORT        | Authn service gRPC port                                                 | 8181           |
+| PD_AUTHN_SERVER_CERT      | Path to server certificate in pem format                                |                |
+| PD_AUTHN_SERVER_KEY       | Path to server key in pem format                                        |                |
+| PD_AUTHN_SECRET           | String used for signing tokens                                          | auth           |
+| PD_JAEGER_URL             | Jaeger server URL                                                       | localhost:6831 |
 
 ## Deployment
 
@@ -60,22 +60,22 @@ services:
     ports:
       - [host machine port]:[configured HTTP port]
     environment:
-      MF_AUTHN_LOG_LEVEL: [Service log level]
-      MF_AUTHN_DB_HOST: [Database host address]
-      MF_AUTHN_DB_PORT: [Database host port]
-      MF_AUTHN_DB_USER: [Database user]
-      MF_AUTHN_DB_PASS: [Database password]
-      MF_AUTHN_DB: [Name of the database used by the service]
-      MF_AUTHN_DB_SSL_MODE: [SSL mode to connect to the database with]
-      MF_AUTHN_DB_SSL_CERT: [Path to the PEM encoded certificate file]
-      MF_AUTHN_DB_SSL_KEY: [Path to the PEM encoded key file]
-      MF_AUTHN_DB_SSL_ROOT_CERT: [Path to the PEM encoded root certificate file]
-      MF_AUTHN_HTTP_PORT: [Service HTTP port]
-      MF_AUTHN_GRPC_PORT: [Service gRPC port]
-      MF_AUTHN_SECRET: [String used for signing tokens]
-      MF_AUTHN_SERVER_CERT: [String path to server certificate in pem format]
-      MF_AUTHN_SERVER_KEY: [String path to server key in pem format]
-      MF_JAEGER_URL: [Jaeger server URL]
+      PD_AUTHN_LOG_LEVEL: [Service log level]
+      PD_AUTHN_DB_HOST: [Database host address]
+      PD_AUTHN_DB_PORT: [Database host port]
+      PD_AUTHN_DB_USER: [Database user]
+      PD_AUTHN_DB_PASS: [Database password]
+      PD_AUTHN_DB: [Name of the database used by the service]
+      PD_AUTHN_DB_SSL_MODE: [SSL mode to connect to the database with]
+      PD_AUTHN_DB_SSL_CERT: [Path to the PEM encoded certificate file]
+      PD_AUTHN_DB_SSL_KEY: [Path to the PEM encoded key file]
+      PD_AUTHN_DB_SSL_ROOT_CERT: [Path to the PEM encoded root certificate file]
+      PD_AUTHN_HTTP_PORT: [Service HTTP port]
+      PD_AUTHN_GRPC_PORT: [Service gRPC port]
+      PD_AUTHN_SECRET: [String used for signing tokens]
+      PD_AUTHN_SERVER_CERT: [String path to server certificate in pem format]
+      PD_AUTHN_SERVER_KEY: [String path to server key in pem format]
+      PD_JAEGER_URL: [Jaeger server URL]
 ```
 
 To start the service outside of the container, execute the following shell script:
@@ -93,10 +93,10 @@ make authn
 make install
 
 # set the environment variables and run the service
-MF_AUTHN_LOG_LEVEL=[Service log level] MF_AUTHN_DB_HOST=[Database host address] MF_AUTHN_DB_PORT=[Database host port] MF_AUTHN_DB_USER=[Database user] MF_AUTHN_DB_PASS=[Database password] MF_AUTHN_DB=[Name of the database used by the service] MF_AUTHN_DB_SSL_MODE=[SSL mode to connect to the database with] MF_AUTHN_DB_SSL_CERT=[Path to the PEM encoded certificate file] MF_AUTHN_DB_SSL_KEY=[Path to the PEM encoded key file] MF_AUTHN_DB_SSL_ROOT_CERT=[Path to the PEM encoded root certificate file] MF_AUTHN_HTTP_PORT=[Service HTTP port] MF_AUTHN_GRPC_PORT=[Service gRPC port] MF_AUTHN_SECRET=[String used for signing tokens] MF_AUTHN_SERVER_CERT=[Path to server certificate] MF_AUTHN_SERVER_KEY=[Path to server key] MF_JAEGER_URL=[Jaeger server URL] $GOBIN/mainflux-authn
+PD_AUTHN_LOG_LEVEL=[Service log level] PD_AUTHN_DB_HOST=[Database host address] PD_AUTHN_DB_PORT=[Database host port] PD_AUTHN_DB_USER=[Database user] PD_AUTHN_DB_PASS=[Database password] PD_AUTHN_DB=[Name of the database used by the service] PD_AUTHN_DB_SSL_MODE=[SSL mode to connect to the database with] PD_AUTHN_DB_SSL_CERT=[Path to the PEM encoded certificate file] PD_AUTHN_DB_SSL_KEY=[Path to the PEM encoded key file] PD_AUTHN_DB_SSL_ROOT_CERT=[Path to the PEM encoded root certificate file] PD_AUTHN_HTTP_PORT=[Service HTTP port] PD_AUTHN_GRPC_PORT=[Service gRPC port] PD_AUTHN_SECRET=[String used for signing tokens] PD_AUTHN_SERVER_CERT=[Path to server certificate] PD_AUTHN_SERVER_KEY=[Path to server key] PD_JAEGER_URL=[Jaeger server URL] $GOBIN/mainflux-authn
 ```
 
-If `MF_EMAIL_TEMPLATE` doesn't point to any file service will function but password reset functionality will not work.
+If `PD_EMAIL_TEMPLATE` doesn't point to any file service will function but password reset functionality will not work.
 
 ## Usage
 

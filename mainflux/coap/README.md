@@ -11,15 +11,15 @@ default values.
 
 | Variable                       | Description                                            | Default               |
 |--------------------------------|--------------------------------------------------------|-----------------------|
-| MF_COAP_ADAPTER_PORT           | Service listening port                                 | 5683                  |
-| MF_NATS_URL                    | NATS instance URL                                      | nats://localhost:4222 |
-| MF_THINGS_URL                  | Things service URL                                     | localhost:8181        |
-| MF_COAP_ADAPTER_LOG_LEVEL      | Service log level                                      | error                 |
-| MF_COAP_ADAPTER_CLIENT_TLS     | Flag that indicates if TLS should be turned on         | false                 |
-| MF_COAP_ADAPTER_CA_CERTS       | Path to trusted CAs in PEM format                      |                       |
-| MF_COAP_ADAPTER_PING_PERIOD    | Hours between 1 and 24 to ping client with ACK message | 12                    |
-| MF_JAEGER_URL                  | Jaeger server URL                                      | localhost:6831        |
-| MF_COAP_ADAPTER_THINGS_TIMEOUT | Things gRPC request timeout in seconds                 | 1                     |
+| PD_COAP_ADAPTER_PORT           | Service listening port                                 | 5683                  |
+| PD_NATS_URL                    | NATS instance URL                                      | nats://localhost:4222 |
+| PD_THINGS_URL                  | Things service URL                                     | localhost:8181        |
+| PD_COAP_ADAPTER_LOG_LEVEL      | Service log level                                      | error                 |
+| PD_COAP_ADAPTER_CLIENT_TLS     | Flag that indicates if TLS should be turned on         | false                 |
+| PD_COAP_ADAPTER_CA_CERTS       | Path to trusted CAs in PEM format                      |                       |
+| PD_COAP_ADAPTER_PING_PERIOD    | Hours between 1 and 24 to ping client with ACK message | 12                    |
+| PD_JAEGER_URL                  | Jaeger server URL                                      | localhost:6831        |
+| PD_COAP_ADAPTER_THINGS_TIMEOUT | Things gRPC request timeout in seconds                 | 1                     |
 
 ## Deployment
 
@@ -35,15 +35,15 @@ services:
     ports:
       - [host machine port]:[configured port]
     environment:
-      MF_COAP_ADAPTER_PORT: [Service HTTP port]
-      MF_NATS_URL: [NATS instance URL]
-      MF_THINGS_URL: [Things service URL]
-      MF_COAP_ADAPTER_LOG_LEVEL: [Service log level]
-      MF_COAP_ADAPTER_CLIENT_TLS: [Flag that indicates if TLS should be turned on]
-      MF_COAP_ADAPTER_CA_CERTS: [Path to trusted CAs in PEM format]
-      MF_COAP_ADAPTER_PING_PERIOD: [Hours between 1 and 24 to ping client with ACK message]
-      MF_JAEGER_URL: [Jaeger server URL]
-      MF_COAP_ADAPTER_THINGS_TIMEOUT: [Things gRPC request timeout in seconds]
+      PD_COAP_ADAPTER_PORT: [Service HTTP port]
+      PD_NATS_URL: [NATS instance URL]
+      PD_THINGS_URL: [Things service URL]
+      PD_COAP_ADAPTER_LOG_LEVEL: [Service log level]
+      PD_COAP_ADAPTER_CLIENT_TLS: [Flag that indicates if TLS should be turned on]
+      PD_COAP_ADAPTER_CA_CERTS: [Path to trusted CAs in PEM format]
+      PD_COAP_ADAPTER_PING_PERIOD: [Hours between 1 and 24 to ping client with ACK message]
+      PD_JAEGER_URL: [Jaeger server URL]
+      PD_COAP_ADAPTER_THINGS_TIMEOUT: [Things gRPC request timeout in seconds]
 ```
 
 Running this service outside of container requires working instance of the NATS service.
@@ -62,7 +62,7 @@ make coap
 make install
 
 # set the environment variables and run the service
-MF_THINGS_URL=[Things service URL] MF_NATS_URL=[NATS instance URL] MF_COAP_ADAPTER_PORT=[Service HTTP port] MF_COAP_ADAPTER_LOG_LEVEL=[Service log level] MF_COAP_ADAPTER_CLIENT_TLS=[Flag that indicates if TLS should be turned on] MF_COAP_ADAPTER_CA_CERTS=[Path to trusted CAs in PEM format]  MF_COAP_ADAPTER_PING_PERIOD: [Hours between 1 and 24 to ping client with ACK message] MF_JAEGER_URL=[Jaeger server URL] MF_COAP_ADAPTER_THINGS_TIMEOUT=[Things gRPC request timeout in seconds] $GOBIN/mainflux-coap
+PD_THINGS_URL=[Things service URL] PD_NATS_URL=[NATS instance URL] PD_COAP_ADAPTER_PORT=[Service HTTP port] PD_COAP_ADAPTER_LOG_LEVEL=[Service log level] PD_COAP_ADAPTER_CLIENT_TLS=[Flag that indicates if TLS should be turned on] PD_COAP_ADAPTER_CA_CERTS=[Path to trusted CAs in PEM format]  PD_COAP_ADAPTER_PING_PERIOD: [Hours between 1 and 24 to ping client with ACK message] PD_JAEGER_URL=[Jaeger server URL] PD_COAP_ADAPTER_THINGS_TIMEOUT=[Things gRPC request timeout in seconds] $GOBIN/mainflux-coap
 ```
 
 ## Usage

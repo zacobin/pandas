@@ -10,17 +10,17 @@ default values.
 
 | Variable                       | Description                                    | Default        |
 |--------------------------------|------------------------------------------------|----------------|
-| MF_THINGS_URL                  | Things service URL                             | localhost:8181 |
-| MF_MONGO_READER_PORT           | Service HTTP port                              | 8180           |
-| MF_MONGO_READER_DB_NAME        | MongoDB database name                          | mainflux       |
-| MF_MONGO_READER_DB_HOST        | MongoDB database host                          | localhost      |
-| MF_MONGO_READER_DB_PORT        | MongoDB database port                          | 27017          |
-| MF_MONGO_READER_CLIENT_TLS     | Flag that indicates if TLS should be turned on | false          |
-| MF_MONGO_READER_CA_CERTS       | Path to trusted CAs in PEM format              |                |
-| MF_MONGO_SERVER_CERT           | Path to server certificate in pem format       |                |
-| MF_MONGO_SERVER_KEY            | Path to server key in pem format               |                |
-| MF_JAEGER_URL                  | Jaeger server URL                              | localhost:6831 |
-| MF_MONGO_READER_THINGS_TIMEOUT | Things gRPC request timeout in seconds         | 1              |
+| PD_THINGS_URL                  | Things service URL                             | localhost:8181 |
+| PD_MONGO_READER_PORT           | Service HTTP port                              | 8180           |
+| PD_MONGO_READER_DB_NAME        | MongoDB database name                          | mainflux       |
+| PD_MONGO_READER_DB_HOST        | MongoDB database host                          | localhost      |
+| PD_MONGO_READER_DB_PORT        | MongoDB database port                          | 27017          |
+| PD_MONGO_READER_CLIENT_TLS     | Flag that indicates if TLS should be turned on | false          |
+| PD_MONGO_READER_CA_CERTS       | Path to trusted CAs in PEM format              |                |
+| PD_MONGO_SERVER_CERT           | Path to server certificate in pem format       |                |
+| PD_MONGO_SERVER_KEY            | Path to server key in pem format               |                |
+| PD_JAEGER_URL                  | Jaeger server URL                              | localhost:6831 |
+| PD_MONGO_READER_THINGS_TIMEOUT | Things gRPC request timeout in seconds         | 1              |
 
 ## Deployment
 
@@ -33,17 +33,17 @@ default values.
       - [Service HTTP port]
     restart: on-failure
     environment:
-        MF_THINGS_URL: [Things service URL]
-        MF_MONGO_READER_PORT: [Service HTTP port]
-        MF_MONGO_READER_DB_NAME: [MongoDB name]
-        MF_MONGO_READER_DB_HOST: [MongoDB host]
-        MF_MONGO_READER_DB_PORT: [MongoDB port]
-        MF_MONGO_READER_CLIENT_TLS: [Flag that indicates if TLS should be turned on]
-        MF_MONGO_READER_CA_CERTS: [Path to trusted CAs in PEM format]
-        MF_MONGO_READER_SERVER_CERT: [String path to server cert in pem format]
-        MF_MONGO_READER_SERVER_KEY: [String path to server key in pem format]
-        MF_JAEGER_URL: [Jaeger server URL]
-        MF_MONGO_READER_THINGS_TIMEOUT: [Things gRPC request timeout in seconds]
+        PD_THINGS_URL: [Things service URL]
+        PD_MONGO_READER_PORT: [Service HTTP port]
+        PD_MONGO_READER_DB_NAME: [MongoDB name]
+        PD_MONGO_READER_DB_HOST: [MongoDB host]
+        PD_MONGO_READER_DB_PORT: [MongoDB port]
+        PD_MONGO_READER_CLIENT_TLS: [Flag that indicates if TLS should be turned on]
+        PD_MONGO_READER_CA_CERTS: [Path to trusted CAs in PEM format]
+        PD_MONGO_READER_SERVER_CERT: [String path to server cert in pem format]
+        PD_MONGO_READER_SERVER_KEY: [String path to server key in pem format]
+        PD_JAEGER_URL: [Jaeger server URL]
+        PD_MONGO_READER_THINGS_TIMEOUT: [Things gRPC request timeout in seconds]
     ports:
       - [host machine port]:[configured HTTP port]
 ```
@@ -63,17 +63,17 @@ make mongodb-reader
 make install
 
 # Set the environment variables and run the service
-MF_THINGS_URL=[Things service URL] \
-MF_MONGO_READER_PORT=[Service HTTP port] \
-MF_MONGO_READER_DB_NAME=[MongoDB database name] \
-MF_MONGO_READER_DB_HOST=[MongoDB database host] \
-MF_MONGO_READER_DB_PORT=[MongoDB database port] \
-MF_MONGO_READER_CLIENT_TLS=[Flag that indicates if TLS should be turned on] \
-MF_MONGO_READER_CA_CERTS=[Path to trusted CAs in PEM format] \
-MF_JAEGER_URL=[Jaeger server URL] \
-MF_MONGO_READER_SERVER_CERT=[Path to server pem certificate file] \
-MF_MONGO_READER_SERVER_KEY=[Path to server pem key file] \
-MF_MONGO_READER_THINGS_TIMEOUT=[Things gRPC request timeout in seconds] \
+PD_THINGS_URL=[Things service URL] \
+PD_MONGO_READER_PORT=[Service HTTP port] \
+PD_MONGO_READER_DB_NAME=[MongoDB database name] \
+PD_MONGO_READER_DB_HOST=[MongoDB database host] \
+PD_MONGO_READER_DB_PORT=[MongoDB database port] \
+PD_MONGO_READER_CLIENT_TLS=[Flag that indicates if TLS should be turned on] \
+PD_MONGO_READER_CA_CERTS=[Path to trusted CAs in PEM format] \
+PD_JAEGER_URL=[Jaeger server URL] \
+PD_MONGO_READER_SERVER_CERT=[Path to server pem certificate file] \
+PD_MONGO_READER_SERVER_KEY=[Path to server pem key file] \
+PD_MONGO_READER_THINGS_TIMEOUT=[Things gRPC request timeout in seconds] \
 $GOBIN/mainflux-mongodb-reader
 
 ```

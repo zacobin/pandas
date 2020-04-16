@@ -40,14 +40,14 @@ const (
 	defJaegerURL     = ""
 	defThingsTimeout = "1" // in seconds
 
-	envClientTLS     = "MF_WS_ADAPTER_CLIENT_TLS"
-	envCACerts       = "MF_WS_ADAPTER_CA_CERTS"
-	envPort          = "MF_WS_ADAPTER_PORT"
-	envLogLevel      = "MF_WS_ADAPTER_LOG_LEVEL"
-	envNatsURL       = "MF_NATS_URL"
-	envThingsURL     = "MF_THINGS_URL"
-	envJaegerURL     = "MF_JAEGER_URL"
-	envThingsTimeout = "MF_WS_ADAPTER_THINGS_TIMEOUT"
+	envClientTLS     = "PD_WS_ADAPTER_CLIENT_TLS"
+	envCACerts       = "PD_WS_ADAPTER_CA_CERTS"
+	envPort          = "PD_WS_ADAPTER_PORT"
+	envLogLevel      = "PD_WS_ADAPTER_LOG_LEVEL"
+	envNatsURL       = "PD_NATS_URL"
+	envThingsURL     = "PD_THINGS_URL"
+	envJaegerURL     = "PD_JAEGER_URL"
+	envThingsTimeout = "PD_WS_ADAPTER_THINGS_TIMEOUT"
 )
 
 type config struct {

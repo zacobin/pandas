@@ -10,18 +10,18 @@ default values.
 
 | Variable                        | Description                                    | Default        |
 |---------------------------------|------------------------------------------------|----------------|
-| MF_INFLUX_READER_PORT           | Service HTTP port                              | 8180           |
-| MF_INFLUX_READER_DB_NAME        | InfluxDB database name                         | mainflux       |
-| MF_INFLUX_READER_DB_HOST        | InfluxDB host                                  | localhost      |
-| MF_INFLUX_READER_DB_PORT        | Default port of InfluxDB database              | 8086           |
-| MF_INFLUX_READER_DB_USER        | Default user of InfluxDB database              | mainflux       |
-| MF_INFLUX_READER_DB_PASS        | Default password of InfluxDB user              | mainflux       |
-| MF_INFLUX_READER_CLIENT_TLS     | Flag that indicates if TLS should be turned on | false          |
-| MF_INFLUX_READER_CA_CERTS       | Path to trusted CAs in PEM format              |                |
-| MF_INFLUX_READER_SERVER_CERT    | Path to server certificate in pem format       |                |
-| MF_INFLUX_READER_SERVER_KEY     | Path to server key in pem format               |                |
-| MF_JAEGER_URL                   | Jaeger server URL                              | localhost:6831 |
-| MF_INFLUX_READER_THINGS_TIMEOUT | Things gRPC request timeout in seconds         | 1              |
+| PD_INFLUX_READER_PORT           | Service HTTP port                              | 8180           |
+| PD_INFLUX_READER_DB_NAME        | InfluxDB database name                         | mainflux       |
+| PD_INFLUX_READER_DB_HOST        | InfluxDB host                                  | localhost      |
+| PD_INFLUX_READER_DB_PORT        | Default port of InfluxDB database              | 8086           |
+| PD_INFLUX_READER_DB_USER        | Default user of InfluxDB database              | mainflux       |
+| PD_INFLUX_READER_DB_PASS        | Default password of InfluxDB user              | mainflux       |
+| PD_INFLUX_READER_CLIENT_TLS     | Flag that indicates if TLS should be turned on | false          |
+| PD_INFLUX_READER_CA_CERTS       | Path to trusted CAs in PEM format              |                |
+| PD_INFLUX_READER_SERVER_CERT    | Path to server certificate in pem format       |                |
+| PD_INFLUX_READER_SERVER_KEY     | Path to server key in pem format               |                |
+| PD_JAEGER_URL                   | Jaeger server URL                              | localhost:6831 |
+| PD_INFLUX_READER_THINGS_TIMEOUT | Things gRPC request timeout in seconds         | 1              |
 
 ## Deployment
 
@@ -32,19 +32,19 @@ default values.
     container_name: [instance name]
     restart: on-failure
     environment:
-      MF_THINGS_URL: [Things service URL]
-      MF_INFLUX_READER_PORT: [Service HTTP port]
-      MF_INFLUX_READER_DB_NAME: [InfluxDB name]
-      MF_INFLUX_READER_DB_HOST: [InfluxDB host]
-      MF_INFLUX_READER_DB_PORT: [InfluxDB port]
-      MF_INFLUX_READER_DB_USER: [InfluxDB admin user]
-      MF_INFLUX_READER_DB_PASS: [InfluxDB admin password]
-      MF_INFLUX_READER_CLIENT_TLS: [Flag that indicates if TLS should be turned on]
-      MF_INFLUX_READER_CA_CERTS: [Path to trusted CAs in PEM format]
-      MF_INFLUX_READER_SERVER_CERT: [String path to server cert in pem format]
-      MF_INFLUX_READER_SERVER_KEY: [String path to server key in pem format]
-      MF_JAEGER_URL: [Jaeger server URL]
-      MF_INFLUX_READER_THINGS_TIMEOUT: [Things gRPC request timeout in seconds]
+      PD_THINGS_URL: [Things service URL]
+      PD_INFLUX_READER_PORT: [Service HTTP port]
+      PD_INFLUX_READER_DB_NAME: [InfluxDB name]
+      PD_INFLUX_READER_DB_HOST: [InfluxDB host]
+      PD_INFLUX_READER_DB_PORT: [InfluxDB port]
+      PD_INFLUX_READER_DB_USER: [InfluxDB admin user]
+      PD_INFLUX_READER_DB_PASS: [InfluxDB admin password]
+      PD_INFLUX_READER_CLIENT_TLS: [Flag that indicates if TLS should be turned on]
+      PD_INFLUX_READER_CA_CERTS: [Path to trusted CAs in PEM format]
+      PD_INFLUX_READER_SERVER_CERT: [String path to server cert in pem format]
+      PD_INFLUX_READER_SERVER_KEY: [String path to server key in pem format]
+      PD_JAEGER_URL: [Jaeger server URL]
+      PD_INFLUX_READER_THINGS_TIMEOUT: [Things gRPC request timeout in seconds]
     ports:
       - [host machine port]:[configured HTTP port]
 ```
@@ -64,19 +64,19 @@ make influxdb-reader
 make install
 
 # Set the environment variables and run the service
-MF_THINGS_URL=[Things service URL] \
-MF_INFLUX_READER_PORT=[Service HTTP port] \
-MF_INFLUX_READER_DB_NAME=[InfluxDB database name] \
-MF_INFLUX_READER_DB_HOST=[InfluxDB database host] \
-MF_INFLUX_READER_DB_PORT=[InfluxDB database port] \
-MF_INFLUX_READER_DB_USER=[InfluxDB admin user] \
-MF_INFLUX_READER_DB_PASS=[InfluxDB admin password] \
-MF_INFLUX_READER_CLIENT_TLS=[Flag that indicates if TLS should be turned on] \
-MF_INFLUX_READER_CA_CERTS=[Path to trusted CAs in PEM format] \
-MF_INFLUX_READER_SERVER_CERT=[Path to server pem certificate file] \
-MF_INFLUX_READER_SERVER_KEY=[Path to server pem key file] \
-MF_JAEGER_URL=[Jaeger server URL] \
-MF_INFLUX_READER_THINGS_TIMEOUT=[Things gRPC request timeout in seconds] \
+PD_THINGS_URL=[Things service URL] \
+PD_INFLUX_READER_PORT=[Service HTTP port] \
+PD_INFLUX_READER_DB_NAME=[InfluxDB database name] \
+PD_INFLUX_READER_DB_HOST=[InfluxDB database host] \
+PD_INFLUX_READER_DB_PORT=[InfluxDB database port] \
+PD_INFLUX_READER_DB_USER=[InfluxDB admin user] \
+PD_INFLUX_READER_DB_PASS=[InfluxDB admin password] \
+PD_INFLUX_READER_CLIENT_TLS=[Flag that indicates if TLS should be turned on] \
+PD_INFLUX_READER_CA_CERTS=[Path to trusted CAs in PEM format] \
+PD_INFLUX_READER_SERVER_CERT=[Path to server pem certificate file] \
+PD_INFLUX_READER_SERVER_KEY=[Path to server pem key file] \
+PD_JAEGER_URL=[Jaeger server URL] \
+PD_INFLUX_READER_THINGS_TIMEOUT=[Things gRPC request timeout in seconds] \
 $GOBIN/mainflux-influxdb
 
 ```

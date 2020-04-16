@@ -10,19 +10,19 @@ default values.
 
 | Variable                           | Description                                    | Default        |
 |------------------------------------|------------------------------------------------|----------------|
-| MF_CASSANDRA_READER_PORT           | Service HTTP port                              | 8180           |
-| MF_CASSANDRA_READER_DB_CLUSTER     | Cassandra cluster comma separated addresses    | 127.0.0.1      |
-| MF_CASSANDRA_READER_DB_KEYSPACE    | Cassandra keyspace name                        | mainflux       |
-| MF_CASSANDRA_READER_DB_USERNAME    | Cassandra DB username                          |                |
-| MF_CASSANDRA_READER_DB_PASSWORD    | Cassandra DB password                          |                |
-| MF_CASSANDRA_READER_DB_PORT        | Cassandra DB port                              | 9042           |
-| MF_THINGS_URL                      | Things service URL                             | localhost:8181 |
-| MF_CASSANDRA_READER_CLIENT_TLS     | Flag that indicates if TLS should be turned on | false          |
-| MF_CASSANDRA_READER_CA_CERTS       | Path to trusted CAs in PEM format              |                |
-| MF_CASSANDRA_READER_SERVER_CERT    | Path to server certificate in pem format       |                |
-| MF_CASSANDRA_READER_SERVER_KEY     | Path to server key in pem format               |                |
-| MF_JAEGER_URL                      | Jaeger server URL                              | localhost:6831 |
-| MF_CASSANDRA_READER_THINGS_TIMEOUT | Things gRPC request timeout in seconds         | 1              |
+| PD_CASSANDRA_READER_PORT           | Service HTTP port                              | 8180           |
+| PD_CASSANDRA_READER_DB_CLUSTER     | Cassandra cluster comma separated addresses    | 127.0.0.1      |
+| PD_CASSANDRA_READER_DB_KEYSPACE    | Cassandra keyspace name                        | mainflux       |
+| PD_CASSANDRA_READER_DB_USERNAME    | Cassandra DB username                          |                |
+| PD_CASSANDRA_READER_DB_PASSWORD    | Cassandra DB password                          |                |
+| PD_CASSANDRA_READER_DB_PORT        | Cassandra DB port                              | 9042           |
+| PD_THINGS_URL                      | Things service URL                             | localhost:8181 |
+| PD_CASSANDRA_READER_CLIENT_TLS     | Flag that indicates if TLS should be turned on | false          |
+| PD_CASSANDRA_READER_CA_CERTS       | Path to trusted CAs in PEM format              |                |
+| PD_CASSANDRA_READER_SERVER_CERT    | Path to server certificate in pem format       |                |
+| PD_CASSANDRA_READER_SERVER_KEY     | Path to server key in pem format               |                |
+| PD_JAEGER_URL                      | Jaeger server URL                              | localhost:6831 |
+| PD_CASSANDRA_READER_THINGS_TIMEOUT | Things gRPC request timeout in seconds         | 1              |
 
 
 ## Deployment
@@ -36,19 +36,19 @@ default values.
       - [Service HTTP port]
     restart: on-failure
     environment:
-      MF_THINGS_URL: [Things service URL]
-      MF_CASSANDRA_READER_PORT: [Service HTTP port]
-      MF_CASSANDRA_READER_DB_CLUSTER: [Cassandra cluster comma separated addresses]
-      MF_CASSANDRA_READER_DB_KEYSPACE: [Cassandra keyspace name]
-      MF_CASSANDRA_READER_DB_USERNAME: [Cassandra DB username]
-      MF_CASSANDRA_READER_DB_PASSWORD: [Cassandra DB password]
-      MF_CASSANDRA_READER_DB_PORT: [Cassandra DB port]
-      MF_CASSANDRA_READER_CLIENT_TLS: [Flag that indicates if TLS should be turned on]
-      MF_CASSANDRA_READER_CA_CERTS: [Path to trusted CAs in PEM format]
-      MF_CASSANDRA_READER_SERVER_CERT: [String path to server cert in pem format]
-      MF_CASSANDRA_READER_SERVER_KEY: [String path to server key in pem format]
-      MF_JAEGER_URL: [Jaeger server URL]
-      MF_CASSANDRA_READER_THINGS_TIMEOUT: [Things gRPC request timeout in seconds]
+      PD_THINGS_URL: [Things service URL]
+      PD_CASSANDRA_READER_PORT: [Service HTTP port]
+      PD_CASSANDRA_READER_DB_CLUSTER: [Cassandra cluster comma separated addresses]
+      PD_CASSANDRA_READER_DB_KEYSPACE: [Cassandra keyspace name]
+      PD_CASSANDRA_READER_DB_USERNAME: [Cassandra DB username]
+      PD_CASSANDRA_READER_DB_PASSWORD: [Cassandra DB password]
+      PD_CASSANDRA_READER_DB_PORT: [Cassandra DB port]
+      PD_CASSANDRA_READER_CLIENT_TLS: [Flag that indicates if TLS should be turned on]
+      PD_CASSANDRA_READER_CA_CERTS: [Path to trusted CAs in PEM format]
+      PD_CASSANDRA_READER_SERVER_CERT: [String path to server cert in pem format]
+      PD_CASSANDRA_READER_SERVER_KEY: [String path to server key in pem format]
+      PD_JAEGER_URL: [Jaeger server URL]
+      PD_CASSANDRA_READER_THINGS_TIMEOUT: [Things gRPC request timeout in seconds]
     ports:
       - [host machine port]:[configured HTTP port]
 ```
@@ -68,19 +68,19 @@ make cassandra-reader
 make install
 
 # Set the environment variables and run the service
-MF_THINGS_URL=[Things service URL] \
-MF_CASSANDRA_READER_PORT=[Service HTTP port] \
-MF_CASSANDRA_READER_DB_CLUSTER=[Cassandra cluster comma separated addresses] \
-MF_CASSANDRA_READER_DB_KEYSPACE=[Cassandra keyspace name] \
-MF_CASSANDRA_READER_DB_USERNAME=[Cassandra DB username] \
-MF_CASSANDRA_READER_DB_PASSWORD=[Cassandra DB password] \
-MF_CASSANDRA_READER_DB_PORT=[Cassandra DB port] \
-MF_CASSANDRA_READER_CLIENT_TLS=[Flag that indicates if TLS should be turned on] \
-MF_CASSANDRA_READER_CA_CERTS=[Path to trusted CAs in PEM format] \
-MF_CASSANDRA_READER_SERVER_CERT=[Path to server pem certificate file] \
-MF_CASSANDRA_READER_SERVER_KEY=[Path to server pem key file] \
-MF_JAEGER_URL=[Jaeger server URL] \
-MF_CASSANDRA_READER_THINGS_TIMEOUT=[Things gRPC request timeout in seconds] \
+PD_THINGS_URL=[Things service URL] \
+PD_CASSANDRA_READER_PORT=[Service HTTP port] \
+PD_CASSANDRA_READER_DB_CLUSTER=[Cassandra cluster comma separated addresses] \
+PD_CASSANDRA_READER_DB_KEYSPACE=[Cassandra keyspace name] \
+PD_CASSANDRA_READER_DB_USERNAME=[Cassandra DB username] \
+PD_CASSANDRA_READER_DB_PASSWORD=[Cassandra DB password] \
+PD_CASSANDRA_READER_DB_PORT=[Cassandra DB port] \
+PD_CASSANDRA_READER_CLIENT_TLS=[Flag that indicates if TLS should be turned on] \
+PD_CASSANDRA_READER_CA_CERTS=[Path to trusted CAs in PEM format] \
+PD_CASSANDRA_READER_SERVER_CERT=[Path to server pem certificate file] \
+PD_CASSANDRA_READER_SERVER_KEY=[Path to server pem key file] \
+PD_JAEGER_URL=[Jaeger server URL] \
+PD_CASSANDRA_READER_THINGS_TIMEOUT=[Things gRPC request timeout in seconds] \
 $GOBIN/mainflux-cassandra-reader
 
 ```

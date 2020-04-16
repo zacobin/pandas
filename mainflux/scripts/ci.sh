@@ -49,12 +49,12 @@ setup_protoc() {
 
 setup_mf() {
 	echo "Setting up Mainflux..."
-	MF_PATH=$GOPATH/src/github.com/cloustone/pandas/mainflux
-	if test $PWD != $MF_PATH; then
-		mkdir -p $MF_PATH
-		mv ./* $MF_PATH
+	PD_PATH=$GOPATH/src/github.com/cloustone/pandas/mainflux
+	if test $PWD != $PD_PATH; then
+		mkdir -p $PD_PATH
+		mv ./* $PD_PATH
 	fi
-	cd $MF_PATH
+	cd $PD_PATH
 	for p in $(ls *.pb.go); do
 		mv $p $p.tmp
 	done

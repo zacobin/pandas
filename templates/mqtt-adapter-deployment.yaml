@@ -28,23 +28,23 @@ spec:
           ports:
           - containerPort: {{.Values.mqtt_adapter.port.target }}
           env:
-          - name: MF_JAEGER_URL
+          - name: PD_JAEGER_URL
             value: {{.Values.jaeger.url }}
-          - name: MF_MQTT_ADAPTER_ES_URL
+          - name: PD_MQTT_ADAPTER_ES_URL
             value: {{.Values.redis.es_url }}
-          - name: MF_MQTT_ADAPTER_LOG_LEVEL
+          - name: PD_MQTT_ADAPTER_LOG_LEVEL
             value: {{.Values.mqtt_adapter.log_level }}
-          - name: MF_MQTT_ADAPTER_MQTT_TARGET_HOST
+          - name: PD_MQTT_ADAPTER_MQTT_TARGET_HOST
             value: {{.Values.mqtt_adapter.target_host }}
-          - name: MF_MQTT_ADAPTER_MQTT_TARGET_PORT
+          - name: PD_MQTT_ADAPTER_MQTT_TARGET_PORT
             value: "1883"
-          - name: MF_MQTT_ADAPTER_PORT
+          - name: PD_MQTT_ADAPTER_PORT
             value: "1883"
-          - name: MF_MQTT_ADAPTER_WS_PORT
+          - name: PD_MQTT_ADAPTER_WS_PORT
             value: "8880"
-          - name: MF_NATS_URL
+          - name: PD_NATS_URL
             value: {{.Values.nats.url }}
-          - name: MF_THINGS_URL
+          - name: PD_THINGS_URL
             value: {{.Values.things.url }}
       restartPolicy: Always
 ---

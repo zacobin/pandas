@@ -47,18 +47,18 @@ const (
 	defJaegerURL     = ""
 	defThingsTimeout = "1" // in seconds
 
-	envThingsURL     = "MF_THINGS_URL"
-	envLogLevel      = "MF_MONGO_READER_LOG_LEVEL"
-	envPort          = "MF_MONGO_READER_PORT"
-	envDBName        = "MF_MONGO_READER_DB_NAME"
-	envDBHost        = "MF_MONGO_READER_DB_HOST"
-	envDBPort        = "MF_MONGO_READER_DB_PORT"
-	envClientTLS     = "MF_MONGO_READER_CLIENT_TLS"
-	envCACerts       = "MF_MONGO_READER_CA_CERTS"
-	envServerCert    = "MF_MONGO_READER_SERVER_CERT"
-	envServerKey     = "MF_MONGO_READER_SERVER_KEY"
-	envJaegerURL     = "MF_JAEGER_URL"
-	envThingsTimeout = "MF_MONGO_READER_THINGS_TIMEOUT"
+	envThingsURL     = "PD_THINGS_URL"
+	envLogLevel      = "PD_MONGO_READER_LOG_LEVEL"
+	envPort          = "PD_MONGO_READER_PORT"
+	envDBName        = "PD_MONGO_READER_DB_NAME"
+	envDBHost        = "PD_MONGO_READER_DB_HOST"
+	envDBPort        = "PD_MONGO_READER_DB_PORT"
+	envClientTLS     = "PD_MONGO_READER_CLIENT_TLS"
+	envCACerts       = "PD_MONGO_READER_CA_CERTS"
+	envServerCert    = "PD_MONGO_READER_SERVER_CERT"
+	envServerKey     = "PD_MONGO_READER_SERVER_KEY"
+	envJaegerURL     = "PD_JAEGER_URL"
+	envThingsTimeout = "PD_MONGO_READER_THINGS_TIMEOUT"
 )
 
 type config struct {

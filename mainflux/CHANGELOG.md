@@ -184,7 +184,7 @@ git log --pretty=oneline --abbrev-commit
 - Fix CI with fixed plugin versions (#747)
 - fix building problems (#741)
 - fix docker-compose env (#775)
-- Fix MF_THINGS_AUTH_GRPC_PORT in addons' docker-compose files (#781)
+- Fix PD_THINGS_AUTH_GRPC_PORT in addons' docker-compose files (#781)
 - Fix MQTT raw message deserialization (#753)
 - fix variant option for manifest annotate (#765)
 - fix to makefile for OSX/Darwin (#724)
@@ -295,7 +295,7 @@ https://github.com/cloustone/pandas/mainflux/milestone/9?closed=1
 - NOISSUE - Add TLS flag for Mainflux services (#452)
 - MF-448 - Option for Postgres SSL Mode (#449)
 - MF-443 Update project dependencies (#444)
-- MF-426 - Add optional MF_CA_CERTS env variable to allow GRPC client to use TLS certs (#430)
+- MF-426 - Add optional PD_CA_CERTS env variable to allow GRPC client to use TLS certs (#430)
 - Expose the InfluxDB and Cassandra ports to host (#441)
 - MF-374 - Bring back CoAP adapter (#413)
 

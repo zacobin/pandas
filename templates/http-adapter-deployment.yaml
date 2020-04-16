@@ -28,15 +28,15 @@ spec:
           ports:
           - containerPort: {{.Values.http_adapter.port }}
           env:
-          - name: MF_HTTP_ADAPTER_LOG_LEVEL
+          - name: PD_HTTP_ADAPTER_LOG_LEVEL
             value: {{.Values.http_adapter.log_level }}
-          - name: MF_HTTP_ADAPTER_PORT
+          - name: PD_HTTP_ADAPTER_PORT
             value: "8185"
-          - name: MF_JAEGER_URL
+          - name: PD_JAEGER_URL
             value: {{.Values.jaeger.url }}
-          - name: MF_NATS_URL
+          - name: PD_NATS_URL
             value: {{.Values.nats.url }}
-          - name:  MF_THINGS_URL
+          - name:  PD_THINGS_URL
             value: {{.Values.things.url }}
       restartPolicy: Always
 ---

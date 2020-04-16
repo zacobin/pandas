@@ -42,15 +42,15 @@ const (
 	defJaegerURL     = ""
 	defThingsTimeout = "1" // in seconds
 
-	envPort          = "MF_COAP_ADAPTER_PORT"
-	envNatsURL       = "MF_NATS_URL"
-	envThingsURL     = "MF_THINGS_URL"
-	envLogLevel      = "MF_COAP_ADAPTER_LOG_LEVEL"
-	envClientTLS     = "MF_COAP_ADAPTER_CLIENT_TLS"
-	envCACerts       = "MF_COAP_ADAPTER_CA_CERTS"
-	envPingPeriod    = "MF_COAP_ADAPTER_PING_PERIOD"
-	envJaegerURL     = "MF_JAEGER_URL"
-	envThingsTimeout = "MF_COAP_ADAPTER_THINGS_TIMEOUT"
+	envPort          = "PD_COAP_ADAPTER_PORT"
+	envNatsURL       = "PD_NATS_URL"
+	envThingsURL     = "PD_THINGS_URL"
+	envLogLevel      = "PD_COAP_ADAPTER_LOG_LEVEL"
+	envClientTLS     = "PD_COAP_ADAPTER_CLIENT_TLS"
+	envCACerts       = "PD_COAP_ADAPTER_CA_CERTS"
+	envPingPeriod    = "PD_COAP_ADAPTER_PING_PERIOD"
+	envJaegerURL     = "PD_JAEGER_URL"
+	envThingsTimeout = "PD_COAP_ADAPTER_THINGS_TIMEOUT"
 )
 
 type config struct {

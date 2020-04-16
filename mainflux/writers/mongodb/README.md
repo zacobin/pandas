@@ -10,13 +10,13 @@ default values.
 
 | Variable                         | Description                                 | Default                |
 |----------------------------------|---------------------------------------------|------------------------|
-| MF_NATS_URL                      | NATS instance URL                           | nats://localhost:4222  |
-| MF_MONGO_WRITER_LOG_LEVEL        | Log level for MongoDB writer                | error                  |
-| MF_MONGO_WRITER_PORT             | Service HTTP port                           | 8180                   |
-| MF_MONGO_WRITER_DB_NAME          | Default MongoDB database name               | mainflux               |
-| MF_MONGO_WRITER_DB_HOST          | Default MongoDB database host               | localhost              |
-| MF_MONGO_WRITER_DB_PORT          | Default MongoDB database port               | 27017                  |
-| MF_MONGO_WRITER_SUBJECTS_CONFIG  | Configuration file path with subjects list  | /config/subjects.toml  |
+| PD_NATS_URL                      | NATS instance URL                           | nats://localhost:4222  |
+| PD_MONGO_WRITER_LOG_LEVEL        | Log level for MongoDB writer                | error                  |
+| PD_MONGO_WRITER_PORT             | Service HTTP port                           | 8180                   |
+| PD_MONGO_WRITER_DB_NAME          | Default MongoDB database name               | mainflux               |
+| PD_MONGO_WRITER_DB_HOST          | Default MongoDB database host               | localhost              |
+| PD_MONGO_WRITER_DB_PORT          | Default MongoDB database port               | 27017                  |
+| PD_MONGO_WRITER_SUBJECTS_CONFIG  | Configuration file path with subjects list  | /config/subjects.toml  |
 
 ## Deployment
 
@@ -32,13 +32,13 @@ default values.
       - [Service HTTP port]
     restart: on-failure
     environment:
-      MF_NATS_URL: [NATS instance URL]
-      MF_MONGO_WRITER_LOG_LEVEL: [MongoDB writer log level]
-      MF_MONGO_WRITER_PORT: [Service HTTP port]
-      MF_MONGO_WRITER_DB_NAME: [MongoDB name]
-      MF_MONGO_WRITER_DB_HOST: [MongoDB host]
-      MF_MONGO_WRITER_DB_PORT: [MongoDB port]
-      MF_MONGO_WRITER_SUBJETCS_CONFIG: [Configuration file path with subjects list]
+      PD_NATS_URL: [NATS instance URL]
+      PD_MONGO_WRITER_LOG_LEVEL: [MongoDB writer log level]
+      PD_MONGO_WRITER_PORT: [Service HTTP port]
+      PD_MONGO_WRITER_DB_NAME: [MongoDB name]
+      PD_MONGO_WRITER_DB_HOST: [MongoDB host]
+      PD_MONGO_WRITER_DB_PORT: [MongoDB port]
+      PD_MONGO_WRITER_SUBJETCS_CONFIG: [Configuration file path with subjects list]
     ports:
       - [host machine port]:[configured HTTP port]
     volume:
@@ -60,7 +60,7 @@ make mongodb-writer
 make install
 
 # Set the environment variables and run the service
-MF_NATS_URL=[NATS instance URL] MF_MONGO_WRITER_LOG_LEVEL=[MongoDB writer log level] MF_MONGO_WRITER_PORT=[Service HTTP port] MF_MONGO_WRITER_DB_NAME=[MongoDB database name] MF_MONGO_WRITER_DB_HOST=[MongoDB database host] MF_MONGO_WRITER_DB_PORT=[MongoDB database port] MF_MONGO_WRITER_SUBJETCS_CONFIG=[Configuration file path with subjetcs list] $GOBIN/mainflux-mongodb-writer
+PD_NATS_URL=[NATS instance URL] PD_MONGO_WRITER_LOG_LEVEL=[MongoDB writer log level] PD_MONGO_WRITER_PORT=[Service HTTP port] PD_MONGO_WRITER_DB_NAME=[MongoDB database name] PD_MONGO_WRITER_DB_HOST=[MongoDB database host] PD_MONGO_WRITER_DB_PORT=[MongoDB database port] PD_MONGO_WRITER_SUBJETCS_CONFIG=[Configuration file path with subjetcs list] $GOBIN/mainflux-mongodb-writer
 ```
 
 ## Usage

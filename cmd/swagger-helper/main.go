@@ -52,19 +52,19 @@ const (
 	defAuthURL         = "localhost:8181"
 	defAuthTimeout     = "1" // in seconds
 
-	envLogLevel        = "MF_V2MS_LOG_LEVEL"
-	envClientTLS       = "MF_V2MS_CLIENT_TLS"
-	envCACerts         = "MF_V2MS_CA_CERTS"
-	envHTTPPort        = "MF_V2MS_HTTP_PORT"
-	envAuthHTTPPort    = "MF_V2MS_AUTH_HTTP_PORT"
-	envAuthGRPCPort    = "MF_V2MS_AUTH_GRPC_PORT"
-	envServerCert      = "MF_V2MS_SERVER_CERT"
-	envServerKey       = "MF_V2MS_SERVER_KEY"
-	envSingleUserEmail = "MF_V2MS_SINGLE_USER_EMAIL"
-	envSingleUserToken = "MF_V2MS_SINGLE_USER_TOKEN"
-	envJaegerURL       = "MF_JAEGER_URL"
-	envAuthURL         = "MF_AUTH_URL"
-	envAuthTimeout     = "MF_AUTH_TIMEOUT"
+	envLogLevel        = "PD_V2MS_LOG_LEVEL"
+	envClientTLS       = "PD_V2MS_CLIENT_TLS"
+	envCACerts         = "PD_V2MS_CA_CERTS"
+	envHTTPPort        = "PD_V2MS_HTTP_PORT"
+	envAuthHTTPPort    = "PD_V2MS_AUTH_HTTP_PORT"
+	envAuthGRPCPort    = "PD_V2MS_AUTH_GRPC_PORT"
+	envServerCert      = "PD_V2MS_SERVER_CERT"
+	envServerKey       = "PD_V2MS_SERVER_KEY"
+	envSingleUserEmail = "PD_V2MS_SINGLE_USER_EMAIL"
+	envSingleUserToken = "PD_V2MS_SINGLE_USER_TOKEN"
+	envJaegerURL       = "PD_JAEGER_URL"
+	envAuthURL         = "PD_AUTH_URL"
+	envAuthTimeout     = "PD_AUTH_TIMEOUT"
 )
 
 type config struct {

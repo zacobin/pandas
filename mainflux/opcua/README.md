@@ -13,21 +13,21 @@ default values.
 
 | Variable                         | Description                            | Default                    |
 |----------------------------------|----------------------------------------|----------------------------|
-| MF_OPCUA_ADAPTER_HTTP_PORT       | Service HTTP port                      | 8188                       |
-| MF_OPCUA_ADAPTER_LOG_LEVEL       | Service Log level                      | error                      |
-| MF_NATS_URL                      | NATS instance URL                      | nats://localhost:4222      |
-| MF_OPCUA_ADAPTER_INTERVAL_MS     | OPC-UA Server Interval in milliseconds | 1000                       |
-| MF_OPCUA_ADAPTER_POLICY          | OPC-UA Server Policy                   |                            |
-| MF_OPCUA_ADAPTER_MODE            | OPC-UA Server Mode                     |                            |
-| MF_OPCUA_ADAPTER_CERT_FILE       | OPC-UA Server Certificate file         |                            |
-| MF_OPCUA_ADAPTER_KEY_FILE        | OPC-UA Server Key file                 |                            |
-| MF_OPCUA_ADAPTER_ROUTE_MAP_URL   | Route-map database URL                 | localhost:6379             |
-| MF_OPCUA_ADAPTER_ROUTE_MAP_PASS  | Route-map database password            |                            |
-| MF_OPCUA_ADAPTER_ROUTE_MAP_DB    | Route-map instance name                | 0                          |
-| MF_THINGS_ES_URL                 | Things service event source URL        | localhost:6379             |
-| MF_THINGS_ES_PASS                | Things service event source password   |                            |
-| MF_THINGS_ES_DB                  | Things service event source DB         | 0                          |
-| MF_OPCUA_ADAPTER_EVENT_CONSUMER  | Service event consumer name            | opcua                      |
+| PD_OPCUA_ADAPTER_HTTP_PORT       | Service HTTP port                      | 8188                       |
+| PD_OPCUA_ADAPTER_LOG_LEVEL       | Service Log level                      | error                      |
+| PD_NATS_URL                      | NATS instance URL                      | nats://localhost:4222      |
+| PD_OPCUA_ADAPTER_INTERVAL_MS     | OPC-UA Server Interval in milliseconds | 1000                       |
+| PD_OPCUA_ADAPTER_POLICY          | OPC-UA Server Policy                   |                            |
+| PD_OPCUA_ADAPTER_MODE            | OPC-UA Server Mode                     |                            |
+| PD_OPCUA_ADAPTER_CERT_FILE       | OPC-UA Server Certificate file         |                            |
+| PD_OPCUA_ADAPTER_KEY_FILE        | OPC-UA Server Key file                 |                            |
+| PD_OPCUA_ADAPTER_ROUTE_MAP_URL   | Route-map database URL                 | localhost:6379             |
+| PD_OPCUA_ADAPTER_ROUTE_MAP_PASS  | Route-map database password            |                            |
+| PD_OPCUA_ADAPTER_ROUTE_MAP_DB    | Route-map instance name                | 0                          |
+| PD_THINGS_ES_URL                 | Things service event source URL        | localhost:6379             |
+| PD_THINGS_ES_PASS                | Things service event source password   |                            |
+| PD_THINGS_ES_DB                  | Things service event source DB         | 0                          |
+| PD_OPCUA_ADAPTER_EVENT_CONSUMER  | Service event consumer name            | opcua                      |
 
 ## Deployment
 
@@ -41,21 +41,21 @@ services:
     image: mainflux/opcua:[version]
     container_name: [instance name]
     environment:
-      MF_OPCUA_ADAPTER_HTTP_PORT: [Service HTTP port]
-      MF_OPCUA_ADAPTER_LOG_LEVEL: [Service Log Level]
-      MF_NATS_URL: [NATS instance URL]
-      MF_OPCUA_ADAPTER_INTERVAL_MS: [OPC-UA Server Interval (milliseconds)]
-      MF_OPCUA_ADAPTER_POLICY: [OPC-UA Server Policy]
-      MF_OPCUA_ADAPTER_MODE: [OPC-UA Server Mode]
-      MF_OPCUA_ADAPTER_CERT_FILE: [OPC-UA Server Certificate file]
-      MF_OPCUA_ADAPTER_KEY_FILE: [OPC-UA Server Key file]
-      MF_OPCUA_ADAPTER_ROUTE_MAP_URL: [Route-map database URL]
-      MF_OPCUA_ADAPTER_ROUTE_MAP_PASS: [Route-map database password]
-      MF_OPCUA_ADAPTER_ROUTE_MAP_DB: [Route-map instance name]
-      MF_THINGS_ES_URL: [Things event source URL]
-      MF_THINGS_ES_PASS: [Things event source password]
-      MF_THINGS_ES_DB: [Things event source DB instance]
-      MF_OPCUA_ADAPTER_EVENT_CONSUMER: [Service event consumer name]
+      PD_OPCUA_ADAPTER_HTTP_PORT: [Service HTTP port]
+      PD_OPCUA_ADAPTER_LOG_LEVEL: [Service Log Level]
+      PD_NATS_URL: [NATS instance URL]
+      PD_OPCUA_ADAPTER_INTERVAL_MS: [OPC-UA Server Interval (milliseconds)]
+      PD_OPCUA_ADAPTER_POLICY: [OPC-UA Server Policy]
+      PD_OPCUA_ADAPTER_MODE: [OPC-UA Server Mode]
+      PD_OPCUA_ADAPTER_CERT_FILE: [OPC-UA Server Certificate file]
+      PD_OPCUA_ADAPTER_KEY_FILE: [OPC-UA Server Key file]
+      PD_OPCUA_ADAPTER_ROUTE_MAP_URL: [Route-map database URL]
+      PD_OPCUA_ADAPTER_ROUTE_MAP_PASS: [Route-map database password]
+      PD_OPCUA_ADAPTER_ROUTE_MAP_DB: [Route-map instance name]
+      PD_THINGS_ES_URL: [Things event source URL]
+      PD_THINGS_ES_PASS: [Things event source password]
+      PD_THINGS_ES_DB: [Things event source DB instance]
+      PD_OPCUA_ADAPTER_EVENT_CONSUMER: [Service event consumer name]
 ```
 
 To start the service outside of the container, execute the following shell script:
@@ -73,21 +73,21 @@ make opcua
 make install
 
 # set the environment variables and run the service
-MF_OPCUA_ADAPTER_HTTP_PORT=[Service HTTP port] \
-MF_OPCUA_ADAPTER_LOG_LEVEL=[OPC-UA Adapter Log Level] \
-MF_NATS_URL=[NATS instance URL] \
-MF_OPCUA_ADAPTER_INTERVAL_MS: [OPC-UA Server Interval (milliseconds)] \
-MF_OPCUA_ADAPTER_POLICY=[OPC-UA Server Policy] \
-MF_OPCUA_ADAPTER_MODE=[OPC-UA Server Mode] \
-MF_OPCUA_ADAPTER_CERT_FILE=[OPC-UA Server Certificate file] \
-MF_OPCUA_ADAPTER_KEY_FILE=[OPC-UA Server Key file] \
-MF_OPCUA_ADAPTER_ROUTE_MAP_URL=[Route-map database URL] \
-MF_OPCUA_ADAPTER_ROUTE_MAP_PASS=[Route-map database password] \
-MF_OPCUA_ADAPTER_ROUTE_MAP_DB=[Route-map instance name] \
-MF_THINGS_ES_URL=[Things service event source URL] \
-MF_THINGS_ES_PASS=[Things service event source password] \
-MF_THINGS_ES_DB=[Things service event source password] \
-MF_OPCUA_ADAPTER_EVENT_CONSUMER=[OPC-UA adapter instance name] \
+PD_OPCUA_ADAPTER_HTTP_PORT=[Service HTTP port] \
+PD_OPCUA_ADAPTER_LOG_LEVEL=[OPC-UA Adapter Log Level] \
+PD_NATS_URL=[NATS instance URL] \
+PD_OPCUA_ADAPTER_INTERVAL_MS: [OPC-UA Server Interval (milliseconds)] \
+PD_OPCUA_ADAPTER_POLICY=[OPC-UA Server Policy] \
+PD_OPCUA_ADAPTER_MODE=[OPC-UA Server Mode] \
+PD_OPCUA_ADAPTER_CERT_FILE=[OPC-UA Server Certificate file] \
+PD_OPCUA_ADAPTER_KEY_FILE=[OPC-UA Server Key file] \
+PD_OPCUA_ADAPTER_ROUTE_MAP_URL=[Route-map database URL] \
+PD_OPCUA_ADAPTER_ROUTE_MAP_PASS=[Route-map database password] \
+PD_OPCUA_ADAPTER_ROUTE_MAP_DB=[Route-map instance name] \
+PD_THINGS_ES_URL=[Things service event source URL] \
+PD_THINGS_ES_PASS=[Things service event source password] \
+PD_THINGS_ES_DB=[Things service event source password] \
+PD_OPCUA_ADAPTER_EVENT_CONSUMER=[OPC-UA adapter instance name] \
 $GOBIN/mainflux-opcua
 ```
 

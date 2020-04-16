@@ -36,15 +36,15 @@ const (
 	defDBPass          = "mainflux"
 	defSubjectsCfgPath = "/config/subjects.toml"
 
-	envNatsURL         = "MF_NATS_URL"
-	envLogLevel        = "MF_INFLUX_WRITER_LOG_LEVEL"
-	envPort            = "MF_INFLUX_WRITER_PORT"
-	envDBName          = "MF_INFLUX_WRITER_DB_NAME"
-	envDBHost          = "MF_INFLUX_WRITER_DB_HOST"
-	envDBPort          = "MF_INFLUX_WRITER_DB_PORT"
-	envDBUser          = "MF_INFLUX_WRITER_DB_USER"
-	envDBPass          = "MF_INFLUX_WRITER_DB_PASS"
-	envSubjectsCfgPath = "MF_INFLUX_WRITER_SUBJECTS_CONFIG"
+	envNatsURL         = "PD_NATS_URL"
+	envLogLevel        = "PD_INFLUX_WRITER_LOG_LEVEL"
+	envPort            = "PD_INFLUX_WRITER_PORT"
+	envDBName          = "PD_INFLUX_WRITER_DB_NAME"
+	envDBHost          = "PD_INFLUX_WRITER_DB_HOST"
+	envDBPort          = "PD_INFLUX_WRITER_DB_PORT"
+	envDBUser          = "PD_INFLUX_WRITER_DB_USER"
+	envDBPass          = "PD_INFLUX_WRITER_DB_PASS"
+	envSubjectsCfgPath = "PD_INFLUX_WRITER_SUBJECTS_CONFIG"
 )
 
 type config struct {

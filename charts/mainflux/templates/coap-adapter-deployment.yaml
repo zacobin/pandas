@@ -29,15 +29,15 @@ spec:
           - containerPort: {{.Values.coap_adapter.port }}
             protocal: UDP
           env:
-          - name: MF_COAP_ADAPTER_LOG_LEVEL
+          - name: PD_COAP_ADAPTER_LOG_LEVEL
             value: {{.Values.coap_adapter.log_level }}
-          - name: MF_COAP_ADAPTER_PORT
+          - name: PD_COAP_ADAPTER_PORT
             value: "5683"
-          - name: MF_JAEGER_URL
+          - name: PD_JAEGER_URL
             value: {{.Values.jaeger.url }}
-          - name: MF_NATS_URL
+          - name: PD_NATS_URL
             value: {{.Values.nats.url }}
-          - name: MF_THINGS_URL
+          - name: PD_THINGS_URL
             value: {{.Values.things.url }}
       restartPolicy: Always
 ---

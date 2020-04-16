@@ -118,19 +118,19 @@ services:
     image: jaegertracing/all-in-one:1.13
     container_name: pandas-jaeger
     ports:
-      - ${MF_JAEGER_PORT}:${MF_JAEGER_PORT}/udp
-      - ${MF_JAEGER_FRONTEND}:${MF_JAEGER_FRONTEND}
-      - ${MF_JAEGER_COLLECTOR}:${MF_JAEGER_COLLECTOR}
-      - ${MF_JAEGER_CONFIGS}:${MF_JAEGER_CONFIGS}
+      - ${PD_JAEGER_PORT}:${PD_JAEGER_PORT}/udp
+      - ${PD_JAEGER_FRONTEND}:${PD_JAEGER_FRONTEND}
+      - ${PD_JAEGER_COLLECTOR}:${PD_JAEGER_COLLECTOR}
+      - ${PD_JAEGER_CONFIGS}:${PD_JAEGER_CONFIGS}
 
   authn-db:
     image: postgres:10.8-alpine
     container_name: pandas-authn-db
     restart: on-failure
     environment:
-      POSTGRES_USER: ${MF_AUTHN_DB_USER}
-      POSTGRES_PASSWORD: ${MF_AUTHN_DB_PASS}
-      POSTGRES_DB: ${MF_AUTHN_DB}
+      POSTGRES_USER: ${PD_AUTHN_DB_USER}
+      POSTGRES_PASSWORD: ${PD_AUTHN_DB_PASS}
+      POSTGRES_DB: ${PD_AUTHN_DB}
     volumes:
       - pandas-authn-db-volume:/var/lib/postgresql/data
 
@@ -140,33 +140,33 @@ services:
     depends_on:
       - authn-db
     expose:
-      - ${MF_AUTHN_GRPC_PORT}
+      - ${PD_AUTHN_GRPC_PORT}
     ports:
-      - ${MF_AUTHN_HTTP_PORT}:${MF_AUTHN_HTTP_PORT}
-      - ${MF_AUTHN_GRPC_PORT}:${MF_AUTHN_GRPC_PORT}
+      - ${PD_AUTHN_HTTP_PORT}:${PD_AUTHN_HTTP_PORT}
+      - ${PD_AUTHN_GRPC_PORT}:${PD_AUTHN_GRPC_PORT}
     restart: always
     environment:
       PANDAS_PORT: 30016
       PANDAS_DNS_SERVER: "docker-compose"
-      MF_AUTHN_LOG_LEVEL: ${MF_AUTHN_LOG_LEVEL}
-      MF_AUTHN_DB_HOST: authn-db
-      MF_AUTHN_DB_PORT: ${MF_AUTHN_DB_PORT}
-      MF_AUTHN_DB_USER: ${MF_AUTHN_DB_USER}
-      MF_AUTHN_DB_PASS: ${MF_AUTHN_DB_PASS}
-      MF_AUTHN_DB: ${MF_AUTHN_DB}
-      MF_AUTHN_HTTP_PORT: ${MF_AUTHN_HTTP_PORT}
-      MF_AUTHN_GRPC_PORT: ${MF_AUTHN_GRPC_PORT}
-      MF_AUTHN_SECRET: ${MF_AUTHN_SECRET}
-      MF_JAEGER_URL: ${MF_JAEGER_URL}
+      PD_AUTHN_LOG_LEVEL: ${PD_AUTHN_LOG_LEVEL}
+      PD_AUTHN_DB_HOST: authn-db
+      PD_AUTHN_DB_PORT: ${PD_AUTHN_DB_PORT}
+      PD_AUTHN_DB_USER: ${PD_AUTHN_DB_USER}
+      PD_AUTHN_DB_PASS: ${PD_AUTHN_DB_PASS}
+      PD_AUTHN_DB: ${PD_AUTHN_DB}
+      PD_AUTHN_HTTP_PORT: ${PD_AUTHN_HTTP_PORT}
+      PD_AUTHN_GRPC_PORT: ${PD_AUTHN_GRPC_PORT}
+      PD_AUTHN_SECRET: ${PD_AUTHN_SECRET}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
 
   things-db:
     image: postgres:10.8-alpine
     container_name: pandas-things-db
     restart: on-failure
     environment:
-      POSTGRES_USER: ${MF_THINGS_DB_USER}
-      POSTGRES_PASSWORD: ${MF_THINGS_DB_PASS}
-      POSTGRES_DB: ${MF_THINGS_DB}
+      POSTGRES_USER: ${PD_THINGS_DB_USER}
+      POSTGRES_PASSWORD: ${PD_THINGS_DB_PASS}
+      POSTGRES_DB: ${PD_THINGS_DB}
     volumes:
       - pandas-things-db-volume:/var/lib/postgresql/data
 
@@ -185,33 +185,33 @@ services:
       - authn
     restart: on-failure
     environment:
-      MF_THINGS_LOG_LEVEL: ${MF_THINGS_LOG_LEVEL}
-      MF_THINGS_DB_HOST: things-db
-      MF_THINGS_DB_PORT: ${MF_THINGS_DB_PORT}
-      MF_THINGS_DB_USER: ${MF_THINGS_DB_USER}
-      MF_THINGS_DB_PASS: ${MF_THINGS_DB_PASS}
-      MF_THINGS_DB: ${MF_THINGS_DB}
-      MF_THINGS_CACHE_URL: things-redis:${MF_REDIS_TCP_PORT}
-      MF_THINGS_ES_URL: es-redis:${MF_REDIS_TCP_PORT}
-      MF_THINGS_HTTP_PORT: ${MF_THINGS_HTTP_PORT}
-      MF_THINGS_AUTH_HTTP_PORT: ${MF_THINGS_AUTH_HTTP_PORT}
-      MF_THINGS_AUTH_GRPC_PORT: ${MF_THINGS_AUTH_GRPC_PORT}
-      MF_AUTH_URL: authn:${MF_AUTHN_GRPC_PORT}
-      MF_THINGS_SECRET: ${MF_THINGS_SECRET}
-      MF_JAEGER_URL: ${MF_JAEGER_URL}
+      PD_THINGS_LOG_LEVEL: ${PD_THINGS_LOG_LEVEL}
+      PD_THINGS_DB_HOST: things-db
+      PD_THINGS_DB_PORT: ${PD_THINGS_DB_PORT}
+      PD_THINGS_DB_USER: ${PD_THINGS_DB_USER}
+      PD_THINGS_DB_PASS: ${PD_THINGS_DB_PASS}
+      PD_THINGS_DB: ${PD_THINGS_DB}
+      PD_THINGS_CACHE_URL: things-redis:${PD_REDIS_TCP_PORT}
+      PD_THINGS_ES_URL: es-redis:${PD_REDIS_TCP_PORT}
+      PD_THINGS_HTTP_PORT: ${PD_THINGS_HTTP_PORT}
+      PD_THINGS_AUTH_HTTP_PORT: ${PD_THINGS_AUTH_HTTP_PORT}
+      PD_THINGS_AUTH_GRPC_PORT: ${PD_THINGS_AUTH_GRPC_PORT}
+      PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_THINGS_SECRET: ${PD_THINGS_SECRET}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
     ports:
-      - ${MF_THINGS_HTTP_PORT}:${MF_THINGS_HTTP_PORT}
-      - ${MF_THINGS_AUTH_HTTP_PORT}:${MF_THINGS_AUTH_HTTP_PORT}
-      - ${MF_THINGS_AUTH_GRPC_PORT}:${MF_THINGS_AUTH_GRPC_PORT}
+      - ${PD_THINGS_HTTP_PORT}:${PD_THINGS_HTTP_PORT}
+      - ${PD_THINGS_AUTH_HTTP_PORT}:${PD_THINGS_AUTH_HTTP_PORT}
+      - ${PD_THINGS_AUTH_GRPC_PORT}:${PD_THINGS_AUTH_GRPC_PORT}
 
   users-db:
     image: postgres:10.8-alpine
     container_name: pandas-users-db
     restart: on-failure
     environment:
-      POSTGRES_USER: ${MF_USERS_DB_USER}
-      POSTGRES_PASSWORD: ${MF_USERS_DB_PASS}
-      POSTGRES_DB: ${MF_USERS_DB}
+      POSTGRES_USER: ${PD_USERS_DB_USER}
+      POSTGRES_PASSWORD: ${PD_USERS_DB_PASS}
+      POSTGRES_DB: ${PD_USERS_DB}
     volumes:
       - pandas-users-db-volume:/var/lib/postgresql/data
 
@@ -219,32 +219,32 @@ services:
     image: cloustone/pandas-users:latest
     container_name: pandas-users
     volumes:
-      - ./users/emailer/templates/${MF_EMAIL_TEMPLATE}:/${MF_EMAIL_TEMPLATE}
+      - ./users/emailer/templates/${PD_EMAIL_TEMPLATE}:/${PD_EMAIL_TEMPLATE}
     depends_on:
       - users-db
       - authn
     restart: on-failure
     environment:
-      MF_USERS_LOG_LEVEL: ${MF_USERS_LOG_LEVEL}
-      MF_USERS_DB_HOST: users-db
-      MF_USERS_DB_PORT: ${MF_USERS_DB_PORT}
-      MF_USERS_DB_USER: ${MF_USERS_DB_USER}
-      MF_USERS_DB_PASS: ${MF_USERS_DB_PASS}
-      MF_USERS_DB: ${MF_USERS_DB}
-      MF_USERS_HTTP_PORT: ${MF_USERS_HTTP_PORT}
-      MF_JAEGER_URL: ${MF_JAEGER_URL}
-      MF_EMAIL_DRIVER: ${MF_EMAIL_DRIVER}
-      MF_EMAIL_HOST: ${MF_EMAIL_HOST}
-      MF_EMAIL_PORT: ${MF_EMAIL_PORT}
-      MF_EMAIL_USERNAME: ${MF_EMAIL_USERNAME}
-      MF_EMAIL_PASSWORD: ${MF_EMAIL_PASSWORD}
-      MF_EMAIL_FROM_ADDRESS: ${MF_EMAIL_FROM_ADDRESS}
-      MF_EMAIL_FROM_NAME: ${MF_EMAIL_FROM_NAME}
-      MF_EMAIL_TEMPLATE: ${MF_EMAIL_TEMPLATE}
-      MF_TOKEN_RESET_ENDPOINT: ${MF_TOKEN_RESET_ENDPOINT}
-      MF_AUTHN_URL: authn:${MF_AUTHN_GRPC_PORT}
+      PD_USERS_LOG_LEVEL: ${PD_USERS_LOG_LEVEL}
+      PD_USERS_DB_HOST: users-db
+      PD_USERS_DB_PORT: ${PD_USERS_DB_PORT}
+      PD_USERS_DB_USER: ${PD_USERS_DB_USER}
+      PD_USERS_DB_PASS: ${PD_USERS_DB_PASS}
+      PD_USERS_DB: ${PD_USERS_DB}
+      PD_USERS_HTTP_PORT: ${PD_USERS_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_EMAIL_DRIVER: ${PD_EMAIL_DRIVER}
+      PD_EMAIL_HOST: ${PD_EMAIL_HOST}
+      PD_EMAIL_PORT: ${PD_EMAIL_PORT}
+      PD_EMAIL_USERNAME: ${PD_EMAIL_USERNAME}
+      PD_EMAIL_PASSWORD: ${PD_EMAIL_PASSWORD}
+      PD_EMAIL_FROM_ADDRESS: ${PD_EMAIL_FROM_ADDRESS}
+      PD_EMAIL_FROM_NAME: ${PD_EMAIL_FROM_NAME}
+      PD_EMAIL_TEMPLATE: ${PD_EMAIL_TEMPLATE}
+      PD_TOKEN_RESET_ENDPOINT: ${PD_TOKEN_RESET_ENDPOINT}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
     ports:
-      - ${MF_USERS_HTTP_PORT}:${MF_USERS_HTTP_PORT}
+      - ${PD_USERS_HTTP_PORT}:${PD_USERS_HTTP_PORT}
 
   vernemq:
     image: mainflux/vernemq:1.10.1-alpine
@@ -265,17 +265,17 @@ services:
       - nats
     restart: on-failure
     environment:
-      MF_MQTT_ADAPTER_LOG_LEVEL: ${MF_MQTT_ADAPTER_LOG_LEVEL}
-      MF_MQTT_ADAPTER_PORT: ${MF_MQTT_ADAPTER_PORT}
-      MF_MQTT_ADAPTER_WS_PORT: ${MF_MQTT_ADAPTER_WS_PORT}
-      MF_MQTT_ADAPTER_ES_URL: es-redis:${MF_REDIS_TCP_PORT}
-      MF_NATS_URL: ${MF_NATS_URL}
-      MF_THINGS_URL: things:${MF_THINGS_AUTH_GRPC_PORT}
-      MF_JAEGER_URL: ${MF_JAEGER_URL}
-      MF_MQTT_ADAPTER_MQTT_TARGET_HOST: vernemq
-      MF_MQTT_ADAPTER_MQTT_TARGET_PORT: ${MF_MQTT_BROKER_PORT}
-      MF_MQTT_ADAPTER_WS_TARGET_HOST: vernemq
-      MF_MQTT_ADAPTER_WS_TARGET_PORT: ${MF_MQTT_BROKER_WS_PORT}
+      PD_MQTT_ADAPTER_LOG_LEVEL: ${PD_MQTT_ADAPTER_LOG_LEVEL}
+      PD_MQTT_ADAPTER_PORT: ${PD_MQTT_ADAPTER_PORT}
+      PD_MQTT_ADAPTER_WS_PORT: ${PD_MQTT_ADAPTER_WS_PORT}
+      PD_MQTT_ADAPTER_ES_URL: es-redis:${PD_REDIS_TCP_PORT}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_THINGS_URL: things:${PD_THINGS_AUTH_GRPC_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_MQTT_ADAPTER_MQTT_TARGET_HOST: vernemq
+      PD_MQTT_ADAPTER_MQTT_TARGET_PORT: ${PD_MQTT_BROKER_PORT}
+      PD_MQTT_ADAPTER_WS_TARGET_HOST: vernemq
+      PD_MQTT_ADAPTER_WS_TARGET_PORT: ${PD_MQTT_BROKER_WS_PORT}
 
   ws-adapter:
     image: cloustone/pandas-ws:latest
@@ -285,13 +285,13 @@ services:
       - nats
     restart: on-failure
     environment:
-      MF_WS_ADAPTER_LOG_LEVEL: ${MF_WS_ADAPTER_LOG_LEVEL}
-      MF_WS_ADAPTER_PORT: ${MF_WS_ADAPTER_PORT}
-      MF_NATS_URL: ${MF_NATS_URL}
-      MF_THINGS_URL: things:${MF_THINGS_AUTH_GRPC_PORT}
-      MF_JAEGER_URL: ${MF_JAEGER_URL}
+      PD_WS_ADAPTER_LOG_LEVEL: ${PD_WS_ADAPTER_LOG_LEVEL}
+      PD_WS_ADAPTER_PORT: ${PD_WS_ADAPTER_PORT}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_THINGS_URL: things:${PD_THINGS_AUTH_GRPC_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
     ports:
-      - ${MF_WS_ADAPTER_PORT}:${MF_WS_ADAPTER_PORT}
+      - ${PD_WS_ADAPTER_PORT}:${PD_WS_ADAPTER_PORT}
 
   http-adapter:
     image: cloustone/pandas-http:latest
@@ -301,13 +301,13 @@ services:
       - nats
     restart: on-failure
     environment:
-      MF_HTTP_ADAPTER_LOG_LEVEL: debug
-      MF_HTTP_ADAPTER_PORT: ${MF_HTTP_ADAPTER_PORT}
-      MF_NATS_URL: ${MF_NATS_URL}
-      MF_THINGS_URL: things:${MF_THINGS_AUTH_GRPC_PORT}
-      MF_JAEGER_URL: ${MF_JAEGER_URL}
+      PD_HTTP_ADAPTER_LOG_LEVEL: debug
+      PD_HTTP_ADAPTER_PORT: ${PD_HTTP_ADAPTER_PORT}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_THINGS_URL: things:${PD_THINGS_AUTH_GRPC_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
     ports:
-      - ${MF_HTTP_ADAPTER_PORT}:${MF_HTTP_ADAPTER_PORT}
+      - ${PD_HTTP_ADAPTER_PORT}:${PD_HTTP_ADAPTER_PORT}
 
   es-redis:
     image: redis:5.0-alpine
@@ -324,14 +324,14 @@ services:
       - nats
     restart: on-failure
     environment:
-      MF_COAP_ADAPTER_LOG_LEVEL: ${MF_COAP_ADAPTER_LOG_LEVEL}
-      MF_COAP_ADAPTER_PORT: ${MF_COAP_ADAPTER_PORT}
-      MF_NATS_URL: ${MF_NATS_URL}
-      MF_THINGS_URL: things:${MF_THINGS_AUTH_GRPC_PORT}
-      MF_JAEGER_URL: ${MF_JAEGER_URL}
+      PD_COAP_ADAPTER_LOG_LEVEL: ${PD_COAP_ADAPTER_LOG_LEVEL}
+      PD_COAP_ADAPTER_PORT: ${PD_COAP_ADAPTER_PORT}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_THINGS_URL: things:${PD_THINGS_AUTH_GRPC_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
     ports:
-      - ${MF_COAP_ADAPTER_PORT}:${MF_COAP_ADAPTER_PORT}/udp
-      - ${MF_COAP_ADAPTER_PORT}:${MF_COAP_ADAPTER_PORT}/tcp
+      - ${PD_COAP_ADAPTER_PORT}:${PD_COAP_ADAPTER_PORT}/udp
+      - ${PD_COAP_ADAPTER_PORT}:${PD_COAP_ADAPTER_PORT}/tcp
 
   nginx:
     image: nginx:1.16.0-alpine
@@ -347,10 +347,10 @@ services:
       - ./ssl/certs/mainflux-server.key:/etc/ssl/private/mainflux-server.key
       - ./ssl/dhparam.pem:/etc/ssl/certs/dhparam.pem
     ports:
-      - ${MF_NGINX_HTTP_PORT}:${MF_NGINX_HTTP_PORT}
-      - ${MF_NGINX_SSL_PORT}:${MF_NGINX_SSL_PORT}
-      - ${MF_NGINX_MQTT_PORT}:${MF_NGINX_MQTT_PORT}
-      - ${MF_NGINX_MQTTS_PORT}:${MF_NGINX_MQTTS_PORT}
+      - ${PD_NGINX_HTTP_PORT}:${PD_NGINX_HTTP_PORT}
+      - ${PD_NGINX_SSL_PORT}:${PD_NGINX_SSL_PORT}
+      - ${PD_NGINX_MQTT_PORT}:${PD_NGINX_MQTT_PORT}
+      - ${PD_NGINX_MQTTS_PORT}:${PD_NGINX_MQTTS_PORT}
     env_file:
       - ../.env
     command: /entrypoint.sh

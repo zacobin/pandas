@@ -31,41 +31,41 @@ spec:
           - name: email-tmpl
             mountPath: /email.tmpl
           env:
-          - name: MF_AUTHN_URL
+          - name: PD_AUTHN_URL
             value: {{.Values.authn.url }}
-          - name: MF_EMAIL_DRIVER
+          - name: PD_EMAIL_DRIVER
             value: {{.Values.users.email.driver }}
-          - name: MF_EMAIL_FROM_ADDRESS
+          - name: PD_EMAIL_FROM_ADDRESS
             value: {{.Values.users.email.from.address }}
-          - name: MF_EMAIL_FROM_NAME
+          - name: PD_EMAIL_FROM_NAME
             value: {{.Values.users.email.from.name }}
-          - name: MF_EMAIL_HOST
+          - name: PD_EMAIL_HOST
             value: {{.Values.users.email.host }}
-          - name: MF_EMAIL_PASSWORD
+          - name: PD_EMAIL_PASSWORD
             value: {{.Values.users.email.pass }}
-          - name: MF_EMAIL_PORT
+          - name: PD_EMAIL_PORT
             value: "2525"
-          - name: MF_EMAIL_TEMPLATE
+          - name: PD_EMAIL_TEMPLATE
             value: {{.Values.users.email.temp }}
-          - name: MF_EMAIL_USERNAME
+          - name: PD_EMAIL_USERNAME
             value: {{.Values.users.email.name }}
-          - name: MF_JAEGER_URL
+          - name: PD_JAEGER_URL
             value: {{.Values.jaeger.url }}
-          - name: MF_TOKEN_RESET_ENDPOINT
+          - name: PD_TOKEN_RESET_ENDPOINT
             value: {{.Values.users.token }}
-          - name: MF_USERS_DB
+          - name: PD_USERS_DB
             value: {{.Values.users.db.name }}
-          - name: MF_USERS_DB_HOST
+          - name: PD_USERS_DB_HOST
             value: {{.Values.users.db.host }}
-          - name: MF_USERS_DB_PASS
+          - name: PD_USERS_DB_PASS
             value: {{.Values.users.db.pass }}
-          - name: MF_USERS_DB_PORT
+          - name: PD_USERS_DB_PORT
             value: "5432"
-          - name: MF_USERS_DB_USER
+          - name: PD_USERS_DB_USER
             value: {{.Values.users.db.user }}
-          - name: MF_USERS_HTTP_PORT
+          - name: PD_USERS_HTTP_PORT
             value: "8180"
-          - name: MF_USERS_LOG_LEVEL
+          - name: PD_USERS_LOG_LEVEL
             value: {{.Values.users.log_level }}
       restartPolicy: Always
       volumes:

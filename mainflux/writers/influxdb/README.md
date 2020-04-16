@@ -10,15 +10,15 @@ default values.
 
 | Variable                          | Description                                               | Default                |
 |-----------------------------------|-----------------------------------------------------------|------------------------|
-| MF_NATS_URL                       | NATS instance URL                                         | nats://localhost:4222  |
-| MF_INFLUX_WRITER_LOG_LEVEL        | Log level for InfluxDB writer (debug, info, warn, error)  | error                  |
-| MF_INFLUX_WRITER_PORT             | Service HTTP port                                         | 8180                   |
-| MF_INFLUX_WRITER_DB_NAME          | InfluxDB database name                                    | mainflux               |
-| MF_INFLUX_WRITER_DB_HOST          | InfluxDB host                                             | localhost              |
-| MF_INFLUX_WRITER_DB_PORT          | Default port of InfluxDB database                         | 8086                   |
-| MF_INFLUX_WRITER_DB_USER          | Default user of InfluxDB database                         | mainflux               |
-| MF_INFLUX_WRITER_DB_PASS          | Default password of InfluxDB user                         | mainflux               |
-| MF_INFLUX_WRITER_SUBJECTS_CONFIG  | Configuration file path with subjects list                | /config/subjects.toml  |
+| PD_NATS_URL                       | NATS instance URL                                         | nats://localhost:4222  |
+| PD_INFLUX_WRITER_LOG_LEVEL        | Log level for InfluxDB writer (debug, info, warn, error)  | error                  |
+| PD_INFLUX_WRITER_PORT             | Service HTTP port                                         | 8180                   |
+| PD_INFLUX_WRITER_DB_NAME          | InfluxDB database name                                    | mainflux               |
+| PD_INFLUX_WRITER_DB_HOST          | InfluxDB host                                             | localhost              |
+| PD_INFLUX_WRITER_DB_PORT          | Default port of InfluxDB database                         | 8086                   |
+| PD_INFLUX_WRITER_DB_USER          | Default user of InfluxDB database                         | mainflux               |
+| PD_INFLUX_WRITER_DB_PASS          | Default password of InfluxDB user                         | mainflux               |
+| PD_INFLUX_WRITER_SUBJECTS_CONFIG  | Configuration file path with subjects list                | /config/subjects.toml  |
 
 ## Deployment
 
@@ -31,15 +31,15 @@ default values.
       - [Service HTTP port]
     restart: on-failure
     environment:
-      MF_NATS_URL: [NATS instance URL]
-      MF_INFLUX_WRITER_LOG_LEVEL: [Influx writer log level]
-      MF_INFLUX_WRITER_PORT: [Service HTTP port]
-      MF_INFLUX_WRITER_DB_NAME: [InfluxDB name]
-      MF_INFLUX_WRITER_DB_HOST: [InfluxDB host]
-      MF_INFLUX_WRITER_DB_PORT: [InfluxDB port]
-      MF_INFLUX_WRITER_DB_USER: [InfluxDB admin user]
-      MF_INFLUX_WRITER_DB_PASS: [InfluxDB admin password]
-      MF_INFLUX_WRITER_SUBJECTS_CONFIG: [Configuration file path with subjects list]
+      PD_NATS_URL: [NATS instance URL]
+      PD_INFLUX_WRITER_LOG_LEVEL: [Influx writer log level]
+      PD_INFLUX_WRITER_PORT: [Service HTTP port]
+      PD_INFLUX_WRITER_DB_NAME: [InfluxDB name]
+      PD_INFLUX_WRITER_DB_HOST: [InfluxDB host]
+      PD_INFLUX_WRITER_DB_PORT: [InfluxDB port]
+      PD_INFLUX_WRITER_DB_USER: [InfluxDB admin user]
+      PD_INFLUX_WRITER_DB_PASS: [InfluxDB admin password]
+      PD_INFLUX_WRITER_SUBJECTS_CONFIG: [Configuration file path with subjects list]
     ports:
       - [host machine port]:[configured HTTP port]
     volume:
@@ -61,7 +61,7 @@ make influxdb
 make install
 
 # Set the environment variables and run the service
-MF_NATS_URL=[NATS instance URL] MF_INFLUX_WRITER_LOG_LEVEL=[Influx writer log level] MF_INFLUX_WRITER_PORT=[Service HTTP port] MF_INFLUX_WRITER_DB_NAME=[InfluxDB database name] MF_INFLUX_WRITER_DB_HOST=[InfluxDB database host] MF_INFLUX_WRITER_DB_PORT=[InfluxDB database port] MF_INFLUX_WRITER_DB_USER=[InfluxDB admin user] MF_INFLUX_WRITER_DB_PASS=[InfluxDB admin password] MF_INFLUX_WRITER_SUBJECTS_CONFIG=[Configuration file path with subjects list] $GOBIN/mainflux-influxdb
+PD_NATS_URL=[NATS instance URL] PD_INFLUX_WRITER_LOG_LEVEL=[Influx writer log level] PD_INFLUX_WRITER_PORT=[Service HTTP port] PD_INFLUX_WRITER_DB_NAME=[InfluxDB database name] PD_INFLUX_WRITER_DB_HOST=[InfluxDB database host] PD_INFLUX_WRITER_DB_PORT=[InfluxDB database port] PD_INFLUX_WRITER_DB_USER=[InfluxDB admin user] PD_INFLUX_WRITER_DB_PASS=[InfluxDB admin password] PD_INFLUX_WRITER_SUBJECTS_CONFIG=[Configuration file path with subjects list] $GOBIN/mainflux-influxdb
 ```
 
 ### Using docker-compose

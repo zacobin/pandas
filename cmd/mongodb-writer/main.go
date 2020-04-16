@@ -36,13 +36,13 @@ const (
 	defDBPort          = "27017"
 	defSubjectsCfgPath = "/config/subjects.toml"
 
-	envNatsURL         = "MF_NATS_URL"
-	envLogLevel        = "MF_MONGO_WRITER_LOG_LEVEL"
-	envPort            = "MF_MONGO_WRITER_PORT"
-	envDBName          = "MF_MONGO_WRITER_DB_NAME"
-	envDBHost          = "MF_MONGO_WRITER_DB_HOST"
-	envDBPort          = "MF_MONGO_WRITER_DB_PORT"
-	envSubjectsCfgPath = "MF_MONGO_WRITER_SUBJECTS_CONFIG"
+	envNatsURL         = "PD_NATS_URL"
+	envLogLevel        = "PD_MONGO_WRITER_LOG_LEVEL"
+	envPort            = "PD_MONGO_WRITER_PORT"
+	envDBName          = "PD_MONGO_WRITER_DB_NAME"
+	envDBHost          = "PD_MONGO_WRITER_DB_HOST"
+	envDBPort          = "PD_MONGO_WRITER_DB_PORT"
+	envSubjectsCfgPath = "PD_MONGO_WRITER_SUBJECTS_CONFIG"
 )
 
 type config struct {

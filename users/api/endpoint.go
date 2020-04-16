@@ -6,8 +6,8 @@ package api
 import (
 	"context"
 
-	"github.com/go-kit/kit/endpoint"
 	"github.com/cloustone/pandas/users"
+	"github.com/go-kit/kit/endpoint"
 )
 
 func registrationEndpoint(svc users.Service) endpoint.Endpoint {
@@ -27,9 +27,9 @@ func registrationEndpoint(svc users.Service) endpoint.Endpoint {
 
 // Password reset request endpoint.
 // When successful password reset link is generated.
-// Link is generated using MF_TOKEN_RESET_ENDPOINT env.
+// Link is generated using PD_TOKEN_RESET_ENDPOINT env.
 // and value from Referer header for host.
-// {Referer}+{MF_TOKEN_RESET_ENDPOINT}+{token=TOKEN}
+// {Referer}+{PD_TOKEN_RESET_ENDPOINT}+{token=TOKEN}
 // http://mainflux.com/reset-request?token=xxxxxxxxxxx.
 // Email with a link is being sent to the user.
 // When user clicks on a link it should get the ui with form to

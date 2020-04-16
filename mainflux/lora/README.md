@@ -13,17 +13,17 @@ default values.
 
 | Variable                         | Description                          | Default               |
 |----------------------------------|--------------------------------------|-----------------------|
-| MF_LORA_ADAPTER_HTTP_PORT        | Service HTTP port                    | 8180                  |
-| MF_LORA_ADAPTER_LOG_LEVEL        | Service Log level                    | error                 |
-| MF_NATS_URL                      | NATS instance URL                    | nats://localhost:4222 |
-| MF_LORA_ADAPTER_MESSAGES_URL     | LoRa Server MQTT broker URL          | tcp://localhost:1883  |
-| MF_LORA_ADAPTER_ROUTE_MAP_URL    | Route-map database URL               | localhost:6379        |
-| MF_LORA_ADAPTER_ROUTE_MAP_PASS   | Route-map database password          |                       |
-| MF_LORA_ADAPTER_ROUTE_MAP_DB     | Route-map instance                   | 0                     |
-| MF_THINGS_ES_URL                 | Things service event source URL      | localhost:6379        |
-| MF_THINGS_ES_PASS                | Things service event source password |                       |
-| MF_THINGS_ES_DB                  | Things service event source DB       | 0                     |
-| MF_LORA_ADAPTER_EVENT_CONSUMER   | Service event consumer name          | lora                  |
+| PD_LORA_ADAPTER_HTTP_PORT        | Service HTTP port                    | 8180                  |
+| PD_LORA_ADAPTER_LOG_LEVEL        | Service Log level                    | error                 |
+| PD_NATS_URL                      | NATS instance URL                    | nats://localhost:4222 |
+| PD_LORA_ADAPTER_MESSAGES_URL     | LoRa Server MQTT broker URL          | tcp://localhost:1883  |
+| PD_LORA_ADAPTER_ROUTE_MAP_URL    | Route-map database URL               | localhost:6379        |
+| PD_LORA_ADAPTER_ROUTE_MAP_PASS   | Route-map database password          |                       |
+| PD_LORA_ADAPTER_ROUTE_MAP_DB     | Route-map instance                   | 0                     |
+| PD_THINGS_ES_URL                 | Things service event source URL      | localhost:6379        |
+| PD_THINGS_ES_PASS                | Things service event source password |                       |
+| PD_THINGS_ES_DB                  | Things service event source DB       | 0                     |
+| PD_LORA_ADAPTER_EVENT_CONSUMER   | Service event consumer name          | lora                  |
 
 ## Deployment
 
@@ -37,16 +37,16 @@ services:
     image: mainflux/lora:[version]
     container_name: [instance name]
     environment:
-      MF_LORA_ADAPTER_LOG_LEVEL: [Service Log Level]
-      MF_NATS_URL: [NATS instance URL]
-      MF_LORA_ADAPTER_MESSAGES_URL: [LoRa Server MQTT broker URL]
-      MF_LORA_ADAPTER_ROUTE_MAP_URL: [Route-map database URL]
-      MF_LORA_ADAPTER_ROUTE_MAP_PASS: [Route-map database password]
-      MF_LORA_ADAPTER_ROUTE_MAP_DB: [Route-map instance]
-      MF_THINGS_ES_URL: [Things event source URL]
-      MF_THINGS_ES_PASS: [Things event source password]
-      MF_THINGS_ES_DB: [Things event source DB instance]
-      MF_LORA_ADAPTER_EVENT_CONSUMER: [Service event consumer name]
+      PD_LORA_ADAPTER_LOG_LEVEL: [Service Log Level]
+      PD_NATS_URL: [NATS instance URL]
+      PD_LORA_ADAPTER_MESSAGES_URL: [LoRa Server MQTT broker URL]
+      PD_LORA_ADAPTER_ROUTE_MAP_URL: [Route-map database URL]
+      PD_LORA_ADAPTER_ROUTE_MAP_PASS: [Route-map database password]
+      PD_LORA_ADAPTER_ROUTE_MAP_DB: [Route-map instance]
+      PD_THINGS_ES_URL: [Things event source URL]
+      PD_THINGS_ES_PASS: [Things event source password]
+      PD_THINGS_ES_DB: [Things event source DB instance]
+      PD_LORA_ADAPTER_EVENT_CONSUMER: [Service event consumer name]
 ```
 
 To start the service outside of the container, execute the following shell script:
@@ -64,7 +64,7 @@ make lora
 make install
 
 # set the environment variables and run the service
-MF_LORA_ADAPTER_LOG_LEVEL=[Lora Adapter Log Level] MF_NATS_URL=[NATS instance URL] MF_LORA_ADAPTER_MESSAGES_URL=[LoRa Server mqtt broker URL] MF_LORA_ADAPTER_ROUTE_MAP_URL=[Lora adapter routemap URL] MF_LORA_ADAPTER_ROUTE_MAP_PASS=[Lora adapter routemap password] MF_LORA_ADAPTER_ROUTE_MAP_DB=[Lora adapter routemap instance] MF_THINGS_ES_URL=[Things service event source URL] MF_THINGS_ES_PASS=[Things service event source password] MF_THINGS_ES_DB=[Things service event source password] MF_OPCUA_ADAPTER_EVENT_CONSUMER=[LoRa adapter instance name] $GOBIN/mainflux-lora
+PD_LORA_ADAPTER_LOG_LEVEL=[Lora Adapter Log Level] PD_NATS_URL=[NATS instance URL] PD_LORA_ADAPTER_MESSAGES_URL=[LoRa Server mqtt broker URL] PD_LORA_ADAPTER_ROUTE_MAP_URL=[Lora adapter routemap URL] PD_LORA_ADAPTER_ROUTE_MAP_PASS=[Lora adapter routemap password] PD_LORA_ADAPTER_ROUTE_MAP_DB=[Lora adapter routemap instance] PD_THINGS_ES_URL=[Things service event source URL] PD_THINGS_ES_PASS=[Things service event source password] PD_THINGS_ES_DB=[Things service event source password] PD_OPCUA_ADAPTER_EVENT_CONSUMER=[LoRa adapter instance name] $GOBIN/mainflux-lora
 ```
 
 ### Using docker-compose

@@ -37,34 +37,34 @@ The service is configured using the environment variables presented in the follo
 
 | Variable                      | Description                                                             | Default                          |
 |-------------------------------|-------------------------------------------------------------------------|-----------------------           |
-| MF_BOOTSTRAP_LOG_LEVEL        | Log level for Bootstrap (debug, info, warn, error)                      | error                            |
-| MF_BOOTSTRAP_DB_HOST          | Database host address                                                   | localhost                        |
-| MF_BOOTSTRAP_DB_PORT          | Database host port                                                      | 5432                             |
-| MF_BOOTSTRAP_DB_USER          | Database user                                                           | mainflux                         |
-| MF_BOOTSTRAP_DB_PASS          | Database password                                                       | mainflux                         |
-| MF_BOOTSTRAP_DB               | Name of the database used by the service                                | bootstrap                        |
-| MF_BOOTSTRAP_DB_SSL_MODE      | Database connection SSL mode (disable, require, verify-ca, verify-full) | disable                          |
-| MF_BOOTSTRAP_DB_SSL_CERT      | Path to the PEM encoded certificate file                                |                                  |
-| MF_BOOTSTRAP_DB_SSL_KEY       | Path to the PEM encoded key file                                        |                                  |
-| MF_BOOTSTRAP_DB_SSL_ROOT_CERT | Path to the PEM encoded root certificate file                           |                                  |
-| MF_BOOTSTRAP_ENCRYPT_KEY      | Secret key for secure bootstrapping encryption                          | 12345678910111213141516171819202 |
-| MF_BOOTSTRAP_CLIENT_TLS       | Flag that indicates if TLS should be turned on                          | false                            |
-| MF_BOOTSTRAP_CA_CERTS         | Path to trusted CAs in PEM format                                       |                                  |
-| MF_BOOTSTRAP_PORT             | Bootstrap service HTTP port                                             | 8180                             |
-| MF_BOOTSTRAP_SERVER_CERT      | Path to server certificate in pem format                                |                                  |
-| MF_BOOTSTRAP_SERVER_KEY       | Path to server key in pem format                                        |                                  |
-| MF_SDK_BASE_URL               | Base url for Mainflux SDK                                               | http://localhost                 |
-| MF_SDK_THINGS_PREFIX          | SDK prefix for Things service                                           |                                  |
-| MF_USERS_URL                  | Users service URL                                                       | localhost:8181                   |
-| MF_THINGS_ES_URL              | Things service event source URL                                         | localhost:6379                   |
-| MF_THINGS_ES_PASS             | Things service event source password                                    |                                  |
-| MF_THINGS_ES_DB               | Things service event source database                                    | 0                                |
-| MF_BOOTSTRAP_ES_URL           | Bootstrap service event source URL                                      | localhost:6379                   |
-| MF_BOOTSTRAP_ES_PASS          | Bootstrap service event source password                                 |                                  |
-| MF_BOOTSTRAP_ES_DB            | Bootstrap service event source database                                 | 0                                |
-| MF_BOOTSTRAP_EVENT_CONSUMER   | Bootstrap service event source consumer name                            | bootstrap                        |
-| MF_JAEGER_URL                 | Jaeger server URL                                                       | localhost:6831                   |
-| MF_BOOTSTRAP_THINGS_TIMEOUT   | Things gRPC request timeout in seconds                                  | 1                                |
+| PD_BOOTSTRAP_LOG_LEVEL        | Log level for Bootstrap (debug, info, warn, error)                      | error                            |
+| PD_BOOTSTRAP_DB_HOST          | Database host address                                                   | localhost                        |
+| PD_BOOTSTRAP_DB_PORT          | Database host port                                                      | 5432                             |
+| PD_BOOTSTRAP_DB_USER          | Database user                                                           | mainflux                         |
+| PD_BOOTSTRAP_DB_PASS          | Database password                                                       | mainflux                         |
+| PD_BOOTSTRAP_DB               | Name of the database used by the service                                | bootstrap                        |
+| PD_BOOTSTRAP_DB_SSL_MODE      | Database connection SSL mode (disable, require, verify-ca, verify-full) | disable                          |
+| PD_BOOTSTRAP_DB_SSL_CERT      | Path to the PEM encoded certificate file                                |                                  |
+| PD_BOOTSTRAP_DB_SSL_KEY       | Path to the PEM encoded key file                                        |                                  |
+| PD_BOOTSTRAP_DB_SSL_ROOT_CERT | Path to the PEM encoded root certificate file                           |                                  |
+| PD_BOOTSTRAP_ENCRYPT_KEY      | Secret key for secure bootstrapping encryption                          | 12345678910111213141516171819202 |
+| PD_BOOTSTRAP_CLIENT_TLS       | Flag that indicates if TLS should be turned on                          | false                            |
+| PD_BOOTSTRAP_CA_CERTS         | Path to trusted CAs in PEM format                                       |                                  |
+| PD_BOOTSTRAP_PORT             | Bootstrap service HTTP port                                             | 8180                             |
+| PD_BOOTSTRAP_SERVER_CERT      | Path to server certificate in pem format                                |                                  |
+| PD_BOOTSTRAP_SERVER_KEY       | Path to server key in pem format                                        |                                  |
+| PD_SDK_BASE_URL               | Base url for Mainflux SDK                                               | http://localhost                 |
+| PD_SDK_THINGS_PREFIX          | SDK prefix for Things service                                           |                                  |
+| PD_USERS_URL                  | Users service URL                                                       | localhost:8181                   |
+| PD_THINGS_ES_URL              | Things service event source URL                                         | localhost:6379                   |
+| PD_THINGS_ES_PASS             | Things service event source password                                    |                                  |
+| PD_THINGS_ES_DB               | Things service event source database                                    | 0                                |
+| PD_BOOTSTRAP_ES_URL           | Bootstrap service event source URL                                      | localhost:6379                   |
+| PD_BOOTSTRAP_ES_PASS          | Bootstrap service event source password                                 |                                  |
+| PD_BOOTSTRAP_ES_DB            | Bootstrap service event source database                                 | 0                                |
+| PD_BOOTSTRAP_EVENT_CONSUMER   | Bootstrap service event source consumer name                            | bootstrap                        |
+| PD_JAEGER_URL                 | Jaeger server URL                                                       | localhost:6831                   |
+| PD_BOOTSTRAP_THINGS_TIMEOUT   | Things gRPC request timeout in seconds                                  | 1                                |
 
 ## Deployment
 
@@ -83,34 +83,34 @@ version: "2"
     ports:
       - 8200:8200
     environment:
-      MF_BOOTSTRAP_LOG_LEVEL: [Bootstrap log level]
-      MF_BOOTSTRAP_DB_HOST: [Database host address]
-      MF_BOOTSTRAP_DB_PORT: [Database host port]
-      MF_BOOTSTRAP_DB_USER: [Database user]
-      MF_BOOTSTRAP_DB_PASS: [Database password]
-      MF_BOOTSTRAP_DB: [Name of the database used by the service]
-      MF_BOOTSTRAP_DB_SSL_MODE: [SSL mode to connect to the database with]
-      MF_BOOTSTRAP_DB_SSL_CERT: [Path to the PEM encoded certificate file]
-      MF_BOOTSTRAP_DB_SSL_KEY: [Path to the PEM encoded key file]
-      MF_BOOTSTRAP_DB_SSL_ROOT_CERT: [Path to the PEM encoded root certificate file]
-      MF_BOOTSTRAP_ENCRYPT_KEY: [Hex-encoded encryption key used for secure bootstrap]
-      MF_BOOTSTRAP_CLIENT_TLS: [Boolean value to enable/disable client TLS]
-      MF_BOOTSTRAP_CA_CERTS: [Path to trusted CAs in PEM format]
-      MF_BOOTSTRAP_PORT: 8200
-      MF_BOOTSTRAP_SERVER_CERT: [String path to server cert in pem format]
-      MF_BOOTSTRAP_SERVER_KEY: [String path to server key in pem format]
-      MF_SDK_BASE_URL: [Base SDK URL for the Mainflux services]
-      MF_SDK_THINGS_PREFIX: [SDK prefix for Things service]
-      MF_USERS_URL: [Users service URL]
-      MF_THINGS_ES_URL: [Things service event source URL]
-      MF_THINGS_ES_PASS: [Things service event source password]
-      MF_THINGS_ES_DB: [Things service event source database]
-      MF_BOOTSTRAP_ES_URL: [Bootstrap service event source URL]
-      MF_BOOTSTRAP_ES_PASS: [Bootstrap service event source password]
-      MF_BOOTSTRAP_ES_DB: [Bootstrap service event source database]
-      MF_BOOTSTRAP_EVENT_CONSUMER: [Bootstrap service event source consumer name]
-      MF_JAEGER_URL: [Jaeger server URL]
-      MF_BOOTSTRAP_THINGS_TIMEOUT: [Things gRPC request timeout in seconds]
+      PD_BOOTSTRAP_LOG_LEVEL: [Bootstrap log level]
+      PD_BOOTSTRAP_DB_HOST: [Database host address]
+      PD_BOOTSTRAP_DB_PORT: [Database host port]
+      PD_BOOTSTRAP_DB_USER: [Database user]
+      PD_BOOTSTRAP_DB_PASS: [Database password]
+      PD_BOOTSTRAP_DB: [Name of the database used by the service]
+      PD_BOOTSTRAP_DB_SSL_MODE: [SSL mode to connect to the database with]
+      PD_BOOTSTRAP_DB_SSL_CERT: [Path to the PEM encoded certificate file]
+      PD_BOOTSTRAP_DB_SSL_KEY: [Path to the PEM encoded key file]
+      PD_BOOTSTRAP_DB_SSL_ROOT_CERT: [Path to the PEM encoded root certificate file]
+      PD_BOOTSTRAP_ENCRYPT_KEY: [Hex-encoded encryption key used for secure bootstrap]
+      PD_BOOTSTRAP_CLIENT_TLS: [Boolean value to enable/disable client TLS]
+      PD_BOOTSTRAP_CA_CERTS: [Path to trusted CAs in PEM format]
+      PD_BOOTSTRAP_PORT: 8200
+      PD_BOOTSTRAP_SERVER_CERT: [String path to server cert in pem format]
+      PD_BOOTSTRAP_SERVER_KEY: [String path to server key in pem format]
+      PD_SDK_BASE_URL: [Base SDK URL for the Mainflux services]
+      PD_SDK_THINGS_PREFIX: [SDK prefix for Things service]
+      PD_USERS_URL: [Users service URL]
+      PD_THINGS_ES_URL: [Things service event source URL]
+      PD_THINGS_ES_PASS: [Things service event source password]
+      PD_THINGS_ES_DB: [Things service event source database]
+      PD_BOOTSTRAP_ES_URL: [Bootstrap service event source URL]
+      PD_BOOTSTRAP_ES_PASS: [Bootstrap service event source password]
+      PD_BOOTSTRAP_ES_DB: [Bootstrap service event source database]
+      PD_BOOTSTRAP_EVENT_CONSUMER: [Bootstrap service event source consumer name]
+      PD_JAEGER_URL: [Jaeger server URL]
+      PD_BOOTSTRAP_THINGS_TIMEOUT: [Things gRPC request timeout in seconds]
 ```
 
 To start the service outside of the container, execute the following shell script:
@@ -128,10 +128,10 @@ make bootstrap
 make install
 
 # set the environment variables and run the service
-MF_BOOTSTRAP_LOG_LEVEL=[Bootstrap log level] MF_BOOTSTRAP_DB_HOST=[Database host address] MF_BOOTSTRAP_DB_PORT=[Database host port] MF_BOOTSTRAP_DB_USER=[Database user] MF_BOOTSTRAP_DB_PASS=[Database password] MF_BOOTSTRAP_DB=[Name of the database used by the service] MF_BOOTSTRAP_DB_SSL_MODE=[SSL mode to connect to the database with] MF_BOOTSTRAP_DB_SSL_CERT=[Path to the PEM encoded certificate file] MF_BOOTSTRAP_DB_SSL_KEY=[Path to the PEM encoded key file] MF_BOOTSTRAP_DB_SSL_ROOT_CERT=[Path to the PEM encoded root certificate file] MF_BOOTSTRAP_ENCRYPT_KEY=[Hex-encoded encryption key used for secure bootstrap] MF_BOOTSTRAP_CLIENT_TLS=[Boolean value to enable/disable client TLS] MF_BOOTSTRAP_CA_CERTS=[Path to trusted CAs in PEM format] MF_BOOTSTRAP_PORT=[Service HTTP port] MF_BOOTSTRAP_SERVER_CERT=[Path to server certificate] MF_BOOTSTRAP_SERVER_KEY=[Path to server key] MF_SDK_BASE_URL=[Base SDK URL for the Mainflux services] MF_SDK_THINGS_PREFIX=[SDK prefix for Things service] MF_USERS_URL=[Users service URL] MF_JAEGER_URL=[Jaeger server URL] MF_BOOTSTRAP_THINGS_TIMEOUT=[Things gRPC request timeout in seconds] $GOBIN/mainflux-bootstrap
+PD_BOOTSTRAP_LOG_LEVEL=[Bootstrap log level] PD_BOOTSTRAP_DB_HOST=[Database host address] PD_BOOTSTRAP_DB_PORT=[Database host port] PD_BOOTSTRAP_DB_USER=[Database user] PD_BOOTSTRAP_DB_PASS=[Database password] PD_BOOTSTRAP_DB=[Name of the database used by the service] PD_BOOTSTRAP_DB_SSL_MODE=[SSL mode to connect to the database with] PD_BOOTSTRAP_DB_SSL_CERT=[Path to the PEM encoded certificate file] PD_BOOTSTRAP_DB_SSL_KEY=[Path to the PEM encoded key file] PD_BOOTSTRAP_DB_SSL_ROOT_CERT=[Path to the PEM encoded root certificate file] PD_BOOTSTRAP_ENCRYPT_KEY=[Hex-encoded encryption key used for secure bootstrap] PD_BOOTSTRAP_CLIENT_TLS=[Boolean value to enable/disable client TLS] PD_BOOTSTRAP_CA_CERTS=[Path to trusted CAs in PEM format] PD_BOOTSTRAP_PORT=[Service HTTP port] PD_BOOTSTRAP_SERVER_CERT=[Path to server certificate] PD_BOOTSTRAP_SERVER_KEY=[Path to server key] PD_SDK_BASE_URL=[Base SDK URL for the Mainflux services] PD_SDK_THINGS_PREFIX=[SDK prefix for Things service] PD_USERS_URL=[Users service URL] PD_JAEGER_URL=[Jaeger server URL] PD_BOOTSTRAP_THINGS_TIMEOUT=[Things gRPC request timeout in seconds] $GOBIN/mainflux-bootstrap
 ```
 
-Setting `MF_BOOTSTRAP_CA_CERTS` expects a file in PEM format of trusted CAs. This will enable TLS against the Users gRPC endpoint trusting only those CAs that are provided.
+Setting `PD_BOOTSTRAP_CA_CERTS` expects a file in PEM format of trusted CAs. This will enable TLS against the Users gRPC endpoint trusting only those CAs that are provided.
 
 ## Usage
 

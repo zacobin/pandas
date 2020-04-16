@@ -39,15 +39,15 @@ const (
 	defDBPort          = "9042"
 	defSubjectsCfgPath = "/config/subjects.toml"
 
-	envNatsURL         = "MF_NATS_URL"
-	envLogLevel        = "MF_CASSANDRA_WRITER_LOG_LEVEL"
-	envPort            = "MF_CASSANDRA_WRITER_PORT"
-	envCluster         = "MF_CASSANDRA_WRITER_DB_CLUSTER"
-	envKeyspace        = "MF_CASSANDRA_WRITER_DB_KEYSPACE"
-	envDBUsername      = "MF_CASSANDRA_WRITER_DB_USERNAME"
-	envDBPassword      = "MF_CASSANDRA_WRITER_DB_PASSWORD"
-	envDBPort          = "MF_CASSANDRA_WRITER_DB_PORT"
-	envSubjectsCfgPath = "MF_CASSANDRA_WRITER_SUBJECTS_CONFIG"
+	envNatsURL         = "PD_NATS_URL"
+	envLogLevel        = "PD_CASSANDRA_WRITER_LOG_LEVEL"
+	envPort            = "PD_CASSANDRA_WRITER_PORT"
+	envCluster         = "PD_CASSANDRA_WRITER_DB_CLUSTER"
+	envKeyspace        = "PD_CASSANDRA_WRITER_DB_KEYSPACE"
+	envDBUsername      = "PD_CASSANDRA_WRITER_DB_USERNAME"
+	envDBPassword      = "PD_CASSANDRA_WRITER_DB_PASSWORD"
+	envDBPort          = "PD_CASSANDRA_WRITER_DB_PORT"
+	envSubjectsCfgPath = "PD_CASSANDRA_WRITER_SUBJECTS_CONFIG"
 )
 
 type config struct {
