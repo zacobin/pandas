@@ -15,28 +15,24 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/cloustone/pandas/apimachinery/models"
-	"github.com/cloustone/pandas/rulechain/adaptors"
-	"github.com/cloustone/pandas/rulechain/options"
-
+	"github.com/cloustone/pandas/mainflux"
+	"github.com/cloustone/pandas/rulechain/message"
 	logr "github.com/sirupsen/logrus"
 )
 
 // instanceManager manage all rulechain's runtime
 type instanceManager struct {
-	servingOptions *options.ServingOptions
-	mutex          sync.RWMutex
-	rulechains     map[string]*ruleChainInstance
-	adaptors       map[string][]string
+	mutex      sync.RWMutex
+	rulechains map[string]*ruleChainInstance
+	adaptors   map[string][]string
 }
 
 // newInstanceManager create controller instance used in rule chain service
-func newInstanceManager(servingOptions *options.ServingOptions) *instanceManager {
+func NewInstanceManager() *instanceManager {
 	controller := &instanceManager{
-		servingOptions: servingOptions,
-		mutex:          sync.RWMutex{},
-		rulechains:     make(map[string]*ruleChainInstance),
-		adaptors:       make(map[string][]string),
+		mutex:      sync.RWMutex{},
+		rulechains: make(map[string]*ruleChainInstance),
+		adaptors:   make(map[string][]string),
 	}
 	return controller
 }
@@ -53,71 +49,58 @@ func (r *instanceManager) getAdaptorRuleChains(adaptorID string) []*ruleChainIns
 	return rulechains
 }
 
-// buildAdaptorOptions
-func buildAdaptorOptions(c *models.DataSource) *adaptors.AdaptorOptions {
-	return &adaptors.AdaptorOptions{
-		Name:         c.Name,
-		Protocol:     c.Protocol,
-		IsProvider:   c.IsProvider,
-		ServicePort:  c.ServicePort,
-		ConnectURL:   c.ConnectURL,
-		IsTLSEnabled: c.IsTLSEnabled,
-		KeyFile:      c.KeyFile,
-		CertFile:     c.CertFile,
-	}
-}
-
 // startRuleChain start the rule chain and receiving incoming data
-func (r *instanceManager) startRuleChain(rulechainModel *models.RuleChain) error {
+func (r *instanceManager) startRuleChain(rulechainmodel *RuleChain) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 
-	if _, found := r.rulechains[rulechainModel.ID]; found {
-		logr.Debugf("rule chain '%s' is already started", rulechainModel.ID)
+	if _, found := r.rulechains[rulechainmodel.ID]; found {
+		logr.Debugf("rule chain '%s' is already started", rulechainmodel.ID)
 		return nil
 	}
 	// create the internal runtime rulechain
-	rulechain, errs := newRuleChainInstance(rulechainModel.Payload)
+	rulechain, errs := newRuleChainInstance(rulechainmodel.Channel, rulechainmodel.SubTopic, rulechainmodel.Payload)
 	if len(errs) > 0 {
 		return errs[0]
 	}
+	rulechainmodel.Status = RULE_STATUS_STARTED
 
-	adaptorOptions := buildAdaptorOptions(&rulechainModel.DataSource)
-	adaptor, err := NewAdaptor(adaptorOptions)
-	if err != nil {
-		logr.WithError(err)
-		return err
-	}
-	adaptor.RegisterObserver(rulechain)
-	r.addInstanceInternal(rulechainModel.ID, rulechain, adaptor)
+	r.addInstanceInternal(rulechainmodel.ID, rulechain)
 	return nil
 }
 
 // addInstanceInternal add a new rulechain instance internally with
 // specified adaptor id
-func (r *instanceManager) addInstanceInternal(rulechainID string, instance *ruleChainInstance, adaptor adaptors.Adaptor) {
-	adaptorID := adaptor.Options().Name
-	if _, found := r.adaptors[adaptorID]; !found {
-		r.adaptors[adaptorID] = []string{}
-	}
-	r.adaptors[adaptorID] = append(r.adaptors[adaptorID], rulechainID)
+func (r *instanceManager) addInstanceInternal(rulechainID string, instance *ruleChainInstance) {
 	r.rulechains[rulechainID] = instance
 }
 
 // stopRuleChain stop the rule chain
-func (r *instanceManager) stopRuleChain(rulechainModel *models.RuleChain) error {
+func (r *instanceManager) stopRuleChain(rulechainmodel *RuleChain) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 
-	if _, found := r.rulechains[rulechainModel.ID]; !found {
-		logr.Debugf("rule chain '%s' is not found", rulechainModel.ID)
-		return fmt.Errorf("rule chain '%s' no exist", rulechainModel.ID)
+	if _, found := r.rulechains[rulechainmodel.ID]; !found {
+		logr.Debugf("rule chain '%s' is not found", rulechainmodel.ID)
+		return fmt.Errorf("rule chain '%s' no exist", rulechainmodel.ID)
 	}
-	delete(r.rulechains, rulechainModel.ID)
+	delete(r.rulechains, rulechainmodel.ID)
+	rulechainmodel.Status = RULE_STATUS_STOPPED
 	return nil
 }
 
 // deleteRuleChain remove rule chain
-func (c *instanceManager) deleteRuleChain(rulechain *models.RuleChain) error {
+func (c *instanceManager) deleteRuleChain(rulechain *RuleChain) error {
+	return nil
+}
+
+func (c *instanceManager) HandleMessage(rulechainmessage message.Message, msg *mainflux.Message) error {
+	for _, rulechaininstance := range c.rulechains {
+		if rulechaininstance.channel == msg.GetChannel() && rulechaininstance.subTopic == msg.GetSubtopic() {
+			if node, found := rulechaininstance.nodes[rulechaininstance.firstRuleNodeId]; found {
+				go node.Handle(rulechainmessage)
+			}
+		}
+	}
 	return nil
 }

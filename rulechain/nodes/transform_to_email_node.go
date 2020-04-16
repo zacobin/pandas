@@ -12,7 +12,7 @@
 package nodes
 
 import (
-	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/rulechain/message"
 	"github.com/cloustone/pandas/rulechain/runtime"
 
 	"github.com/sirupsen/logrus"
@@ -42,7 +42,7 @@ func (f transformToEmailNodeFactory) Create(id string, meta Metadata) (Node, err
 	return decodePath(meta, node)
 }
 
-func (n *transformToEmailNode) Handle(msg models.Message) error {
+func (n *transformToEmailNode) Handle(msg message.Message) error {
 	logrus.Infof("%s handle message '%s'", n.Name(), msg.GetType())
 
 	successLabelNode := n.GetLinkedNode("Success")

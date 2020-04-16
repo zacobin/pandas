@@ -12,7 +12,7 @@
 package nodes
 
 import (
-	"github.com/cloustone/pandas/apimachinery/models"
+	"github.com/cloustone/pandas/rulechain/message"
 	"github.com/sirupsen/logrus"
 )
 
@@ -34,7 +34,7 @@ func (f transformScriptNodeFactory) Create(id string, meta Metadata) (Node, erro
 	return decodePath(meta, node)
 }
 
-func (n *transformScriptNode) Handle(msg models.Message) error {
+func (n *transformScriptNode) Handle(msg message.Message) error {
 	logrus.Infof("%s handle message '%s'", n.Name(), msg.GetType())
 
 	successLabelNode := n.GetLinkedNode("Success")

@@ -11,10 +11,15 @@
 //  under the License.
 package nodes
 
-import "github.com/cloustone/pandas/apimachinery/models"
+import "github.com/cloustone/pandas/rulechain/message"
 
 type ScriptEngine interface {
-	ScriptOnMessage(msg models.Message, script string) (models.Message, error)
+	ScriptOnMessage(msg message.Message, script string) (message.Message, error)
+	//used by filter_switch_node
+	ScriptOnSwitch(msg message.Message, script string) ([]string, error)
+	//used by filter_script_node
+	ScriptOnFilter(msg message.Message, script string) (bool, error)
+	ScriptToString(msg message.Message, script string) (string, error)
 }
 
 func NewScriptEngine() ScriptEngine {
