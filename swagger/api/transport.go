@@ -11,7 +11,7 @@ import (
 
 	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
-	swagger_helper "github.com/cloustone/pandas/swagger-helper"
+	swagger "github.com/cloustone/pandas/swagger"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-zoo/bone"
@@ -37,7 +37,7 @@ var (
 )
 
 // MakeHandler returns a HTTP handler for API endpoints.
-func MakeHandler(tracer opentracing.Tracer, svc swagger_helper.Service) http.Handler {
+func MakeHandler(tracer opentracing.Tracer, svc swagger.Service) http.Handler {
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorEncoder(encodeError),
 	}
@@ -54,11 +54,11 @@ func MakeHandler(tracer opentracing.Tracer, svc swagger_helper.Service) http.Han
 	r.Get("/swaggers/:service", kithttp.NewServer(
 		kitot.TraceServer(tracer, "view_swagger")(viewSwaggerEndpoint(svc)),
 		decodeView,
-		encodeResponse,
+		encodeSwaggerResponse,
 		opts...,
 	))
 
-	r.GetFunc("/version", pandas.Version("swagger-helper"))
+	r.GetFunc("/version", pandas.Version("swagger"))
 	r.Handle("/metrics", promhttp.Handler())
 
 	return r
@@ -66,8 +66,9 @@ func MakeHandler(tracer opentracing.Tracer, svc swagger_helper.Service) http.Han
 
 func decodeView(_ context.Context, r *http.Request) (interface{}, error) {
 	req := viewSwaggerReq{
-		token:  r.Header.Get("Authorization"),
-		module: bone.GetValue(r, "service"),
+		token:   r.Header.Get("Authorization"),
+		service: bone.GetValue(r, "service"),
+		httpreq: r,
 	}
 
 	return req, nil
@@ -99,17 +100,25 @@ func encodeResponse(_ context.Context, w http.ResponseWriter, response interface
 	return json.NewEncoder(w).Encode(response)
 }
 
+func encodeSwaggerResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	w.Header().Set("Content-Type", contentType)
+
+	resp := response.(viewSwaggerRes)
+
+	return json.NewEncoder(w).Encode(resp.httpresp.Body)
+}
+
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", contentType)
 
 	switch err {
-	case swagger_helper.ErrMalformedEntity:
+	case swagger.ErrMalformedEntity:
 		w.WriteHeader(http.StatusBadRequest)
-	case swagger_helper.ErrUnauthorizedAccess:
+	case swagger.ErrUnauthorizedAccess:
 		w.WriteHeader(http.StatusForbidden)
-	case swagger_helper.ErrNotFound:
+	case swagger.ErrNotFound:
 		w.WriteHeader(http.StatusNotFound)
-	case swagger_helper.ErrConflict:
+	case swagger.ErrConflict:
 		w.WriteHeader(http.StatusUnprocessableEntity)
 	case errUnsupportedContentType:
 		w.WriteHeader(http.StatusUnsupportedMediaType)

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package swagger_helper
+package swagger
 
 import (
 	"context"
@@ -30,6 +30,9 @@ var (
 // Service specifies an API that must be fullfiled by the domain service
 // implementation, and all of its decorators (e.g. logging & metrics).
 type Service interface {
+	//RetrieveSwaggerConfigs return swagger's config infos
+	RetrieveSwaggerConfigs(context.Context, string) (Configs, error)
+
 	// RetrieveDownstramSwagger retrieves data about downstream swagger with the provided
 	// ID belonging to the model identified by the provided key.
 	RetrieveDownstreamSwagger(context.Context, string, string) (DownstreamSwagger, error)
@@ -37,17 +40,30 @@ type Service interface {
 
 type swaggerService struct {
 	auth     mainflux.AuthNServiceClient
+	info     SwaggerInfo
 	swaggers []DownstreamSwagger
 }
 
 var _ Service = (*swaggerService)(nil)
 
 // New instantiates the swagger service implementation.
-func New(auth mainflux.AuthNServiceClient, swaggerConfigs SwaggerHelperConfigs, logger logger.Logger) Service {
+func New(auth mainflux.AuthNServiceClient, configs Configs, logger logger.Logger) Service {
 	return &swaggerService{
 		auth:     auth,
-		swaggers: swaggerConfigs.DownstreamSwaggers,
+		info:     configs.Info,
+		swaggers: configs.DownstreamSwaggers,
 	}
+}
+
+func (ss *swaggerService) RetrieveSwaggerConfigs(ctx context.Context, token string) (Configs, error) {
+	_, err := ss.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return Configs{}, ErrUnauthorizedAccess
+	}
+	return Configs{
+		Info:               ss.info,
+		DownstreamSwaggers: ss.swaggers,
+	}, nil
 }
 
 func (ss *swaggerService) RetrieveDownstreamSwagger(ctx context.Context, token string, module string) (ds DownstreamSwagger, err error) {

@@ -4,6 +4,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -24,9 +25,9 @@ import (
 
 	authapi "github.com/cloustone/pandas/authn/api/grpc"
 	"github.com/cloustone/pandas/pkg/logger"
-	swagger_helper "github.com/cloustone/pandas/swagger-helper"
-	"github.com/cloustone/pandas/swagger-helper/api"
-	httpapi "github.com/cloustone/pandas/swagger-helper/api"
+	"github.com/cloustone/pandas/swagger"
+	"github.com/cloustone/pandas/swagger/api"
+	httpapi "github.com/cloustone/pandas/swagger/api"
 	localusers "github.com/cloustone/pandas/things/users"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
@@ -51,6 +52,7 @@ const (
 	defJaegerURL       = ""
 	defAuthURL         = "localhost:8181"
 	defAuthTimeout     = "1" // in seconds
+	defDownstreams     = "./downstreams.json"
 
 	envLogLevel        = "PD_V2MS_LOG_LEVEL"
 	envClientTLS       = "PD_V2MS_CLIENT_TLS"
@@ -65,6 +67,7 @@ const (
 	envJaegerURL       = "PD_JAEGER_URL"
 	envAuthURL         = "PD_AUTH_URL"
 	envAuthTimeout     = "PD_AUTH_TIMEOUT"
+	envDownstreams     = "PD_DOWNSTREAMS"
 )
 
 type config struct {
@@ -90,6 +93,7 @@ type config struct {
 	authTimeout     time.Duration
 	NatsURL         string
 	channelID       string
+	downstreams     string
 }
 
 func main() {
@@ -110,7 +114,10 @@ func main() {
 	if close != nil {
 		defer close()
 	}
-	swaggerConfigs, _ := swagger_helper.LoadDownstreamSwaggers("", logger)
+	swaggerConfigs, err := loadDownstreamSwaggers(cfg.downstreams, logger)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 	svc := newService(auth, swaggerConfigs, logger)
 	errs := make(chan error, 2)
 
@@ -123,7 +130,7 @@ func main() {
 	}()
 
 	err = <-errs
-	logger.Error(fmt.Sprintf("swagger-helper service terminated: %s", err))
+	logger.Error(fmt.Sprintf("swagger service terminated: %s", err))
 }
 
 func loadConfig() config {
@@ -150,6 +157,7 @@ func loadConfig() config {
 		jaegerURL:       pandas.Env(envJaegerURL, defJaegerURL),
 		authURL:         pandas.Env(envAuthURL, defAuthURL),
 		authTimeout:     time.Duration(timeout) * time.Second,
+		downstreams:     pandas.Env(envDownstreams, defDownstreams),
 	}
 }
 
@@ -175,6 +183,21 @@ func initJaeger(svcName, url string, logger logger.Logger) (opentracing.Tracer, 
 	}
 
 	return tracer, closer
+}
+
+// loadDownstreamSwaggers load downstream swagger from config file
+func loadDownstreamSwaggers(fullFilePath string, logger logger.Logger) (swagger.Configs, error) {
+	buf, err := ioutil.ReadFile(fullFilePath)
+	if err != nil {
+		logger.Debug("open downstream swagger helper config file failed")
+		return swagger.Configs{}, err
+	}
+	configs := swagger.Configs{}
+	if err := json.Unmarshal(buf, &configs); err != nil {
+		logger.Debug("illegal downstream swagger config file")
+		return swagger.Configs{}, err
+	}
+	return configs, nil
 }
 
 func createAuthClient(cfg config, tracer opentracing.Tracer, logger logger.Logger) (mainflux.AuthNServiceClient, func() error) {
@@ -211,8 +234,8 @@ func connectToAuth(cfg config, logger logger.Logger) *grpc.ClientConn {
 	return conn
 }
 
-func newService(auth mainflux.AuthNServiceClient, swaggerConfigs swagger_helper.SwaggerHelperConfigs, logger logger.Logger) swagger_helper.Service {
-	svc := swagger_helper.New(auth, swaggerConfigs, logger)
+func newService(auth mainflux.AuthNServiceClient, swaggerConfigs swagger.Configs, logger logger.Logger) swagger.Service {
+	svc := swagger.New(auth, swaggerConfigs, logger)
 	svc = api.LoggingMiddleware(svc, logger)
 	svc = api.MetricsMiddleware(
 		svc,
@@ -236,11 +259,11 @@ func newService(auth mainflux.AuthNServiceClient, swaggerConfigs swagger_helper.
 func startHTTPServer(handler http.Handler, port string, cfg config, logger logger.Logger, errs chan error) {
 	p := fmt.Sprintf(":%s", port)
 	if cfg.serverCert != "" || cfg.serverKey != "" {
-		logger.Info(fmt.Sprintf("swagger-helper service started using https on port %s with cert %s key %s",
+		logger.Info(fmt.Sprintf("swagger service started using https on port %s with cert %s key %s",
 			port, cfg.serverCert, cfg.serverKey))
 		errs <- http.ListenAndServeTLS(p, cfg.serverCert, cfg.serverKey, handler)
 		return
 	}
-	logger.Info(fmt.Sprintf("swagger-helper service started using http on port %s", cfg.httpPort))
+	logger.Info(fmt.Sprintf("swagger service started using http on port %s", cfg.httpPort))
 	errs <- http.ListenAndServe(p, handler)
 }

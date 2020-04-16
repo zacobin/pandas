@@ -4,7 +4,9 @@
 package api
 
 import (
-	swagger_helper "github.com/cloustone/pandas/swagger-helper"
+	"net/http"
+
+	swagger "github.com/cloustone/pandas/swagger"
 )
 
 const maxNameSize = 1024
@@ -20,24 +22,25 @@ type listSwaggerReq struct {
 
 func (req listSwaggerReq) validate() error {
 	if req.token == "" {
-		return swagger_helper.ErrUnauthorizedAccess
+		return swagger.ErrUnauthorizedAccess
 	}
 
 	return nil
 }
 
 type viewSwaggerReq struct {
-	token  string
-	module string
+	token   string
+	service string
+	httpreq *http.Request
 }
 
 func (req viewSwaggerReq) validate() error {
 	if req.token == "" {
-		return swagger_helper.ErrUnauthorizedAccess
+		return swagger.ErrUnauthorizedAccess
 	}
 
-	if req.module == "" {
-		return swagger_helper.ErrMalformedEntity
+	if req.service == "" {
+		return swagger.ErrMalformedEntity
 	}
 
 	return nil

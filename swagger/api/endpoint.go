@@ -8,48 +8,56 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"strings"
 
-	swagger_helper "github.com/cloustone/pandas/swagger-helper"
+	swagger "github.com/cloustone/pandas/swagger"
 	"github.com/go-kit/kit/endpoint"
 )
 
-func viewSwaggerEndpoint(svc swagger_helper.Service) endpoint.Endpoint {
+func viewSwaggerEndpoint(svc swagger.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(viewSwaggerReq)
 
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		swagger, err := svc.RetrieveDownstreamSwagger(ctx, req.token, req.module)
+		swagger, err := svc.RetrieveDownstreamSwagger(ctx, req.token, req.service)
 		if err != nil {
 			return nil, err
 		}
 
-		instance := swagger.Host
+		url := swagger.Host
 		if !strings.HasPrefix(swagger.Host, "http") {
-			instance = "http://" + swagger.Host
+			url = "http://" + swagger.Host + swagger.SwaggerUrl
 		}
-		u, err := url.Parse(instance)
+		resp, err := http.Get(url)
 		if err != nil {
 			return nil, err
 		}
-		u.Path = swagger.SwaggerUrl
-		// TODO
-		return nil, nil
+		return viewSwaggerRes{httpresp: resp}, nil
 	}
 }
 
-func listSwaggerEndpoint(svc swagger_helper.Service) endpoint.Endpoint {
+func listSwaggerEndpoint(svc swagger.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(listSwaggerReq)
 
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		// TODO
-		return nil, nil
+		configs, err := svc.RetrieveSwaggerConfigs(context.TODO(), req.token)
+		if err != nil {
+			return nil, err
+		}
+		res := listSwaggerRes{
+			Title:    configs.Info.Title,
+			Version:  configs.Info.Version,
+			Services: []string{},
+		}
+		for _, swagger := range configs.DownstreamSwaggers {
+			res.Services = append(res.Services, swagger.Name)
+		}
+		return res, nil
 	}
 }
 

@@ -1,0 +1,40 @@
+{
+    "downstreamSwaggers": [
+        { "name": "bootstrap",
+          "host": "localhost",
+          "swaggerUrl": "/swagger"
+        }, 
+        { "name": "lbs",
+          "host": "localhost",
+          "swaggerUrl": "/swagger"
+        },
+        { "name": "pms",
+          "host": "localhost",
+          "swaggerUrl": "/swagger"
+        },
+        { "name": "realms",
+          "host": "localhost",
+          "swaggerUrl": "/swagger"
+        },
+        { "name": "things",
+          "host": "localhost",
+          "swaggerUrl": "/swagger"
+        },
+        { "name": "users",
+          "host": "localhost",
+          "swaggerUrl": "/swagger"
+        },
+        { "name": "twins",
+          "host": "localhost",
+          "swaggerUrl": "/swagger"
+        },
+        { "name": "v2ms",
+          "host": "localhost",
+          "swaggerUrl": "/swagger"
+        }
+    ],
+    "info": {
+        "title": "pandas restapi",
+        "version": "0.01"
+    }
+}
