@@ -13,7 +13,7 @@ DOCKER_NAMESPACE := cloustone
 # Space separated patterns of packages to skip in list, test, format.
 IGNORED_PACKAGES := /vendor/
 
-SERVICES = apimachinery rulechain lbs authn authz things bootstrap twins users v2ms realms headmast
+SERVICES = apimachinery rulechain lbs authn authz things bootstrap twins users v2ms realms headmast swagger-helper
 	
 ADAPTOR_SERVICE = http ws coap lora opcua mqtt cli
 	
@@ -22,7 +22,7 @@ ADDONE_SERVICE = influxdb-writer influxdb-reader mongodb-writer mongodb-reader \
 
 UNAME = $(shell uname)
 DOCKER_REPO = docker.io
-IMAGES = apimachinery rulechain lbs authn authz things bootstrap twins users v2ms realms headmast
+IMAGES = apimachinery rulechain lbs authn authz things bootstrap twins users v2ms realms headmast swagger-helper
 ADAPTOR_IMAGES = http ws coap lora opcua mqtt cli
 ADDONE_IMAGES = influxdb-writer influxdb-reader mongodb-writer mongodb-reader \
 				cassandra-writer cassandra-reader postgres-writer postgres-reader
