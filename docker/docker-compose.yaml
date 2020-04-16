@@ -89,18 +89,6 @@ services:
       PANDAS_DNS_SERVER: "docker-compose"
     command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
 
-  headmast:
-    image: cloustone/pandas-headmast
-    ports:
-      - "30013:30013"
-    restart: always
-    depends_on:
-      - etcd
-    environment:
-      PANDAS_PORT: 30013
-      PANDAS_DNS_SERVER: "docker-compose"
-    command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
-
   rulechain:
     image: cloustone/pandas-rulechain
     ports:

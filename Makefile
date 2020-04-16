@@ -13,7 +13,7 @@ DOCKER_NAMESPACE := cloustone
 # Space separated patterns of packages to skip in list, test, format.
 IGNORED_PACKAGES := /vendor/
 
-SERVICES = apimachinery rulechain headmast lbs authn authz things bootstrap twins users 
+SERVICES = apimachinery rulechain lbs authn authz things bootstrap twins users 
 	
 ADAPTOR_SERVICE = http ws coap lora opcua mqtt cli
 	
@@ -22,7 +22,7 @@ ADDONE_SERVICE = influxdb-writer influxdb-reader mongodb-writer mongodb-reader \
 
 UNAME = $(shell uname)
 DOCKER_REPO = docker.io
-IMAGES = apimachinery rulechain headmast lbs authn authz things bootstrap twins users
+IMAGES = apimachinery rulechain lbs authn authz things bootstrap twins users
 ADAPTOR_IMAGES = http ws coap lora opcua mqtt cli
 ADDONE_IMAGES = influxdb-writer influxdb-reader mongodb-writer mongodb-reader \
 				cassandra-writer cassandra-reader postgres-writer postgres-reader
@@ -30,7 +30,7 @@ IMAGE_NAME_PREFIX := pandas-
 IMAGE_DIR := $(IMAGE_NAME)
 ifeq ($(IMAGE_NAME),bridge)
     IMAGE_DIR := edge/$(IMAGE_NAME)
-else ifneq (,$(filter $(IMAGE_NAME), apimachinery  rulechain headmast lbs authn))
+else ifneq (,$(filter $(IMAGE_NAME), apimachinery  rulechain lbs authn))
     IMAGE_DIR := cmd/$(IMAGE_NAME)
 else ifeq ($(IMAGE_NAME),cabinet)
     IMAGE_DIR := security/$(IMAGE_NAME)
