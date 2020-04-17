@@ -277,6 +277,7 @@ services:
       PD_RULECHAIN_DB_USER: ${PD_RULECHAIN_DB_USER}
       PD_RULECHAIN_DB_PASS: ${PD_RULECHAIN_DB_PASS}
       PD_RULECHAIN_DB: ${PD_RULECHAIN_DB}
+      PD_NATS_URL: ${PD_NATS_URL}
 
   rulechain-db:
     image: postgres:10.8-alpine
