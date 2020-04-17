@@ -64,8 +64,8 @@ type rulechainService struct {
 	auth       mainflux.AuthNServiceClient
 	rulechains RuleChainRepository
 	//mutex      sync.RWMutex
-	instancemanager instanceManager
-	rulechainscache RuleChainCache
+	instanceManager instanceManager
+	rulechainsCache RuleChainCache
 }
 
 //New new
@@ -73,8 +73,8 @@ func New(auth mainflux.AuthNServiceClient, rulechains RuleChainRepository, insta
 	return &rulechainService{
 		auth:            auth,
 		rulechains:      rulechains,
-		instancemanager: instancemanager,
-		rulechainscache: rulechainscache,
+		instanceManager: instancemanager,
+		rulechainsCache: rulechainscache,
 	}
 }
 
@@ -156,18 +156,18 @@ func (svc rulechainService) UpdateRuleChainStatus(ctx context.Context, token str
 	}
 
 	switch updatestatus {
-	case "start":
+	case UPDATE_RULE_STATUS_START:
 		if rulechain.Status != RULE_STATUS_CREATED && rulechain.Status != RULE_STATUS_STOPPED {
 			return status.Error(codes.FailedPrecondition, "")
 		}
 
-		return svc.instancemanager.startRuleChain(&rulechain)
-	case "stop":
+		return svc.instanceManager.startRuleChain(&rulechain)
+	case UPDATE_RULE_STATUS_STOP:
 		if rulechain.Status != RULE_STATUS_STARTED {
 			return status.Error(codes.FailedPrecondition, "")
 		}
 
-		return svc.instancemanager.stopRuleChain(&rulechain)
+		return svc.instanceManager.stopRuleChain(&rulechain)
 	}
 	return nil
 }
@@ -178,5 +178,5 @@ func (svc rulechainService) SaveStates(msg *mainflux.Message) error {
 		logrus.WithError(err).Errorf("rulechain instance receive message failed")
 		return err
 	}
-	return svc.instancemanager.HandleMessage(rulechainmessage, msg)
+	return svc.instanceManager.HandleMessage(rulechainmessage, msg)
 }

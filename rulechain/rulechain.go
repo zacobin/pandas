@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+const (
+	UPDATE_RULE_STATUS_START = "start"
+	UPDATE_RULE_STATUS_STOP  = "stop"
+)
+
 //RuleChain rulechain
 type RuleChain struct {
 	Name         string
