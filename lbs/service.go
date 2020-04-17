@@ -8,7 +8,6 @@ import (
 
 	lbp "github.com/cloustone/pandas/lbs/proxy"
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/pkg/message"
 	logr "github.com/sirupsen/logrus"
 )
 
@@ -487,28 +486,29 @@ func (l *LbsService) GetStayPoints(ctx context.Context, token string, projectId 
 func (l *LbsService) NotifyAlarms(ctx context.Context, token string, projectId string, content []byte) error {
 	logr.Debugf("NotifyAlarms(%s)", content)
 
-	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
-	if err != nil {
-		return ErrUnauthorizedAccess
-	}
+	/*
+		_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
+		if err != nil {
+			return ErrUnauthorizedAccess
+		}
 
-	alarm, err := l.Proxy.UnmarshalAlarmNotification(
-		content)
-	if err != nil {
-		logr.WithError(err).Errorf("unmarshal alarm failed")
-		return errors.New("unmarshal alarm failed")
-	}
-	config := message.NewConfigWithViper()
-	producer, err := message.NewProducer(config, false)
-	if err != nil {
-		logr.WithError(err).Errorf("create message producer failed")
-		return errors.New("create message producer failed")
-	}
-
-	if err := producer.SendMessage(&lbp.AlarmTopic{Alarm: alarm}); err != nil {
-		logr.WithError(err).Errorf("send alarm failed")
-		return errors.New("send alarm failed")
-	}
+		alarm, err := l.Proxy.UnmarshalAlarmNotification(
+			content)
+		if err != nil {
+			logr.WithError(err).Errorf("unmarshal alarm failed")
+			return errors.New("unmarshal alarm failed")
+		}
+		config := message.NewConfigWithViper()
+		producer, err := message.NewProducer(config, false)
+		if err != nil {
+			logr.WithError(err).Errorf("create message producer failed")
+			return errors.New("create message producer failed")
+		}
+			if err := producer.SendMessage(&lbp.AlarmTopic{Alarm: alarm}); err != nil {
+				logr.WithError(err).Errorf("send alarm failed")
+				return errors.New("send alarm failed")
+			}
+	*/
 	return nil
 }
 

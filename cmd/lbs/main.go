@@ -32,7 +32,7 @@ import (
 	"github.com/cloustone/pandas/pkg/logger"
 	genericoptions "github.com/cloustone/pandas/pkg/server/options"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
-	"github.com/opentracing/opentracing-go"
+	opentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	jconfig "github.com/uber/jaeger-client-go/config"
 )
