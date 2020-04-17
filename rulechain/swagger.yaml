@@ -1,0 +1,12 @@
+swagger: "2.0"
+info:
+  title: pandas rulechain service
+  description: HTTP API for managing rulechains.
+  version: "1.0.0"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+paths:
+  /rulechain:
+    
