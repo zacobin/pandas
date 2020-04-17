@@ -14,7 +14,6 @@ package proxy
 import (
 	"fmt"
 
-	genericoptions "github.com/cloustone/pandas/pkg/server/options"
 	logr "github.com/sirupsen/logrus"
 )
 
@@ -24,7 +23,7 @@ type Proxy struct {
 	engine     Engine
 }
 
-func NewProxy(locationServingOptions *genericoptions.LocationServingOptions) *Proxy {
+func NewProxy(locationServingOptions *LocationServingOptions) *Proxy {
 	return &Proxy{
 		engine:     newBaiduLbsEngine(locationServingOptions),
 		engineName: locationServingOptions.Provider,

@@ -11,10 +11,6 @@
 //  under the License.
 package proxy
 
-import (
-	serveroptions "github.com/cloustone/pandas/pkg/server/options"
-)
-
 type CoordType string
 
 const (
@@ -22,6 +18,17 @@ const (
 	CoordType_GCJ02  CoordType = "gcj02"
 	CoordType_BD09LL CoordType = "bd09ll"
 )
+
+type LocationServingOptions struct {
+	// Provider is location engine name, baidu or othere
+	Provider string
+
+	// AK is access key for lbs service provider
+	AK string
+
+	// ServiceId is service id for lbs service provider
+	ServiceId string
+}
 
 type Config struct {
 	AccessKey string
@@ -202,6 +209,12 @@ type Engine interface {
 	ListEntity(collectionId string, CoordTypeOutput string, PageIndex int32, pageSize int32) (int, baiduListEntityStruct)
 }
 
-func NewEngine(locationServingOptions *serveroptions.LocationServingOptions) (Engine, error) {
+func NewEngine(locationServingOptions *LocationServingOptions) (Engine, error) {
 	return newBaiduLbsEngine(locationServingOptions), nil
+}
+
+func NewLocationServingOptions() *LocationServingOptions {
+	return &LocationServingOptions{
+		Provider: "baidu",
+	}
 }
