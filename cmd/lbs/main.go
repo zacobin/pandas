@@ -30,7 +30,6 @@ import (
 	lbshttpapi "github.com/cloustone/pandas/lbs/api/http"
 	lbp "github.com/cloustone/pandas/lbs/proxy"
 	"github.com/cloustone/pandas/pkg/logger"
-	genericoptions "github.com/cloustone/pandas/pkg/server/options"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	opentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
@@ -135,7 +134,7 @@ func main() {
 	lbsTracer, lbsCloser := initJaeger("lbs", cfg.jaegerURL, logger)
 	defer lbsCloser.Close()
 
-	location := genericoptions.NewLocationServingOptions()
+	location := lbp.NewLocationServingOptions()
 	svc := newService(location, logger)
 	errs := make(chan error, 2)
 
@@ -183,7 +182,7 @@ func loadConfig() config {
 
 }
 
-func newService(location *genericoptions.LocationServingOptions, logger logger.Logger) lbs.Service {
+func newService(location *lbp.LocationServingOptions, logger logger.Logger) lbs.Service {
 
 	proxy := lbp.NewProxy(location)
 

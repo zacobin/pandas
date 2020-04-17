@@ -7,106 +7,9 @@ volumes:
   pandas-things-redis-volume:
   pandas-es-redis-volume:
   pandas-mqtt-broker-volume:
+  pandas-rulechain-db-volume:
 
 services:
-  db:
-    image: postgres:10.10
-    restart: always
-    ports:
-      - 5432:5432
-    environment:
-      POSTGRES_PASSWORD: pandas
-      POSTGRES_USER: pandas
-      PGDATA: /data/docker/postgres
-    volumes:
-      - /data/docker/postgres:/var/lib/postgresql/data
-      - /etc/localtime:/etc/localtime
-      - /etc/timezone/timezone:/etc/timezone
-
-  etcd:
-    image: elcolio/etcd
-    ports:
-      - "2379:2379"
-      - "2380:2380"
-    restart: always
-    command:
-      [
-        "--name",
-        "etcd",
-        "--initial-advertise-peer-urls",
-        "http://etcd:2380",
-        "--listen-peer-urls",
-        "http://0.0.0.0:2380",
-        "--listen-client-urls",
-        "http://0.0.0.0:2379",
-        "--advertise-client-urls",
-        "http://etcd:2379",
-        "--initial-cluster",
-        "etcd=http://etcd:2380",
-        "--initial-cluster-state",
-        "new",
-      ]
-
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379"
-    restart: always
-
-  apiserver:
-    image: cloustone/pandas-apimachinery
-    ports:
-      - "30001:30001"
-    restart: always
-    depends_on:
-      - etcd
-    environment:
-      PANDAS_PORT: 30001
-      PANDAS_DNS_SERVER: "docker-compose"
-    command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
-
-  dmms:
-    image: cloustone/pandas-dmms
-    ports:
-      - "30011:30011"
-    restart: always
-    depends_on:
-      - etcd
-    environment:
-      PANDAS_PORT: 30011
-      PANDAS_DNS_SERVER: "docker-compose"
-    command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
-
-  pms:
-    image: cloustone/pandas-pms
-    ports:
-      - "30012:30012"
-    restart: always
-    depends_on:
-      - etcd
-    environment:
-      PANDAS_PORT: 30012
-      PANDAS_DNS_SERVER: "docker-compose"
-    command: ["/dockerize", "-wait", "tcp://etcd:2379", "/main"]
-
-  rulechain:
-    image: cloustone/pandas-rulechain
-    ports:
-      - "30014:30014"
-    restart: always
-    environment:
-      PANDAS_PORT: 30014
-      PANDAS_DNS_SERVER: "docker-compose"
-
-  lbs:
-    image: cloustone/pandas-lbs
-    ports:
-      - "30015:30015"
-    restart: always
-    environment:
-      PANDAS_PORT: 30015
-      PANDAS_DNS_SERVER: "docker-compose"
-
   nats:
     image: nats:1.3.0
     container_name: pandas-nats
@@ -146,7 +49,7 @@ services:
       - ${PD_AUTHN_GRPC_PORT}:${PD_AUTHN_GRPC_PORT}
     restart: always
     environment:
-      PANDAS_PORT: 30016
+      PANDAS_PORT: ${PD_AUTHN_HTTP_PORT}
       PANDAS_DNS_SERVER: "docker-compose"
       PD_AUTHN_LOG_LEVEL: ${PD_AUTHN_LOG_LEVEL}
       PD_AUTHN_DB_HOST: authn-db
@@ -360,3 +263,37 @@ services:
       - mqtt-adapter
       - http-adapter
       - ws-adapter
+
+  rulechain:
+    image: cloustone/pandas-rulechain
+    ports:
+      - ${PD_RULECHAIN_HTTP_PORT}:${PD_RULECHAIN_HTTP_PORT}
+    restart: always
+    environment:
+      PANDAS_PORT: ${PD_RULECHAIN_HTTP_PORT}
+      PANDAS_DNS_SERVER: "docker-compose"
+      PD_RULECHAIN_DB_HOST: rulechain-db
+      PD_RULECHAIN_DB_PORT: ${PD_RULECHAIN_DB_PORT}
+      PD_RULECHAIN_DB_USER: ${PD_RULECHAIN_DB_USER}
+      PD_RULECHAIN_DB_PASS: ${PD_RULECHAIN_DB_PASS}
+      PD_RULECHAIN_DB: ${PD_RULECHAIN_DB}
+
+  rulechain-db:
+    image: postgres:10.8-alpine
+    container_name: pandas-rulechain-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${PD_RULECHAIN_DB_USER}
+      POSTGRES_PASSWORD: ${PD_RULECHAIN_DB_PASS}
+      POSTGRES_DB: ${PD_RULECHAIN_DB}
+    volumes:
+      - pandas-rulechain-db-volume:/var/lib/postgresql/data
+
+  lbs:
+    image: cloustone/pandas-lbs
+    ports:
+      - ${PD_LBS_HTTP_PORT}:${PD_LBS_HTTP_PORT}
+    restart: always
+    environment:
+      PANDAS_PORT: ${PD_LBS_HTTP_PORT}
+      PANDAS_DNS_SERVER: "docker-compose"
