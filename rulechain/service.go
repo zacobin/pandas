@@ -5,8 +5,6 @@ import (
 
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/errors"
-	"github.com/cloustone/pandas/rulechain/message"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -173,10 +171,13 @@ func (svc rulechainService) UpdateRuleChainStatus(ctx context.Context, token str
 }
 
 func (svc rulechainService) SaveStates(msg *mainflux.Message) error {
-	rulechainmessage := message.NewMessage()
-	if err := rulechainmessage.UnmarshalBinary(msg.GetPayload()); err != nil {
-		logrus.WithError(err).Errorf("rulechain instance receive message failed")
-		return err
-	}
-	return svc.instanceManager.HandleMessage(rulechainmessage, msg)
+	/*
+		rulechainmessage := message.NewMessage()
+		if err := rulechainmessage.UnmarshalBinary(msg.GetPayload()); err != nil {
+			logrus.WithError(err).Errorf("rulechain instance receive message failed")
+			return err
+		}
+		return svc.instanceManager.HandleMessage(rulechainmessage, msg)
+	*/
+	return nil
 }

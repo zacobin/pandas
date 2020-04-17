@@ -9,7 +9,7 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package message
+package proxy
 
 import (
 	"encoding/json"
@@ -24,7 +24,7 @@ type SerializeOption struct {
 	Format string
 }
 
-func Serialize(msg Message, opt SerializeOption) ([]byte, error) {
+func Serialize(msg interface{}, opt SerializeOption) ([]byte, error) {
 	switch opt {
 	case JSONSerialization:
 		return json.Marshal(msg)

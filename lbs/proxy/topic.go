@@ -11,8 +11,6 @@
 //  under the License.
 package proxy
 
-import "github.com/cloustone/pandas/pkg/message"
-
 const (
 	AlarmMessageTopic = "pandas-alarm"
 )
@@ -24,9 +22,9 @@ type AlarmTopic struct {
 
 func (p *AlarmTopic) Topic() string        { return AlarmMessageTopic }
 func (p *AlarmTopic) SetTopic(name string) {}
-func (p *AlarmTopic) Serialize(opt message.SerializeOption) ([]byte, error) {
-	return message.Serialize(p, opt)
+func (p *AlarmTopic) Serialize(opt SerializeOption) ([]byte, error) {
+	return Serialize(p, opt)
 }
-func (p *AlarmTopic) Deserialize(buf []byte, opt message.SerializeOption) error {
-	return message.Deserialize(buf, opt, p)
+func (p *AlarmTopic) Deserialize(buf []byte, opt SerializeOption) error {
+	return Deserialize(buf, opt, p)
 }
