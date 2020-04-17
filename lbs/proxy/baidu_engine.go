@@ -21,7 +21,6 @@ import (
 	"strings"
 	"time"
 
-	serveroptions "github.com/cloustone/pandas/pkg/server/options"
 	"github.com/sirupsen/logrus"
 )
 
@@ -83,7 +82,7 @@ type baiduListEntityStruct struct {
 	Entities []Entity `json:"entities"`
 }
 
-func newBaiduLbsEngine(locationServingOptions *serveroptions.LocationServingOptions) Engine {
+func newBaiduLbsEngine(locationServingOptions *LocationServingOptions) Engine {
 	return &baiduLbsManager{
 		accessKey: locationServingOptions.AK,
 		serviceId: locationServingOptions.ServiceId,

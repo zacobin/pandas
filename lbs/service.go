@@ -2,12 +2,12 @@ package lbs
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
 	lbp "github.com/cloustone/pandas/lbs/proxy"
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/pkg/errors"
 	"github.com/cloustone/pandas/pkg/message"
 	logr "github.com/sirupsen/logrus"
 )
@@ -181,7 +181,7 @@ func (l *LbsService) CreateCircleGeofence(ctx context.Context, token string, pro
 		})
 	if err != nil {
 		logr.WithError(err).Errorf("create circle geofence failed")
-		return "", errors.Wrap(errors.New("create circle geofence failed"), err)
+		return "", errors.New("create circle geofence failed")
 	}
 	return fenceId, nil
 }
@@ -206,7 +206,7 @@ func (l *LbsService) CreatePolyGeofence(ctx context.Context, token string, proje
 		})
 	if err != nil {
 		logr.WithError(err).Errorf("create poly geofence failed")
-		return "", errors.Wrap(errors.New("create poly geofence failed"), err)
+		return "", errors.New("create poly geofence failed")
 	}
 	return fenceId, nil
 }
@@ -233,7 +233,7 @@ func (l *LbsService) UpdatePolyGeofence(ctx context.Context, token string, proje
 		})
 	if err != nil {
 		logr.WithError(err).Errorf("update poly geofence failed")
-		return errors.Wrap(errors.New("update poly geofence failed"), err)
+		return errors.New("update poly geofence failed")
 	}
 	return nil
 }
@@ -262,7 +262,7 @@ func (l *LbsService) UpdateCircleGeofence(ctx context.Context, token string, pro
 		})
 	if err != nil {
 		logr.WithError(err).Errorf("update circle geofence failed")
-		return errors.Wrap(errors.New("update circle geofence failed"), err)
+		return errors.New("update circle geofence failed")
 	}
 	return nil
 }
@@ -279,7 +279,7 @@ func (l *LbsService) DeleteGeofence(ctx context.Context, token string, projectId
 		fenceIds, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("delete geofence failed")
-		return errors.Wrap(errors.New("delete geofence failed"), err)
+		return errors.New("delete geofence failed")
 	}
 	return nil
 }
@@ -296,7 +296,7 @@ func (l *LbsService) ListGeofences(ctx context.Context, token string, projectId 
 		fenceIds, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("list geofence failed")
-		return nil, errors.Wrap(errors.New("list geofence failed"), err)
+		return nil, errors.New("list geofence failed")
 	}
 	fenceList := []*Geofence{}
 	for _, f := range fences {
@@ -337,7 +337,7 @@ func (l *LbsService) AddMonitoredObject(ctx context.Context, token string, proje
 		fenceId, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("add monitored object failed")
-		return errors.Wrap(errors.New("ladd monitored object failed"), err)
+		return errors.New("ladd monitored object failed")
 	}
 	return nil
 }
@@ -354,7 +354,7 @@ func (l *LbsService) RemoveMonitoredObject(ctx context.Context, token string, pr
 		fenceId, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("remove monitored object failed")
-		return errors.Wrap(errors.New("remove monitored object failed"), err)
+		return errors.New("remove monitored object failed")
 	}
 	return nil
 }
@@ -423,7 +423,7 @@ func (l *LbsService) QueryStatus(ctx context.Context, token string, projectId st
 		monitoredPerson, fenceIds)
 	if err != nil {
 		logr.Errorln("QueryStatus failed:", err)
-		return nil, errors.Wrap(errors.New("not found"), err)
+		return nil, errors.New("not found")
 	}
 
 	return fenceStatus, nil
@@ -441,7 +441,7 @@ func (l *LbsService) GetHistoryAlarms(ctx context.Context, token string, project
 		monitoredPerson, fenceIds)
 	if err != nil {
 		logr.Errorln("GetHistoryAlarms failed:", err)
-		return nil, errors.Wrap(errors.New("not found"), err)
+		return nil, errors.New("not found")
 	}
 
 	return alarmPoint, nil
@@ -459,7 +459,7 @@ func (l *LbsService) BatchGetHistoryAlarms(ctx context.Context, token string, pr
 		input)
 	if err != nil {
 		logr.Errorln("BatchGetHistoryAlarms failed:", err)
-		return nil, errors.Wrap(errors.New("not found"), err)
+		return nil, errors.New("not found")
 	}
 
 	return historyAlarms, nil
@@ -478,7 +478,7 @@ func (l *LbsService) GetStayPoints(ctx context.Context, token string, projectId 
 		input)
 	if err != nil {
 		logr.Errorln("BatchGetHistoryAlarms failed:", err)
-		return nil, errors.Wrap(errors.New("not found"), err)
+		return nil, errors.New("not found")
 	}
 
 	return stayPoints, nil
@@ -496,18 +496,18 @@ func (l *LbsService) NotifyAlarms(ctx context.Context, token string, projectId s
 		content)
 	if err != nil {
 		logr.WithError(err).Errorf("unmarshal alarm failed")
-		return errors.Wrap(errors.New("unmarshal alarm failed"), err)
+		return errors.New("unmarshal alarm failed")
 	}
 	config := message.NewConfigWithViper()
 	producer, err := message.NewProducer(config, false)
 	if err != nil {
 		logr.WithError(err).Errorf("create message producer failed")
-		return errors.Wrap(errors.New("create message producer failed"), err)
+		return errors.New("create message producer failed")
 	}
 
 	if err := producer.SendMessage(&lbp.AlarmTopic{Alarm: alarm}); err != nil {
 		logr.WithError(err).Errorf("send alarm failed")
-		return errors.Wrap(errors.New("send alarm failed"), err)
+		return errors.New("send alarm failed")
 	}
 	return nil
 }
@@ -550,7 +550,7 @@ func (l *LbsService) AddEntity(ctx context.Context, token string, projectId stri
 		entityName, entityDesc)
 	if err != nil {
 		logr.WithError(err).Errorf("AddEntity failed")
-		return errors.Wrap(errors.New("AddEntity failed"), err)
+		return errors.New("AddEntity failed")
 	}
 	return nil
 }
@@ -567,7 +567,7 @@ func (l *LbsService) DeleteEntity(ctx context.Context, token string, projectId s
 		entityName)
 	if err != nil {
 		logr.WithError(err).Errorf("DeleteEntity failed")
-		return errors.Wrap(errors.New("DeleteEntity failed"), err)
+		return errors.New("DeleteEntity failed")
 	}
 	return nil
 }
@@ -584,7 +584,7 @@ func (l *LbsService) UpdateEntity(ctx context.Context, token string, projectId s
 		entityName, entityDesc)
 	if err != nil {
 		logr.WithError(err).Errorf("UpdateEntity failed")
-		return errors.Wrap(errors.New("UpdateEntity failed"), err)
+		return errors.New("UpdateEntity failed")
 	}
 	/*
 		entity := EntityRecord{
