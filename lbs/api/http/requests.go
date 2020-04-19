@@ -24,8 +24,8 @@ type CircleGeofence struct {
 	Longitude        float64
 	Latitude         float64
 	Radius           float64
-	CoordType        string
-	Denoise          int32
+	CoordType        lbs.CoordType
+	Denoise          int
 	FenceId          string
 }
 
@@ -133,8 +133,8 @@ type listMonitoredObjectsReq struct {
 	token     string
 	projectId string
 	fenceId   string
-	pageIndex int32
-	pageSize  int32
+	pageIndex int
+	pageSize  int
 }
 
 func (req listMonitoredObjectsReq) validate() error {
@@ -151,8 +151,8 @@ type PolyGeofence struct {
 	Name             string
 	MonitoredObjects []string
 	Vertexes         string
-	CoordType        string
-	Denoise          int32
+	CoordType        lbs.CoordType
+	Denoise          int
 	FenceId          string
 }
 
@@ -241,8 +241,8 @@ type BatchGetHistoryAlarmsRequest struct {
 	CoordTypeOutput string `protobuf:"bytes,3,opt,name=coord_type_output,json=coordTypeOutput" json:"coord_type_output,omitempty", bson:"coord_type_output,omitempty"`
 	EndTime         string `protobuf:"bytes,4,opt,name=end_time,json=endTime" json:"end_time,omitempty", bson:"end_time,omitempty"`
 	StartTime       string `protobuf:"bytes,5,opt,name=start_time,json=startTime" json:"start_time,omitempty", bson:"start_time,omitempty"`
-	PageIndex       int32  `protobuf:"varint,7,opt,name=page_index,json=pageIndex" json:"page_index,omitempty", bson:"page_index,omitempty"`
-	PageSize        int32  `protobuf:"varint,8,opt,name=page_size,json=pageSize" json:"page_size,omitempty", bson:"page_size,omitempty"`
+	PageIndex       int  `protobuf:"varint,7,opt,name=page_index,json=pageIndex" json:"page_index,omitempty", bson:"page_index,omitempty"`
+	PageSize        int  `protobuf:"varint,8,opt,name=page_size,json=pageSize" json:"page_size,omitempty", bson:"page_size,omitempty"`
 }
 
 type batchGetHistoryAlarmsReq struct {
@@ -265,8 +265,8 @@ type GetStayPointsRequest struct {
 	EndTime         string   `protobuf:"bytes,3,opt,name=end_time,json=endTime" json:"end_time,omitempty", bson:"end_time,omitempty"`
 	EntityName      string   `protobuf:"bytes,4,opt,name=entity_name,json=entityName" json:"entity_name,omitempty", bson:"entity_name,omitempty"`
 	FenceIds        []string `protobuf:"bytes,5,rep,name=fence_ids,json=fenceIds" json:"fence_ids,omitempty", bson:"fence_ids,omitempty"`
-	PageIndex       int32    `protobuf:"varint,6,opt,name=page_index,json=pageIndex" json:"page_index,omitempty", bson:"page_index,omitempty"`
-	PageSize        int32    `protobuf:"varint,7,opt,name=page_size,json=pageSize" json:"page_size,omitempty", bson:"page_size,omitempty"`
+	PageIndex       int    `protobuf:"varint,6,opt,name=page_index,json=pageIndex" json:"page_index,omitempty", bson:"page_index,omitempty"`
+	PageSize        int    `protobuf:"varint,7,opt,name=page_size,json=pageSize" json:"page_size,omitempty", bson:"page_size,omitempty"`
 	StartTime       string   `protobuf:"bytes,8,opt,name=start_time,json=startTime" json:"start_time,omitempty", bson:"start_time,omitempty"`
 	CoordTypeOutput string   `protobuf:"bytes,9,opt,name=coord_type_output,json=coordTypeOutput" json:"coord_type_output,omitempty", bson:"coord_type_output,omitempty"`
 }
@@ -373,8 +373,8 @@ type listEntityReq struct {
 	token           string
 	projectId       string
 	coordTypeOutput string
-	pageIndex       int32
-	pageSize        int32
+	pageIndex       int
+	pageSize        int
 }
 
 func (req listEntityReq) validate() error {

@@ -7,7 +7,6 @@ import (
 	"context"
 
 	"github.com/cloustone/pandas/lbs"
-	lbp "github.com/cloustone/pandas/lbs/proxy"
 	"github.com/go-kit/kit/endpoint"
 )
 
@@ -130,17 +129,17 @@ func listGeofencesEndpoint(svc lbs.Service) endpoint.Endpoint {
 
 		for _, f := range saved {
 			fence := &Geofence{
-				FenceId:         f.FenceId,
-				FenceName:       f.FenceName,
-				MonitoredObject: f.MonitoredObject,
-				Shape:           f.Shape,
-				Longitude:       f.Longitude,
-				Latitude:        f.Latitude,
-				Radius:          f.Radius,
-				CoordType:       f.CoordType,
-				Denoise:         f.Denoise,
-				CreateTime:      f.CreateTime,
-				UpdateTime:      f.UpdateTime,
+				FenceId:   f.FenceId,
+				FenceName: f.FenceName,
+				//MonitoredObject: f.MonitoredObject,
+				Shape:      f.Shape,
+				Longitude:  f.Longitude,
+				Latitude:   f.Latitude,
+				Radius:     f.Radius,
+				CoordType:  f.CoordType,
+				Denoise:    f.Denoise,
+				CreateTime: f.CreateTime,
+				UpdateTime: f.UpdateTime,
 			}
 			for _, vtx := range f.Vertexes {
 				vertexe := &Vertexe{
@@ -353,7 +352,7 @@ func batchGetHistoryAlarmsEndpoint(svc lbs.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		tmp := &lbp.BatchGetHistoryAlarmsRequest{
+		tmp := &lbs.BatchGetHistoryAlarmsRequest{
 			EndTime:         req.input.EndTime,
 			StartTime:       req.input.StartTime,
 			PageIndex:       req.input.PageIndex,
@@ -407,7 +406,7 @@ func getStayPointsEndpoint(svc lbs.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		tmp := &lbp.GetStayPointsRequest{
+		tmp := &lbs.GetStayPointsRequest{
 			EndTime:         req.input.EndTime,
 			StartTime:       req.input.StartTime,
 			PageIndex:       req.input.PageIndex,

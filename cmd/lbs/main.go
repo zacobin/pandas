@@ -28,7 +28,7 @@ import (
 	"github.com/cloustone/pandas/lbs"
 	"github.com/cloustone/pandas/lbs/api"
 	lbshttpapi "github.com/cloustone/pandas/lbs/api/http"
-	lbp "github.com/cloustone/pandas/lbs/proxy"
+	"github.com/cloustone/pandas/lbs/providers"
 	"github.com/cloustone/pandas/pkg/logger"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	opentracing "github.com/opentracing/opentracing-go"
@@ -65,6 +65,9 @@ const (
 	defJaegerURL       = ""
 	defAuthURL         = "localhost:8181"
 	defAuthTimeout     = "1" // in seconds
+	defLbsProvider     = "baidu"
+	defLbsAK           = ""
+	defLbsServiceID    = ""
 
 	envLogLevel        = "PD_THINGS_LOG_LEVEL"
 	envDBHost          = "PD_THINGS_DB_HOST"
@@ -94,6 +97,9 @@ const (
 	envJaegerURL       = "PD_JAEGER_URL"
 	envAuthURL         = "PD_AUTH_URL"
 	envAuthTimeout     = "PD_AUTH_TIMEOUT"
+	envLbsProvider     = "PD_LBS_PROVIDER"
+	envLbsAK           = "PD_LBS_AK"
+	envLbsServiceID    = "PD_LBS_SERVICEID"
 )
 
 // inject by go build
@@ -116,6 +122,9 @@ type config struct {
 	jaegerURL       string
 	authURL         string
 	authTimeout     time.Duration
+	lbsProvider     string
+	lbsAK           string
+	lbsServiceID    string
 }
 
 func init() {
@@ -134,8 +143,13 @@ func main() {
 	lbsTracer, lbsCloser := initJaeger("lbs", cfg.jaegerURL, logger)
 	defer lbsCloser.Close()
 
-	location := lbp.NewLocationServingOptions()
-	svc := newService(location, logger)
+	servingOptions := lbs.NewLocationServingOptions(cfg.lbsProvider, cfg.lbsAK, cfg.lbsServiceID)
+	provider, err := providers.New(servingOptions)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	svc := newService(provider, nil, logger)
 	errs := make(chan error, 2)
 
 	go startHTTPServer(lbshttpapi.MakeHandler(lbsTracer, svc), cfg.httpPort, cfg, logger, errs)
@@ -178,15 +192,15 @@ func loadConfig() config {
 		jaegerURL:       pandas.Env(envJaegerURL, defJaegerURL),
 		authURL:         pandas.Env(envAuthURL, defAuthURL),
 		authTimeout:     time.Duration(timeout) * time.Second,
+		lbsProvider:     pandas.Env(envLbsProvider, defLbsProvider),
+		lbsAK:           pandas.Env(envLbsAK, defLbsAK),
+		lbsServiceID:    pandas.Env(envLbsServiceID, defLbsServiceID),
 	}
 
 }
 
-func newService(location *lbp.LocationServingOptions, logger logger.Logger) lbs.Service {
-
-	proxy := lbp.NewProxy(location)
-
-	svc := lbs.New(*proxy)
+func newService(provider lbs.LocationProvider, repo lbs.Repository, logger logger.Logger) lbs.Service {
+	svc := lbs.New(nil, provider, repo)
 	svc = api.LoggingMiddleware(svc, logger)
 	svc = api.MetricsMiddleware(
 		svc,

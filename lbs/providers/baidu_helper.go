@@ -9,78 +9,15 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package proxy
+package providers
 
-import (
-	"fmt"
-
-	logr "github.com/sirupsen/logrus"
-)
-
-type Proxy struct {
-	engineName string
-	repo       Repository
-	engine     Engine
-}
-
-func NewProxy(locationServingOptions *LocationServingOptions) *Proxy {
-	return &Proxy{
-		engine:     newBaiduLbsEngine(locationServingOptions),
-		engineName: locationServingOptions.Provider,
-		repo:       NewRepository(),
-	}
-}
-
-func (p *Proxy) AddTrackPoint(point TrackPoint) {
-	p.engine.AddTrackPoint(point)
-}
-
-func (p *Proxy) AddTrackPoints(points []TrackPoint) {
-	p.engine.AddTrackPoints(points)
-}
-
-func (p *Proxy) CreateCircleGeofence(c CircleGeofence) (string, error) {
-	return p.engine.CreateCircleGeofence(c)
-}
-
-func (p *Proxy) UpdateCircleGeofence(c CircleGeofence) error {
-	return p.engine.UpdateCircleGeofence(c)
-}
-
-func (p *Proxy) DeleteGeofence(fenceIds []string, objects []string) ([]string, error) {
-	return p.engine.DeleteGeofence(fenceIds, objects)
-}
-
-func (p *Proxy) ListGeofence(fenceIds []string, objects []string) ([]*Geofence, error) {
-	return p.engine.ListGeofence(fenceIds, objects)
-}
-
-func (p *Proxy) AddMonitoredObject(fenceId string, objects []string) error {
-	return p.engine.AddMonitoredObject(fenceId, objects)
-}
-
-func (p *Proxy) RemoveMonitoredObject(fenceId string, objects []string) error {
-	return p.engine.RemoveMonitoredObject(fenceId, objects)
-}
-
-func (p *Proxy) ListMonitoredObjects(fenceId string, pageIndex int, pageSize int) (int, []string) {
-	return p.engine.ListMonitoredObjects(fenceId, pageIndex, pageSize)
-}
-
-func (p *Proxy) CreatePolyGeofence(c PolyGeofence) (string, error) {
-	return p.engine.CreatePolyGeofence(c)
-}
-
-func (p *Proxy) UpdatePolyGeofence(c PolyGeofence) error {
-	return p.engine.UpdatePolyGeofence(c)
-}
-
+/*
 // Alarms
-func getMonitoredStatus(fenceStatus BaiduQueryStatusResponse) *QueryStatus {
+func getMonitoredStatus(fenceStatus lbs.QueryStatusResponse) *QueryStatus {
 	rsp := &QueryStatus{
-		Status:  int32(fenceStatus.Status),
+		Status:  int(fenceStatus.Status),
 		Message: fenceStatus.Message,
-		Size:    int32(fenceStatus.Size),
+		Size:    int(fenceStatus.Size),
 	}
 	for _, mpVal := range fenceStatus.MonitoredStatuses {
 		monitoredStatus := MonitoredStatus{
@@ -107,9 +44,9 @@ func (p *Proxy) GetHistoryAlarms(monitoredPerson string, fenceIds []string) (*Hi
 }
 func getHistoryAlarmPoint(alarmPoint BaiduGetHistoryAlarmsResponse) *HistoryAlarms {
 	rsp := &HistoryAlarms{
-		Status:  int32(alarmPoint.Status),
+		Status:  int(alarmPoint.Status),
 		Message: alarmPoint.Message,
-		Size:    int32(alarmPoint.Size),
+		Size:    int(alarmPoint.Size),
 	}
 	for _, haVal := range alarmPoint.Alarms {
 
@@ -149,10 +86,10 @@ func (p *Proxy) BatchGetHistoryAlarms(input *BatchGetHistoryAlarmsRequest) (*His
 }
 func getBatchHistoryAlarmPoint(historyAlarms BaiduBatchHistoryAlarmsResp) *HistoryAlarms {
 	rsp := &HistoryAlarms{
-		Status:  int32(historyAlarms.Status),
+		Status:  int(historyAlarms.Status),
 		Message: historyAlarms.Message,
-		Size:    int32(historyAlarms.Size),
-		Total:   int32(historyAlarms.Total),
+		Size:    int(historyAlarms.Size),
+		Total:   int(historyAlarms.Total),
 	}
 	for _, haVal := range historyAlarms.Alarms {
 
@@ -193,10 +130,10 @@ func (p *Proxy) GetStayPoints(input *GetStayPointsRequest) (*StayPoints, error) 
 }
 func getGrpcStayPoints(stayPoints BaiduGetStayPointResp) *StayPoints {
 	rsp := &StayPoints{
-		Status:  int32(stayPoints.Status),
+		Status:  int(stayPoints.Status),
 		Message: stayPoints.Message,
-		Size:    int32(stayPoints.Size),
-		Total:   int32(stayPoints.Total),
+		Size:    int(stayPoints.Size),
+		Total:   int(stayPoints.Total),
 		StartPoint: &Point{
 			Latitude:  stayPoints.StartPoint.Latitude,
 			Longitude: stayPoints.StartPoint.Longitude,
@@ -240,6 +177,7 @@ func (p *Proxy) DeleteEntity(entityName string) error {
 	return p.engine.DeleteEntity(entityName)
 }
 
-func (p *Proxy) ListEntity(collectionId string, coordTypeOutput string, pageIndex int32, pageSize int32) (int, baiduListEntityStruct) {
+func (p *Proxy) ListEntity(collectionId string, coordTypeOutput string, pageIndex int, pageSize int) (int, baiduListEntityStruct) {
 	return p.engine.ListEntity(collectionId, coordTypeOutput, pageIndex, pageSize)
 }
+*/

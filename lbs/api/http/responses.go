@@ -6,6 +6,7 @@ package http
 import (
 	"net/http"
 
+	"github.com/cloustone/pandas/lbs"
 	"github.com/cloustone/pandas/mainflux"
 )
 
@@ -110,8 +111,8 @@ type Geofence struct {
 	Longitude       float64
 	Latitude        float64
 	Radius          float64
-	CoordType       string
-	Denoise         int32
+	CoordType       lbs.CoordType
+	Denoise         int
 	CreateTime      string
 	UpdateTime      string
 	Vertexes        []*Vertexe
@@ -162,7 +163,7 @@ func (res removeMonitoredObjectRes) Empty() bool {
 }
 
 type listMonitoredObjectsRes struct {
-	total   int32
+	total   int
 	objects []string
 }
 
@@ -230,9 +231,9 @@ type MonitoredStatus struct {
 }
 
 type queryStatusRes struct {
-	Status            int32
+	Status            int
 	Message           string
-	Size              int32
+	Size              int
 	MonitoredStatuses []MonitoredStatus
 }
 
@@ -257,19 +258,19 @@ type Alarm struct {
 	PrePoint         AlarmPoint `json:"pre_point"`
 }
 type AlarmPoint struct {
-	Longitude  float64 `json:"longitude"`
-	Latitude   float64 `json:"latitude"`
-	Radius     int     `json:"radius"`
-	CoordType  string  `json:"coord_type"`
-	LocTime    string  `json:"loc_time"`
-	CreateTime string  `json:"create_time"`
+	Longitude  float64       `json:"longitude"`
+	Latitude   float64       `json:"latitude"`
+	Radius     int           `json:"radius"`
+	CoordType  lbs.CoordType `json:"coord_type"`
+	LocTime    string        `json:"loc_time"`
+	CreateTime string        `json:"create_time"`
 }
 
 type getHistoryAlarmsRes struct {
-	Status  int32
+	Status  int
 	Message string
-	Total   int32
-	Size    int32
+	Total   int
+	Size    int
 	Alarms  []*Alarm
 }
 
@@ -286,10 +287,10 @@ func (res getHistoryAlarmsRes) Empty() bool {
 }
 
 type batchGetHistoryAlarmsRes struct {
-	Status  int32
+	Status  int
 	Message string
-	Total   int32
-	Size    int32
+	Total   int
+	Size    int
 	Alarms  []*Alarm
 }
 
@@ -306,18 +307,18 @@ func (res batchGetHistoryAlarmsRes) Empty() bool {
 }
 
 type Point struct {
-	Longitude float64 `json:"longitude"`
-	Latitude  float64 `json:"latitude"`
-	CoordType string  `json:"coord_type"`
-	LocTime   string  `json:"loc_time"`
+	Longitude float64       `json:"longitude"`
+	Latitude  float64       `json:"latitude"`
+	CoordType lbs.CoordType `json:"coord_type"`
+	LocTime   string        `json:"loc_time"`
 }
 
 type getStayPointsRes struct {
-	Status     int32
+	Status     int
 	Message    string
-	Total      int32
-	Size       int32
-	Distance   int32
+	Total      int
+	Size       int
+	Distance   int
 	EndPoint   *Point
 	StartPoint *Point
 	Points     []*Point
@@ -420,7 +421,7 @@ type EntityInfo struct {
 }
 
 type listEntityRes struct {
-	Total       int32
+	Total       int
 	EntityInfos []*EntityInfo
 }
 

@@ -9,22 +9,10 @@
 //  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations
 //  under the License.
-package proxy
+package providers
 
-const (
-	AlarmMessageTopic = "pandas-alarm"
-)
+import "github.com/cloustone/pandas/lbs"
 
-type AlarmTopic struct {
-	TopicName string
-	Alarm     *AlarmNotification `json:"alarm"`
-}
-
-func (p *AlarmTopic) Topic() string        { return AlarmMessageTopic }
-func (p *AlarmTopic) SetTopic(name string) {}
-func (p *AlarmTopic) Serialize(opt SerializeOption) ([]byte, error) {
-	return Serialize(p, opt)
-}
-func (p *AlarmTopic) Deserialize(buf []byte, opt SerializeOption) error {
-	return Deserialize(buf, opt, p)
+func New(options lbs.LocationServingOptions) (lbs.LocationProvider, error) {
+	return newBaiduLbsProvider(options)
 }

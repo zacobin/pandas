@@ -35,30 +35,7 @@ const (
 	collectionEntity      = "entity"
 )
 
-type Collection struct {
-	UserId        string    `bson:"user_id"`
-	CollectionId  string    `bson:"collection_id"`
-	CreatedAt     time.Time `bson:"created_at"`
-	LastUpdatedAt time.Time `bson:"last_updated_at"`
-	Status        string    `bson:"status"`
-}
 
-type geofenceRecord struct {
-	UserId        string    `bson:"user_id"`
-	CollectionId  string    `bson:"collection_id"`
-	FenceName     string    `bson:"fence_name"`
-	FenceId       string    `bson:"fence_id"`
-	CreatedAt     time.Time `bson:"created_at"`
-	LastUpdatedAt time.Time `bson:"last_updated_at"`
-}
-
-type EntityRecord struct {
-	UserId        string    `bson:"user_id"`
-	CollectionId  string    `bson:"collection_id"`
-	EntityName    string    `bson:"entity_name"`
-	CreatedAt     time.Time `bson:"created_at"`
-	LastUpdatedAt time.Time `bson:"last_updated_at"`
-}
 
 type UserId struct {
 	UserId string `bson:"user_id"`

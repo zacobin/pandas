@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/lbs"
-	lbp "github.com/cloustone/pandas/lbs/proxy"
 	log "github.com/cloustone/pandas/pkg/logger"
 )
 
@@ -128,7 +127,7 @@ func (lm *loggingMiddleware) RemoveMonitoredObject(ctx context.Context, token st
 	return lm.svc.RemoveMonitoredObject(ctx, token, projectId, fenceId, objects)
 }
 
-func (lm *loggingMiddleware) ListMonitoredObjects(ctx context.Context, token string, projectId string, fenceId string, pageIndex int32, pageSize int32) (total int32, objects []string, err error) {
+func (lm *loggingMiddleware) ListMonitoredObjects(ctx context.Context, token string, projectId string, fenceId string, pageIndex int, pageSize int) (total int, objects []string, err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method list_monitored_objects for token %s and project %s and fanceId %s and pageIndex %d and pageSize %d took %s to complete", token, projectId, fenceId, pageIndex, pageSize, time.Since(begin))
 		if err != nil {
@@ -181,7 +180,7 @@ func (lm *loggingMiddleware) GetFenceIds(ctx context.Context, token string, proj
 }
 
 // Alarm
-func (lm *loggingMiddleware) QueryStatus(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (status *lbp.QueryStatus, err error) {
+func (lm *loggingMiddleware) QueryStatus(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (status *lbs.QueryStatus, err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method query_status for token %s and project %s monitoredpersion %s fenceIds %s took %s to complete", token, projectId, monitoredPerson, fenceIds, time.Since(begin))
 		if err != nil {
@@ -194,7 +193,7 @@ func (lm *loggingMiddleware) QueryStatus(ctx context.Context, token string, proj
 	return lm.svc.QueryStatus(ctx, token, projectId, monitoredPerson, fenceIds)
 }
 
-func (lm *loggingMiddleware) GetHistoryAlarms(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (alarms *lbp.HistoryAlarms, err error) {
+func (lm *loggingMiddleware) GetHistoryAlarms(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (alarms *lbs.HistoryAlarms, err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method get_history_alarms for token %s and project %s monitoredpersion %s fenceIds %s took %s to complete", token, projectId, monitoredPerson, fenceIds, time.Since(begin))
 		if err != nil {
@@ -207,7 +206,7 @@ func (lm *loggingMiddleware) GetHistoryAlarms(ctx context.Context, token string,
 	return lm.svc.GetHistoryAlarms(ctx, token, projectId, monitoredPerson, fenceIds)
 }
 
-func (lm *loggingMiddleware) BatchGetHistoryAlarms(ctx context.Context, token string, projectId string, input *lbp.BatchGetHistoryAlarmsRequest) (alarms *lbp.HistoryAlarms, err error) {
+func (lm *loggingMiddleware) BatchGetHistoryAlarms(ctx context.Context, token string, projectId string, input *lbs.BatchGetHistoryAlarmsRequest) (alarms *lbs.BatchHistoryAlarmsResp, err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method batchget_history_alarms for token %s and project %s took %s to complete", token, projectId, time.Since(begin))
 		if err != nil {
@@ -220,7 +219,7 @@ func (lm *loggingMiddleware) BatchGetHistoryAlarms(ctx context.Context, token st
 	return lm.svc.BatchGetHistoryAlarms(ctx, token, projectId, input)
 }
 
-func (lm *loggingMiddleware) GetStayPoints(ctx context.Context, token string, projectId string, input *lbp.GetStayPointsRequest) (points *lbp.StayPoints, err error) {
+func (lm *loggingMiddleware) GetStayPoints(ctx context.Context, token string, projectId string, input *lbs.GetStayPointsRequest) (points *lbs.StayPoints, err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method get_stay_points for token %s and project %s took %s to complete", token, projectId, time.Since(begin))
 		if err != nil {
@@ -300,7 +299,7 @@ func (lm *loggingMiddleware) DeleteEntity(ctx context.Context, token string, pro
 	return lm.svc.DeleteEntity(ctx, token, projectId, entityName)
 }
 
-func (lm *loggingMiddleware) ListEntity(ctx context.Context, token string, projectId string, coordTypeOutput string, pageIndex int32, pageSize int32) (total int32, infos []*lbs.EntityInfo, err error) {
+func (lm *loggingMiddleware) ListEntity(ctx context.Context, token string, projectId string, coordTypeOutput string, pageIndex int, pageSize int) (total int, infos []*lbs.EntityInfo, err error) {
 	defer func(begin time.Time) {
 		message := fmt.Sprintf("Method list_entity for token %s and coordTypeOutput %s and pageIndex %d and pageSize %d took %s to complete", token, coordTypeOutput, pageIndex, pageSize, time.Since(begin))
 		if err != nil {

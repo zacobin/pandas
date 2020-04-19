@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas/lbs"
-	lbp "github.com/cloustone/pandas/lbs/proxy"
 	"github.com/go-kit/kit/metrics"
 )
 
@@ -95,7 +94,7 @@ func (ms *metricsMiddleware) RemoveMonitoredObject(ctx context.Context, token st
 	return ms.svc.RemoveMonitoredObject(ctx, token, projectId, fenceId, objects)
 }
 
-func (ms *metricsMiddleware) ListMonitoredObjects(ctx context.Context, token string, projectId string, fenceId string, pageIndex int32, pageSize int32) (total int32, objects []string, err error) {
+func (ms *metricsMiddleware) ListMonitoredObjects(ctx context.Context, token string, projectId string, fenceId string, pageIndex int, pageSize int) (total int, objects []string, err error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "list_monitored_object").Add(1)
 		ms.latency.With("method", "list_monitored_object").Observe(time.Since(begin).Seconds())
@@ -132,7 +131,7 @@ func (ms *metricsMiddleware) GetFenceIds(ctx context.Context, token string, proj
 }
 
 // Alarm
-func (ms *metricsMiddleware) QueryStatus(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (status *lbp.QueryStatus, err error) {
+func (ms *metricsMiddleware) QueryStatus(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (status *lbs.QueryStatus, err error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "query_status").Add(1)
 		ms.latency.With("method", "query_status").Observe(time.Since(begin).Seconds())
@@ -141,7 +140,7 @@ func (ms *metricsMiddleware) QueryStatus(ctx context.Context, token string, proj
 	return ms.svc.QueryStatus(ctx, token, projectId, monitoredPerson, fenceIds)
 }
 
-func (ms *metricsMiddleware) GetHistoryAlarms(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (alarms *lbp.HistoryAlarms, err error) {
+func (ms *metricsMiddleware) GetHistoryAlarms(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIds []string) (alarms *lbs.HistoryAlarms, err error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "get_history_alarms").Add(1)
 		ms.latency.With("method", "get_history_alarms").Observe(time.Since(begin).Seconds())
@@ -150,7 +149,7 @@ func (ms *metricsMiddleware) GetHistoryAlarms(ctx context.Context, token string,
 	return ms.svc.GetHistoryAlarms(ctx, token, projectId, monitoredPerson, fenceIds)
 }
 
-func (ms *metricsMiddleware) BatchGetHistoryAlarms(ctx context.Context, token string, projectId string, input *lbp.BatchGetHistoryAlarmsRequest) (alarms *lbp.HistoryAlarms, err error) {
+func (ms *metricsMiddleware) BatchGetHistoryAlarms(ctx context.Context, token string, projectId string, input *lbs.BatchGetHistoryAlarmsRequest) (alarms *lbs.BatchHistoryAlarmsResp, err error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "batchget_history_alarms").Add(1)
 		ms.latency.With("method", "batchget_history_alarms").Observe(time.Since(begin).Seconds())
@@ -159,7 +158,7 @@ func (ms *metricsMiddleware) BatchGetHistoryAlarms(ctx context.Context, token st
 	return ms.svc.BatchGetHistoryAlarms(ctx, token, projectId, input)
 }
 
-func (ms *metricsMiddleware) GetStayPoints(ctx context.Context, token string, projectId string, input *lbp.GetStayPointsRequest) (points *lbp.StayPoints, err error) {
+func (ms *metricsMiddleware) GetStayPoints(ctx context.Context, token string, projectId string, input *lbs.GetStayPointsRequest) (points *lbs.StayPoints, err error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "get_stay_points").Add(1)
 		ms.latency.With("method", "get_stay_points").Observe(time.Since(begin).Seconds())
@@ -215,7 +214,7 @@ func (ms *metricsMiddleware) DeleteEntity(ctx context.Context, token string, pro
 	return ms.svc.DeleteEntity(ctx, token, projectId, entityName)
 }
 
-func (ms *metricsMiddleware) ListEntity(ctx context.Context, token string, projectId string, coordTypeOutput string, pageIndex int32, pageSize int32) (total int32, info []*lbs.EntityInfo, err error) {
+func (ms *metricsMiddleware) ListEntity(ctx context.Context, token string, projectId string, coordTypeOutput string, pageIndex int, pageSize int) (total int, info []*lbs.EntityInfo, err error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "list_entity").Add(1)
 		ms.latency.With("method", "list_entity").Observe(time.Since(begin).Seconds())
