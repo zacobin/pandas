@@ -49,7 +49,7 @@ services:
       - ${PD_AUTHN_GRPC_PORT}:${PD_AUTHN_GRPC_PORT}
     restart: always
     environment:
-      PANDAS_PORT: ${PD_AUTHN_HTTP_PORT}
+      PD_AUTHN_HTTP_PORT: ${PD_AUTHN_HTTP_PORT}
       PANDAS_DNS_SERVER: "docker-compose"
       PD_AUTHN_LOG_LEVEL: ${PD_AUTHN_LOG_LEVEL}
       PD_AUTHN_DB_HOST: authn-db
@@ -270,7 +270,7 @@ services:
       - ${PD_RULECHAIN_HTTP_PORT}:${PD_RULECHAIN_HTTP_PORT}
     restart: always
     environment:
-      PANDAS_PORT: ${PD_RULECHAIN_HTTP_PORT}
+      PD_RULECHAIN_HTTP_PORT: ${PD_RULECHAIN_HTTP_PORT}
       PANDAS_DNS_SERVER: "docker-compose"
       PD_RULECHAIN_DB_HOST: rulechain-db
       PD_RULECHAIN_DB_PORT: ${PD_RULECHAIN_DB_PORT}
@@ -296,5 +296,5 @@ services:
       - ${PD_LBS_HTTP_PORT}:${PD_LBS_HTTP_PORT}
     restart: always
     environment:
-      PANDAS_PORT: ${PD_LBS_HTTP_PORT}
+      PD_LBS_HTTP_PORT: ${PD_LBS_HTTP_PORT}
       PANDAS_DNS_SERVER: "docker-compose"

@@ -14,6 +14,7 @@ envsubst '
     ${PD_THINGS_HTTP_PORT}
     ${PD_HTTP_ADAPTER_PORT}
     ${PD_WS_ADAPTER_PORT}
-    ${PD_LBS_HTTP_PORT}' </etc/nginx/nginx.conf.template >/etc/nginx/nginx.conf
+    ${PD_LBS_HTTP_PORT}
+    ${PD_RULECHAIN_HTTP_PORT}' </etc/nginx/nginx.conf.template >/etc/nginx/nginx.conf
 
 exec nginx -g "daemon off;"
