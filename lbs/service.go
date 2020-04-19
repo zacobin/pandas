@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	nats "github.com/cloustone/pandas/lbs/nats/publisher"
 	"github.com/cloustone/pandas/mainflux"
 	logr "github.com/sirupsen/logrus"
 )
@@ -65,18 +66,25 @@ type Service interface {
 }
 
 // New instantiates the lbs service implementation.
-func New(auth mainflux.AuthNServiceClient, provider LocationProvider, locations Repository) Service {
+func New(auth mainflux.AuthNServiceClient,
+	provider LocationProvider, collections CollectionRepository, entities EntityRepository, geofences GeofenceRepository,
+	n *nats.Publisher) Service {
 	return &lbsService{
-		auth:      auth,
-		provider:  provider,
-		locations: locations,
+		auth:        auth,
+		provider:    provider,
+		collections: collections,
+		entities:    entities,
+		geofences:   geofences,
 	}
 }
 
 type lbsService struct {
-	auth      mainflux.AuthNServiceClient
-	provider  LocationProvider
-	locations Repository
+	auth        mainflux.AuthNServiceClient
+	provider    LocationProvider
+	collections CollectionRepository
+	entities    EntityRepository
+	geofences   GeofenceRepository
+	nats        *nats.Publisher
 }
 
 // Geofence

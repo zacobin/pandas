@@ -183,13 +183,13 @@ type GetStayPointResp struct {
 	Points     []Point `json:"points"`
 }
 type GetStayPointsRequest struct {
-	EndTime         string   `protobuf:"bytes,3,opt,name=end_time,json=endTime" json:"end_time,omitempty", bson:"end_time,omitempty"`
-	EntityName      string   `protobuf:"bytes,4,opt,name=entity_name,json=entityName" json:"entity_name,omitempty", bson:"entity_name,omitempty"`
-	FenceIDs        []string `protobuf:"bytes,5,rep,name=fence_ids,json=fenceIDs" json:"fence_ids,omitempty", bson:"fence_ids,omitempty"`
-	PageIndex       int      `protobuf:"varint,6,opt,name=page_index,json=pageIndex" json:"page_index,omitempty", bson:"page_index,omitempty"`
-	PageSize        int      `protobuf:"varint,7,opt,name=page_size,json=pageSize" json:"page_size,omitempty", bson:"page_size,omitempty"`
-	StartTime       string   `protobuf:"bytes,8,opt,name=start_time,json=startTime" json:"start_time,omitempty", bson:"start_time,omitempty"`
-	CoordTypeOutput string   `protobuf:"bytes,9,opt,name=coord_type_output,json=coordTypeOutput" json:"coord_type_output,omitempty", bson:"coord_type_output,omitempty"`
+	EndTime         string   `json:"end_time,omitempty"`
+	EntityName      string   `json:"entity_name,omitempty"`
+	FenceIDs        []string `json:"fence_ids,omitempty"`
+	PageIndex       int      `json:"page_index,omitempty"`
+	PageSize        int      `json:"page_size,omitempty"`
+	StartTime       string   `json:"start_time,omitempty"`
+	CoordTypeOutput string   `json:"coord_type_output,omitempty"`
 }
 
 type HistoryAlarmPoint struct {
