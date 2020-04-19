@@ -26,12 +26,12 @@ type CircleGeofence struct {
 	Radius           float64
 	CoordType        lbs.CoordType
 	Denoise          int
-	FenceId          string
+	FenceID          string
 }
 
 type createCircleGeofenceReq struct {
 	token     string
-	projectId string
+	projectID string
 	fence     *CircleGeofence
 }
 
@@ -39,7 +39,7 @@ func (req createCircleGeofenceReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if (req.projectId == "") || (req.fence == nil) {
+	if (req.projectID == "") || (req.fence == nil) {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -47,7 +47,7 @@ func (req createCircleGeofenceReq) validate() error {
 
 type updateCircleGeofenceReq struct {
 	token     string
-	projectId string
+	projectID string
 	fence     *CircleGeofence
 }
 
@@ -55,7 +55,7 @@ func (req updateCircleGeofenceReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if (req.projectId == "") || (req.fence == nil) {
+	if (req.projectID == "") || (req.fence == nil) {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -63,8 +63,8 @@ func (req updateCircleGeofenceReq) validate() error {
 
 type deleteGeofenceReq struct {
 	token     string
-	projectId string
-	fenceIds  []string
+	projectID string
+	fenceIDs  []string
 	objects   []string
 }
 
@@ -72,7 +72,7 @@ func (req deleteGeofenceReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -80,8 +80,8 @@ func (req deleteGeofenceReq) validate() error {
 
 type listGeofencesReq struct {
 	token     string
-	projectId string
-	fenceIds  []string
+	projectID string
+	fenceIDs  []string
 	objects   []string
 }
 
@@ -89,7 +89,7 @@ func (req listGeofencesReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -97,8 +97,8 @@ func (req listGeofencesReq) validate() error {
 
 type addMonitoredObjectReq struct {
 	token     string
-	projectId string
-	fenceId   string
+	projectID string
+	fenceID   string
 	objects   []string
 }
 
@@ -106,7 +106,7 @@ func (req addMonitoredObjectReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -114,8 +114,8 @@ func (req addMonitoredObjectReq) validate() error {
 
 type removeMonitoredObjectReq struct {
 	token     string
-	projectId string
-	fenceId   string
+	projectID string
+	fenceID   string
 	objects   []string
 }
 
@@ -123,7 +123,7 @@ func (req removeMonitoredObjectReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -131,8 +131,8 @@ func (req removeMonitoredObjectReq) validate() error {
 
 type listMonitoredObjectsReq struct {
 	token     string
-	projectId string
-	fenceId   string
+	projectID string
+	fenceID   string
 	pageIndex int
 	pageSize  int
 }
@@ -141,7 +141,7 @@ func (req listMonitoredObjectsReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -153,12 +153,12 @@ type PolyGeofence struct {
 	Vertexes         string
 	CoordType        lbs.CoordType
 	Denoise          int
-	FenceId          string
+	FenceID          string
 }
 
 type createPolyGeofenceReq struct {
 	token     string
-	projectId string
+	projectID string
 	fence     *PolyGeofence
 }
 
@@ -166,7 +166,7 @@ func (req createPolyGeofenceReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -174,7 +174,7 @@ func (req createPolyGeofenceReq) validate() error {
 
 type updatePolyGeofenceReq struct {
 	token     string
-	projectId string
+	projectID string
 	fence     *PolyGeofence
 }
 
@@ -182,22 +182,22 @@ func (req updatePolyGeofenceReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
 }
 
-type getFenceIdsReq struct {
+type getFenceIDsReq struct {
 	token     string
-	projectId string
+	projectID string
 }
 
-func (req getFenceIdsReq) validate() error {
+func (req getFenceIDsReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -205,16 +205,16 @@ func (req getFenceIdsReq) validate() error {
 
 type queryStatusReq struct {
 	token           string
-	projectId       string
+	projectID       string
 	monitoredPerson string
-	fenceIds        []string
+	fenceIDs        []string
 }
 
 func (req queryStatusReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -222,16 +222,16 @@ func (req queryStatusReq) validate() error {
 
 type getHistoryAlarmsReq struct {
 	token           string
-	projectId       string
+	projectID       string
 	monitoredPerson string
-	fenceIds        []string
+	fenceIDs        []string
 }
 
 func (req getHistoryAlarmsReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -247,7 +247,7 @@ type BatchGetHistoryAlarmsRequest struct {
 
 type batchGetHistoryAlarmsReq struct {
 	token     string
-	projectId string
+	projectID string
 	input     *BatchGetHistoryAlarmsRequest
 }
 
@@ -255,7 +255,7 @@ func (req batchGetHistoryAlarmsReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -264,7 +264,7 @@ func (req batchGetHistoryAlarmsReq) validate() error {
 type GetStayPointsRequest struct {
 	EndTime         string   `protobuf:"bytes,3,opt,name=end_time,json=endTime" json:"end_time,omitempty", bson:"end_time,omitempty"`
 	EntityName      string   `protobuf:"bytes,4,opt,name=entity_name,json=entityName" json:"entity_name,omitempty", bson:"entity_name,omitempty"`
-	FenceIds        []string `protobuf:"bytes,5,rep,name=fence_ids,json=fenceIds" json:"fence_ids,omitempty", bson:"fence_ids,omitempty"`
+	FenceIDs        []string `protobuf:"bytes,5,rep,name=fence_ids,json=fenceIDs" json:"fence_ids,omitempty", bson:"fence_ids,omitempty"`
 	PageIndex       int    `protobuf:"varint,6,opt,name=page_index,json=pageIndex" json:"page_index,omitempty", bson:"page_index,omitempty"`
 	PageSize        int    `protobuf:"varint,7,opt,name=page_size,json=pageSize" json:"page_size,omitempty", bson:"page_size,omitempty"`
 	StartTime       string   `protobuf:"bytes,8,opt,name=start_time,json=startTime" json:"start_time,omitempty", bson:"start_time,omitempty"`
@@ -273,7 +273,7 @@ type GetStayPointsRequest struct {
 
 type getStayPointsReq struct {
 	token     string
-	projectId string
+	projectID string
 	input     *GetStayPointsRequest
 }
 
@@ -281,7 +281,7 @@ func (req getStayPointsReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -289,7 +289,7 @@ func (req getStayPointsReq) validate() error {
 
 type notifyAlarmsReq struct {
 	token     string
-	projectId string
+	projectID string
 	content   []byte
 }
 
@@ -297,23 +297,23 @@ func (req notifyAlarmsReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
 }
 
-type getFenceUserIdReq struct {
+type getFenceUserIDReq struct {
 	token     string
-	projectId string
-	fenceId   string
+	projectID string
+	fenceID   string
 }
 
-func (req getFenceUserIdReq) validate() error {
+func (req getFenceUserIDReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -321,7 +321,7 @@ func (req getFenceUserIdReq) validate() error {
 
 type addEntityReq struct {
 	token      string
-	projectId  string
+	projectID  string
 	entityName string
 	entityDesc string
 }
@@ -330,7 +330,7 @@ func (req addEntityReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -338,7 +338,7 @@ func (req addEntityReq) validate() error {
 
 type updateEntityReq struct {
 	token      string
-	projectId  string
+	projectID  string
 	entityName string
 	entityDesc string
 }
@@ -347,7 +347,7 @@ func (req updateEntityReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -355,7 +355,7 @@ func (req updateEntityReq) validate() error {
 
 type deleteEntityReq struct {
 	token      string
-	projectId  string
+	projectID  string
 	entityName string
 }
 
@@ -363,7 +363,7 @@ func (req deleteEntityReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil
@@ -371,7 +371,7 @@ func (req deleteEntityReq) validate() error {
 
 type listEntityReq struct {
 	token           string
-	projectId       string
+	projectID       string
 	coordTypeOutput string
 	pageIndex       int
 	pageSize        int
@@ -381,7 +381,7 @@ func (req listEntityReq) validate() error {
 	if req.token == "" {
 		return lbs.ErrUnauthorizedAccess
 	}
-	if req.projectId == "" {
+	if req.projectID == "" {
 		return lbs.ErrMalformedEntity
 	}
 	return nil

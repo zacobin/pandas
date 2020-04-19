@@ -14,25 +14,25 @@ package lbs
 import "time"
 
 type Collection struct {
-	UserId        string    `bson:"user_id"`
-	CollectionId  string    `bson:"collection_id"`
+	UserID        string    `bson:"user_id"`
+	CollectionID  string    `bson:"collection_id"`
 	CreatedAt     time.Time `bson:"created_at"`
 	LastUpdatedAt time.Time `bson:"last_updated_at"`
 	Status        string    `bson:"status"`
 }
 
 type GeofenceRecord struct {
-	UserId        string    `bson:"user_id"`
-	CollectionId  string    `bson:"collection_id"`
+	UserID        string    `bson:"user_id"`
+	CollectionID  string    `bson:"collection_id"`
 	FenceName     string    `bson:"fence_name"`
-	FenceId       string    `bson:"fence_id"`
+	FenceID       string    `bson:"fence_id"`
 	CreatedAt     time.Time `bson:"created_at"`
 	LastUpdatedAt time.Time `bson:"last_updated_at"`
 }
 
 type EntityRecord struct {
-	UserId        string    `bson:"user_id"`
-	CollectionId  string    `bson:"collection_id"`
+	UserID        string    `bson:"user_id"`
+	CollectionID  string    `bson:"collection_id"`
 	EntityName    string    `bson:"entity_name"`
 	CreatedAt     time.Time `bson:"created_at"`
 	LastUpdatedAt time.Time `bson:"last_updated_at"`
@@ -40,23 +40,23 @@ type EntityRecord struct {
 
 type Repository interface {
 	// Helper
-	AddCollection(userId string, collectionId string) error
-	RemoveCollection(userId string, collectionId string) error
+	AddCollection(userID string, collectionID string) error
+	RemoveCollection(userID string, collectionID string) error
 	GetAllCollections() ([]*Collection, error)
-	UpdateCollection(userId string, p *Collection) error
+	UpdateCollection(userID string, p *Collection) error
 
 	// Geofences
-	AddGeofence(userId string, collectionId string, fenceName string, fenceId string) error
-	RemoveGeofence(userId string, collectionId string, fenceId string) error
-	IsGeofenceExistWithName(userId string, collectionId string, fenceName string) bool
-	IsGeofenceExistWithId(userId string, collectionId string, fenceId string) bool
-	GetFences(userId, collectionId string) ([]*GeofenceRecord, error)
-	GetFenceUserId(fenceId string) (string, error)
+	AddGeofence(userID string, collectionID string, fenceName string, fenceID string) error
+	RemoveGeofence(userID string, collectionID string, fenceID string) error
+	IsGeofenceExistWithName(userID string, collectionID string, fenceName string) bool
+	IsGeofenceExistWithId(userID string, collectionID string, fenceID string) bool
+	GetFences(userID, collectionID string) ([]*GeofenceRecord, error)
+	GetFenceUserID(fenceID string) (string, error)
 
 	//Entity
-	AddEntity(userId string, collectionId string, entityName string) error
-	DeleteEntity(userId string, collectionId string, entityName string) error
-	UpdateEntity(userId string, collectionId string, entityName string, entity EntityRecord) error
-	IsEntityExistWithName(userId string, collectionId string, entityName string) bool
-	GetEntities(userId string, collectionId string) ([]*EntityRecord, error)
+	AddEntity(userID string, collectionID string, entityName string) error
+	DeleteEntity(userID string, collectionID string, entityName string) error
+	UpdateEntity(userID string, collectionID string, entityName string, entity EntityRecord) error
+	IsEntityExistWithName(userID string, collectionID string, entityName string) bool
+	GetEntities(userID string, collectionID string) ([]*EntityRecord, error)
 }

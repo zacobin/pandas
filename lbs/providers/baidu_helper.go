@@ -21,7 +21,7 @@ func getMonitoredStatus(fenceStatus lbs.QueryStatusResponse) *QueryStatus {
 	}
 	for _, mpVal := range fenceStatus.MonitoredStatuses {
 		monitoredStatus := MonitoredStatus{
-			FenceId:         mpVal.FenceId,
+			FenceID:         mpVal.FenceID,
 			MonitoredStatus: mpVal.MonitoredStatus,
 		}
 		rsp.MonitoredStatuses = append(rsp.MonitoredStatuses, monitoredStatus)
@@ -30,15 +30,15 @@ func getMonitoredStatus(fenceStatus lbs.QueryStatusResponse) *QueryStatus {
 	return rsp
 }
 
-func (p *Proxy) QueryStatus(monitoredPerson string, fenceIds []string) (*QueryStatus, error) {
+func (p *Proxy) QueryStatus(monitoredPerson string, fenceIDs []string) (*QueryStatus, error) {
 
-	status, err := p.engine.QueryStatus(monitoredPerson, fenceIds)
+	status, err := p.engine.QueryStatus(monitoredPerson, fenceIDs)
 	rsp := getMonitoredStatus(status)
 	return rsp, err
 }
 
-func (p *Proxy) GetHistoryAlarms(monitoredPerson string, fenceIds []string) (*HistoryAlarms, error) {
-	alarms, err := p.engine.GetHistoryAlarms(monitoredPerson, fenceIds)
+func (p *Proxy) GetHistoryAlarms(monitoredPerson string, fenceIDs []string) (*HistoryAlarms, error) {
+	alarms, err := p.engine.GetHistoryAlarms(monitoredPerson, fenceIDs)
 	rsp := getHistoryAlarmPoint(alarms)
 	return rsp, err
 }
@@ -51,7 +51,7 @@ func getHistoryAlarmPoint(alarmPoint BaiduGetHistoryAlarmsResponse) *HistoryAlar
 	for _, haVal := range alarmPoint.Alarms {
 
 		alarm := &Alarm{
-			FenceId:          haVal.FenceId,
+			FenceID:          haVal.FenceID,
 			FenceName:        haVal.FenceName,
 			MonitoredObjects: haVal.MonitoredPerson,
 			Action:           haVal.Action,
@@ -94,7 +94,7 @@ func getBatchHistoryAlarmPoint(historyAlarms BaiduBatchHistoryAlarmsResp) *Histo
 	for _, haVal := range historyAlarms.Alarms {
 
 		alarm := &Alarm{
-			FenceId:          haVal.FenceId,
+			FenceID:          haVal.FenceID,
 			FenceName:        haVal.FenceName,
 			MonitoredObjects: haVal.MonitoredPerson,
 			Action:           haVal.Action,
@@ -177,7 +177,7 @@ func (p *Proxy) DeleteEntity(entityName string) error {
 	return p.engine.DeleteEntity(entityName)
 }
 
-func (p *Proxy) ListEntity(collectionId string, coordTypeOutput string, pageIndex int, pageSize int) (int, baiduListEntityStruct) {
-	return p.engine.ListEntity(collectionId, coordTypeOutput, pageIndex, pageSize)
+func (p *Proxy) ListEntity(collectionID string, coordTypeOutput string, pageIndex int, pageSize int) (int, baiduListEntityStruct) {
+	return p.engine.ListEntity(collectionID, coordTypeOutput, pageIndex, pageSize)
 }
 */

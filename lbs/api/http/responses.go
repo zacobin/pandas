@@ -21,13 +21,13 @@ var (
 	_ mainflux.Response = (*listMonitoredObjectsRes)(nil)
 	_ mainflux.Response = (*createPolyGeofenceRes)(nil)
 	_ mainflux.Response = (*updatePolyGeofenceRes)(nil)
-	_ mainflux.Response = (*getFenceIdsRes)(nil)
+	_ mainflux.Response = (*getFenceIDsRes)(nil)
 	_ mainflux.Response = (*queryStatusRes)(nil)
 	_ mainflux.Response = (*getHistoryAlarmsRes)(nil)
 	_ mainflux.Response = (*batchGetHistoryAlarmsRes)(nil)
 	_ mainflux.Response = (*getStayPointsRes)(nil)
 	_ mainflux.Response = (*notifyAlarmsRes)(nil)
-	_ mainflux.Response = (*getFenceUserIdRes)(nil)
+	_ mainflux.Response = (*getFenceUserIDRes)(nil)
 	_ mainflux.Response = (*addEntityRes)(nil)
 	_ mainflux.Response = (*updateEntityRes)(nil)
 	_ mainflux.Response = (*deleteEntityRes)(nil)
@@ -51,7 +51,7 @@ func (res listCollectionsRes) Empty() bool {
 }
 
 type createCircleGeofenceRes struct {
-	fenceId string
+	fenceID string
 }
 
 func (res createCircleGeofenceRes) Code() int {
@@ -63,7 +63,7 @@ func (res createCircleGeofenceRes) Headers() map[string]string {
 }
 
 func (res createCircleGeofenceRes) Empty() bool {
-	return res.fenceId == ""
+	return res.fenceID == ""
 }
 
 type updateCircleGeofenceRes struct {
@@ -104,7 +104,7 @@ type Vertexe struct {
 }
 
 type Geofence struct {
-	FenceId         string
+	FenceID         string
 	FenceName       string
 	MonitoredObject []string
 	Shape           string
@@ -180,7 +180,7 @@ func (res listMonitoredObjectsRes) Empty() bool {
 }
 
 type createPolyGeofenceRes struct {
-	fenceId string
+	fenceID string
 }
 
 func (res createPolyGeofenceRes) Code() int {
@@ -192,7 +192,7 @@ func (res createPolyGeofenceRes) Headers() map[string]string {
 }
 
 func (res createPolyGeofenceRes) Empty() bool {
-	return res.fenceId == ""
+	return res.fenceID == ""
 }
 
 type updatePolyGeofenceRes struct{}
@@ -209,24 +209,24 @@ func (res updatePolyGeofenceRes) Empty() bool {
 	return true
 }
 
-type getFenceIdsRes struct {
-	fenceIds []string
+type getFenceIDsRes struct {
+	fenceIDs []string
 }
 
-func (res getFenceIdsRes) Code() int {
+func (res getFenceIDsRes) Code() int {
 	return http.StatusCreated
 }
 
-func (res getFenceIdsRes) Headers() map[string]string {
+func (res getFenceIDsRes) Headers() map[string]string {
 	return map[string]string{}
 }
 
-func (res getFenceIdsRes) Empty() bool {
-	return res.fenceIds == nil
+func (res getFenceIDsRes) Empty() bool {
+	return res.fenceIDs == nil
 }
 
 type MonitoredStatus struct {
-	FenceId         int    `json:"fence_id"`
+	FenceID         int    `json:"fence_id"`
 	MonitoredStatus string `json:"monitored_status"`
 }
 
@@ -250,7 +250,7 @@ func (res queryStatusRes) Empty() bool {
 }
 
 type Alarm struct {
-	FenceId          string     `json:"fence_id,noempty"`
+	FenceID          string     `json:"fence_id,noempty"`
 	FenceName        string     `json:"fence_name,noempty"`
 	MonitoredObjects []string   `json:"monitored_objexts"`
 	Action           string     `json:"action"`
@@ -350,20 +350,20 @@ func (res notifyAlarmsRes) Empty() bool {
 	return true
 }
 
-type getFenceUserIdRes struct {
-	UserId string
+type getFenceUserIDRes struct {
+	UserID string
 }
 
-func (res getFenceUserIdRes) Code() int {
+func (res getFenceUserIDRes) Code() int {
 	return http.StatusCreated
 }
 
-func (res getFenceUserIdRes) Headers() map[string]string {
+func (res getFenceUserIDRes) Headers() map[string]string {
 	return map[string]string{}
 }
 
-func (res getFenceUserIdRes) Empty() bool {
-	return res.UserId == ""
+func (res getFenceUserIDRes) Empty() bool {
+	return res.UserID == ""
 }
 
 type addEntityRes struct {

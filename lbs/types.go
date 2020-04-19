@@ -25,7 +25,7 @@ type CircleGeofence struct {
 	Radius           float64
 	CoordType        CoordType
 	Denoise          int
-	FenceId          string
+	FenceID          string
 }
 
 type Vertexe struct {
@@ -34,7 +34,7 @@ type Vertexe struct {
 }
 
 type Geofence struct {
-	FenceId         string    `json:"fence_id"`
+	FenceID         string    `json:"fence_id"`
 	FenceName       string    `json:"fence_name"`
 	MonitoredObject string    `json:"monitored_person"`
 	Shape           string    `json:"shape"`
@@ -54,7 +54,7 @@ type PolyGeofence struct {
 	Vertexes         string
 	CoordType        CoordType
 	Denoise          int
-	FenceId          string
+	FenceID          string
 }
 
 type PrePoint struct {
@@ -91,7 +91,7 @@ type AlarmPointInfo struct {
 }
 
 type Alarm struct {
-	FenceId          string     `json:"fence_id,noempty"`
+	FenceID          string     `json:"fence_id,noempty"`
 	FenceName        string     `json:"fence_name,noempty"`
 	MonitoredObjects []string   `json:"monitored_objexts"`
 	Action           string     `json:"action"`
@@ -119,13 +119,13 @@ type AlarmInfos struct {
 }
 
 type AlarmInfo struct {
-	FenceId          int            `json:"fence_id,noempty"`
+	FenceID          int            `json:"fence_id,noempty"`
 	FenceName        string         `json:"fence_name,noempty"`
 	MonitoredObjects string         `json:"monitored_person"`
 	Action           string         `json:"action"`
 	AlarmPoint       AlarmPointInfo `json:"alarm_point"`
 	PrePoint         AlarmPointInfo `json:"pre_point"`
-	UserId           string
+	UserID           string
 }
 
 type QueryStatus struct {
@@ -162,7 +162,7 @@ type Location struct {
 }
 
 type MonitoredStatus struct {
-	FenceId         int    `json:"fence_id"`
+	FenceID         int    `json:"fence_id"`
 	MonitoredStatus string `json:"monitored_status"`
 }
 
@@ -185,7 +185,7 @@ type GetStayPointResp struct {
 type GetStayPointsRequest struct {
 	EndTime         string   `protobuf:"bytes,3,opt,name=end_time,json=endTime" json:"end_time,omitempty", bson:"end_time,omitempty"`
 	EntityName      string   `protobuf:"bytes,4,opt,name=entity_name,json=entityName" json:"entity_name,omitempty", bson:"entity_name,omitempty"`
-	FenceIds        []string `protobuf:"bytes,5,rep,name=fence_ids,json=fenceIds" json:"fence_ids,omitempty", bson:"fence_ids,omitempty"`
+	FenceIDs        []string `protobuf:"bytes,5,rep,name=fence_ids,json=fenceIDs" json:"fence_ids,omitempty", bson:"fence_ids,omitempty"`
 	PageIndex       int      `protobuf:"varint,6,opt,name=page_index,json=pageIndex" json:"page_index,omitempty", bson:"page_index,omitempty"`
 	PageSize        int      `protobuf:"varint,7,opt,name=page_size,json=pageSize" json:"page_size,omitempty", bson:"page_size,omitempty"`
 	StartTime       string   `protobuf:"bytes,8,opt,name=start_time,json=startTime" json:"start_time,omitempty", bson:"start_time,omitempty"`
@@ -211,7 +211,7 @@ type HistoryPrePoint struct {
 }
 
 type AlarmHistory struct {
-	FenceId          string            `json:"fence_id"`
+	FenceID          string            `json:"fence_id"`
 	FenceName        string            `json:"fence_name"`
 	MonitoredObjects []string          `json:"monitored_person"`
 	Action           string            `json:"action"`
@@ -253,15 +253,15 @@ type ListEntityStruct struct {
 }
 
 type GetHistoryAlarmsRequest struct {
-	UserId          string   `json:"user_id,omitempty"`
-	CollectionId    string   `json:"collection_id,omitempty""`
+	UserID          string   `json:"user_id,omitempty"`
+	CollectionID    string   `json:"collection_id,omitempty""`
 	MonitoredPerson string   `json:"monitored_person,omitempty""`
-	FenceIds        []string `json:"fence_ids,omitempty"`
+	FenceIDs        []string `json:"fence_ids,omitempty"`
 }
 
 type BatchGetHistoryAlarmsRequest struct {
-	UserId          string `json:"user_id,omitempty"`
-	CollectionId    string `json:"collection_id,omitempty"`
+	UserID          string `json:"user_id,omitempty"`
+	CollectionID    string `json:"collection_id,omitempty"`
 	CoordTypeOutput string `json:"coord_type_output,omitempty"`
 	EndTime         string `json:"end_time,omitempty"`
 	StartTime       string `json:"start_time,omitempty"`

@@ -40,21 +40,21 @@ func MakeHandler(tracer opentracing.Tracer, svc lbs.Service) http.Handler {
 		opts...,
 	))
 
-	r.Post("/lbs/circlefence/project/:projectId", kithttp.NewServer(
+	r.Post("/lbs/circlefence/project/:projectID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "create_circlegeofence")(createCircleGeofenceEndpoint(svc)),
 		decodeCreateCircleGeofence,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Put("/lbs/circlefence/project/:projectId", kithttp.NewServer(
+	r.Put("/lbs/circlefence/project/:projectID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "update_circlegeofence")(updateCircleGeofenceEndpoint(svc)),
 		decodeUpdateCircleGeofence,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Delete("/lbs/circlefence/project/:projectId/fence/:fenceId", kithttp.NewServer(
+	r.Delete("/lbs/circlefence/project/:projectID/fence/:fenceID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "delete_circlegeofence")(deleteGeofenceEndpoint(svc)),
 		decodeDeleteGeofence,
 		encodeResponse,
@@ -68,44 +68,44 @@ func MakeHandler(tracer opentracing.Tracer, svc lbs.Service) http.Handler {
 		opts...,
 	))
 
-	r.Post("/lbs/monitor/project/:projectId/fence/:fenceId", kithttp.NewServer(
+	r.Post("/lbs/monitor/project/:projectID/fence/:fenceID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "add_monitoredobject")(addMonitoredObjectEndpoint(svc)),
 		decodeAddMonitoredObject,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Delete("/lbs/monitor/project/:projectId/fence/:fenceId", kithttp.NewServer(
+	r.Delete("/lbs/monitor/project/:projectID/fence/:fenceID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "remove_monitoredobject")(removeMonitoredObjectEndpoint(svc)),
 		decodeRemoveMonitoredObject,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Get("/lbs/monitor/project/:projectId/fence/:fenceId", kithttp.NewServer(
+	r.Get("/lbs/monitor/project/:projectID/fence/:fenceID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "list_monitoredobject")(listMonitoredObjectsEndpoint(svc)),
 		decodeListMonitoredObjects,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Post("/lbs/polyfence/project/:projectId", kithttp.NewServer(
+	r.Post("/lbs/polyfence/project/:projectID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "create_polygeofence")(createPolyGeofenceEndpoint(svc)),
 		decodeCreatePolyGeofence,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Put("/lbs/polyfence/project/:projectId", kithttp.NewServer(
+	r.Put("/lbs/polyfence/project/:projectID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "list_polygeofence")(updatePolyGeofenceEndpoint(svc)),
 		decodeUpdatePolyGeofence,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Post("/lbs/fenceIds/project/:projectId", kithttp.NewServer(
-		kitot.TraceServer(tracer, "get_fenceids")(getFenceIdsEndpoint(svc)),
-		decodeGetFenceIds,
+	r.Post("/lbs/fenceIDs/project/:projectID", kithttp.NewServer(
+		kitot.TraceServer(tracer, "get_fenceids")(getFenceIDsEndpoint(svc)),
+		decodeGetFenceIDs,
 		encodeResponse,
 		opts...,
 	))
@@ -117,7 +117,7 @@ func MakeHandler(tracer opentracing.Tracer, svc lbs.Service) http.Handler {
 		opts...,
 	))
 
-	r.Get("/lbs/historyalarms/project/:projectId", kithttp.NewServer(
+	r.Get("/lbs/historyalarms/project/:projectID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "get_historyalarms")(getHistoryAlarmsEndpoint(svc)),
 		decodeGetHistoryAlarms,
 		encodeResponse,
@@ -131,42 +131,42 @@ func MakeHandler(tracer opentracing.Tracer, svc lbs.Service) http.Handler {
 		opts...,
 	))
 
-	r.Get("/lbs/staypoints/project/:projectId", kithttp.NewServer(
+	r.Get("/lbs/staypoints/project/:projectID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "get_staypoints")(getStayPointsEndpoint(svc)),
 		decodeGetStayPoints,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Post("/lbs/alarms/project/:projectId", kithttp.NewServer(
+	r.Post("/lbs/alarms/project/:projectID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "notify_alarms")(notifyAlarmsEndpoint(svc)),
 		decodeNotifyAlarms,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Get("/lbs/userId/:fenceId", kithttp.NewServer(
-		kitot.TraceServer(tracer, "get_fenceuserid")(getFenceUserIdEndpoint(svc)),
-		decodeGetFenceUserId,
+	r.Get("/lbs/userID/:fenceID", kithttp.NewServer(
+		kitot.TraceServer(tracer, "get_fenceuserid")(getFenceUserIDEndpoint(svc)),
+		decodeGetFenceUserID,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Post("/lbs/entity/project/:projectId", kithttp.NewServer(
+	r.Post("/lbs/entity/project/:projectID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "add_entity")(addEntityEndpoint(svc)),
 		decodeAddEntity,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Put("/lbs/entity/project/:projectId", kithttp.NewServer(
+	r.Put("/lbs/entity/project/:projectID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "update_entity")(updateEntityEndpoint(svc)),
 		decodeUpdateEntity,
 		encodeResponse,
 		opts...,
 	))
 
-	r.Delete("/lbs/entity/project/:projectId", kithttp.NewServer(
+	r.Delete("/lbs/entity/project/:projectID", kithttp.NewServer(
 		kitot.TraceServer(tracer, "delete_entity")(deleteEntityEndpoint(svc)),
 		decodeDeleteEntity,
 		encodeResponse,
@@ -326,7 +326,7 @@ func decodeUpdatePolyGeofence(_ context.Context, r *http.Request) (interface{}, 
 	return req, nil
 }
 
-func decodeGetFenceIds(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeGetFenceIDs(_ context.Context, r *http.Request) (interface{}, error) {
 	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
 		return nil, errUnsupportedContentType
 	}
@@ -410,7 +410,7 @@ func decodeNotifyAlarms(_ context.Context, r *http.Request) (interface{}, error)
 	return req, nil
 }
 
-func decodeGetFenceUserId(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeGetFenceUserID(_ context.Context, r *http.Request) (interface{}, error) {
 	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
 		return nil, errUnsupportedContentType
 	}

@@ -37,31 +37,31 @@ const (
 
 
 
-type UserId struct {
-	UserId string `bson:"user_id"`
+type UserID struct {
+	UserID string `bson:"user_id"`
 }
 
 type Repository interface {
 	// Helper
-	AddCollection(userId string, collectionId string) error
-	RemoveCollection(userId string, collectionId string) error
+	AddCollection(userID string, collectionID string) error
+	RemoveCollection(userID string, collectionID string) error
 	GetAllCollections() ([]*Collection, error)
-	UpdateCollection(userId string, p *Collection) error
+	UpdateCollection(userID string, p *Collection) error
 
 	// Geofences
-	AddGeofence(userId string, collectionId string, fenceName string, fenceId string) error
-	RemoveGeofence(userId string, collectionId string, fenceId string) error
-	IsGeofenceExistWithName(userId string, collectionId string, fenceName string) bool
-	IsGeofenceExistWithId(userId string, collectionId string, fenceId string) bool
-	GetFences(userId, collectionId string) ([]*geofenceRecord, error)
-	GetFenceUserId(fenceId string) (string, error)
+	AddGeofence(userID string, collectionID string, fenceName string, fenceID string) error
+	RemoveGeofence(userID string, collectionID string, fenceID string) error
+	IsGeofenceExistWithName(userID string, collectionID string, fenceName string) bool
+	IsGeofenceExistWithId(userID string, collectionID string, fenceID string) bool
+	GetFences(userID, collectionID string) ([]*geofenceRecord, error)
+	GetFenceUserID(fenceID string) (string, error)
 
 	//Entity
-	AddEntity(userId string, collectionId string, entityName string) error
-	DeleteEntity(userId string, collectionId string, entityName string) error
-	UpdateEntity(userId string, collectionId string, entityName string, entity EntityRecord) error
-	IsEntityExistWithName(userId string, collectionId string, entityName string) bool
-	GetEntities(userId string, collectionId string) ([]*EntityRecord, error)
+	AddEntity(userID string, collectionID string, entityName string) error
+	DeleteEntity(userID string, collectionID string, entityName string) error
+	UpdateEntity(userID string, collectionID string, entityName string, entity EntityRecord) error
+	IsEntityExistWithName(userID string, collectionID string, entityName string) bool
+	GetEntities(userID string, collectionID string) ([]*EntityRecord, error)
 
 	Close()
 }
@@ -158,39 +158,39 @@ func ensureIndex(s *mgo.Session, collection string, keys ...string) {
 	}
 }
 
-func (r *lbsRepository) AddCollection(userId string, collectionId string) error {
+func (r *lbsRepository) AddCollection(userID string, collectionID string) error {
 	sess, c := getCollection(r, collectionCollections)
 	defer sess.Close()
 	return c.Insert(&Collection{
-		UserId:        userId,
-		CollectionId:  collectionId,
+		UserID:        userID,
+		CollectionID:  collectionID,
 		CreatedAt:     time.Now(),
 		LastUpdatedAt: time.Now(),
 	})
 }
 
-func (r *lbsRepository) RemoveCollection(userId, collectionId string) error {
+func (r *lbsRepository) RemoveCollection(userID, collectionID string) error {
 	sess, c := getCollection(r, collectionCollections)
 	defer sess.Close()
-	return c.Remove(bson.M{"user_id": userId, "collection_id": collectionId})
+	return c.Remove(bson.M{"user_id": userID, "collection_id": collectionID})
 }
 
-func (r *lbsRepository) GetFences(userId, collectionId string) ([]*geofenceRecord, error) {
+func (r *lbsRepository) GetFences(userID, collectionID string) ([]*geofenceRecord, error) {
 	sess, c := getCollection(r, collectionGeofences)
 	defer sess.Close()
 
 	fences := []*geofenceRecord{}
-	err := c.Find(bson.M{"user_id": userId, "collection_id": collectionId}).All(&fences)
+	err := c.Find(bson.M{"user_id": userID, "collection_id": collectionID}).All(&fences)
 	return fences, err
 }
 
-func (r *lbsRepository) GetFenceUserId(fenceId string) (string, error) {
-	userId := &UserId{}
+func (r *lbsRepository) GetFenceUserID(fenceID string) (string, error) {
+	userID := &UserID{}
 	sess, c := getCollection(r, collectionGeofences)
 	defer sess.Close()
 
-	err := c.Find(bson.M{"fence_id": fenceId}).One(&userId)
-	return userId.UserId, err
+	err := c.Find(bson.M{"fence_id": fenceID}).One(&userID)
+	return userID.UserID, err
 }
 
 func (r *lbsRepository) GetAllCollections() ([]*Collection, error) {
@@ -202,95 +202,95 @@ func (r *lbsRepository) GetAllCollections() ([]*Collection, error) {
 	return collections, err
 }
 
-func (r *lbsRepository) UpdateCollection(userId string, p *Collection) error {
+func (r *lbsRepository) UpdateCollection(userID string, p *Collection) error {
 	sess, c := getCollection(r, collectionCollections)
 	defer sess.Close()
 
-	return c.Update(bson.M{"user_id": userId, "collection_id": p.CollectionId}, p)
+	return c.Update(bson.M{"user_id": userID, "collection_id": p.CollectionID}, p)
 }
 
-func (r *lbsRepository) AddGeofence(userId string, collectionId string, fenceName string, fenceId string) error {
+func (r *lbsRepository) AddGeofence(userID string, collectionID string, fenceName string, fenceID string) error {
 	sess, c := getCollection(r, collectionGeofences)
 	defer sess.Close()
 
 	return c.Insert(&geofenceRecord{
-		UserId:        userId,
-		CollectionId:  collectionId,
+		UserID:        userID,
+		CollectionID:  collectionID,
 		FenceName:     fenceName,
-		FenceId:       fenceId,
+		FenceID:       fenceID,
 		CreatedAt:     time.Now(),
 		LastUpdatedAt: time.Now(),
 	})
 }
 
-func (r *lbsRepository) AddEntity(userId string, collectionId string, entityName string) error {
+func (r *lbsRepository) AddEntity(userID string, collectionID string, entityName string) error {
 	sess, c := getCollection(r, collectionEntity)
 	defer sess.Close()
 
 	return c.Insert(&EntityRecord{
-		UserId:        userId,
-		CollectionId:  collectionId,
+		UserID:        userID,
+		CollectionID:  collectionID,
 		EntityName:    entityName,
 		CreatedAt:     time.Now(),
 		LastUpdatedAt: time.Now(),
 	})
 }
 
-func (r *lbsRepository) DeleteEntity(userId string, collectionId string, entityName string) error {
+func (r *lbsRepository) DeleteEntity(userID string, collectionID string, entityName string) error {
 	sess, c := getCollection(r, collectionEntity)
 	defer sess.Close()
 
-	return c.Remove(bson.M{"user_id": userId, "collection_id": collectionId, "entity_name": entityName})
+	return c.Remove(bson.M{"user_id": userID, "collection_id": collectionID, "entity_name": entityName})
 }
 
-func (r *lbsRepository) UpdateEntity(userId string, collectionId string, entityName string, entity EntityRecord) error {
+func (r *lbsRepository) UpdateEntity(userID string, collectionID string, entityName string, entity EntityRecord) error {
 	sess, c := getCollection(r, collectionEntity)
 	defer sess.Close()
 
-	return c.Update(bson.M{"user_id": userId, "collection_id": collectionId, "entity_name": entityName}, entity)
+	return c.Update(bson.M{"user_id": userID, "collection_id": collectionID, "entity_name": entityName}, entity)
 }
 
-func (r *lbsRepository) IsEntityExistWithName(userId string, collectionId string, entityName string) bool {
+func (r *lbsRepository) IsEntityExistWithName(userID string, collectionID string, entityName string) bool {
 	sess, c := getCollection(r, collectionEntity)
 	defer sess.Close()
 
-	if err := c.Find(bson.M{"user_id": userId, "collection_id": collectionId, "entity_name": entityName}).One(nil); err == nil {
+	if err := c.Find(bson.M{"user_id": userID, "collection_id": collectionID, "entity_name": entityName}).One(nil); err == nil {
 		return true
 	}
 
 	return false
 }
 
-func (r *lbsRepository) GetEntities(userId, collectionId string) ([]*EntityRecord, error) {
+func (r *lbsRepository) GetEntities(userID, collectionID string) ([]*EntityRecord, error) {
 	sess, c := getCollection(r, collectionEntity)
 	defer sess.Close()
 
 	entities := []*EntityRecord{}
-	err := c.Find(bson.M{"user_id": userId, "collection_id": collectionId}).All(&entities)
+	err := c.Find(bson.M{"user_id": userID, "collection_id": collectionID}).All(&entities)
 	return entities, err
 }
 
-func (r *lbsRepository) RemoveGeofence(userId string, collectionId string, fenceId string) error {
+func (r *lbsRepository) RemoveGeofence(userID string, collectionID string, fenceID string) error {
 	sess, c := getCollection(r, collectionGeofences)
 	defer sess.Close()
-	return c.Remove(bson.M{"user_id": userId, "collection_id": collectionId, "fence_id": fenceId})
+	return c.Remove(bson.M{"user_id": userID, "collection_id": collectionID, "fence_id": fenceID})
 }
 
-func (r *lbsRepository) IsGeofenceExistWithName(userId string, collectionId string, fenceName string) bool {
+func (r *lbsRepository) IsGeofenceExistWithName(userID string, collectionID string, fenceName string) bool {
 	sess, c := getCollection(r, collectionGeofences)
 	defer sess.Close()
 
-	if err := c.Find(bson.M{"user_id": userId, "collection_id": collectionId, "fence_name": fenceName}).One(nil); err == nil {
+	if err := c.Find(bson.M{"user_id": userID, "collection_id": collectionID, "fence_name": fenceName}).One(nil); err == nil {
 		return true
 	}
 
 	return false
 }
-func (r *lbsRepository) IsGeofenceExistWithId(userId string, collectionId string, fenceId string) bool {
+func (r *lbsRepository) IsGeofenceExistWithId(userID string, collectionID string, fenceID string) bool {
 	sess, c := getCollection(r, collectionGeofences)
 	defer sess.Close()
 
-	if err := c.Find(bson.M{"user_id": userId, "collection_id": collectionId, "fence_id": fenceId}).One(nil); err == nil {
+	if err := c.Find(bson.M{"user_id": userID, "collection_id": collectionID, "fence_id": fenceID}).One(nil); err == nil {
 		return true
 	}
 

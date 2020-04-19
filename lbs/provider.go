@@ -23,19 +23,19 @@ type LocationProvider interface {
 	UpdateCircleGeofence(c CircleGeofence) error
 
 	// Delete an existed geofence or monitored objects
-	DeleteGeofence(fenceIds []string, objects []string) ([]string, error)
+	DeleteGeofence(fenceIDs []string, objects []string) ([]string, error)
 
 	// List geofences matched with ids or objects
-	ListGeofence(fenceIds []string, objects []string) ([]*Geofence, error)
+	ListGeofence(fenceIDs []string, objects []string) ([]*Geofence, error)
 
 	// Add monitored object for specifed geofence
-	AddMonitoredObject(fenceId string, objects []string) error
+	AddMonitoredObject(fenceID string, objects []string) error
 
 	// Remove monitored object from specified geofence
-	RemoveMonitoredObject(fenceId string, objects []string) error
+	RemoveMonitoredObject(fenceID string, objects []string) error
 
 	// List monitored object in specifed geofence
-	ListMonitoredObjects(fenceId string, pageIndex int, pageSize int) (int, []string)
+	ListMonitoredObjects(fenceID string, pageIndex int, pageSize int) (int, []string)
 
 	// Create poly geofence and return goefence id if successful
 	CreatePolyGeofence(c PolyGeofence) (string, error)
@@ -44,8 +44,8 @@ type LocationProvider interface {
 	UpdatePolyGeofence(c PolyGeofence) error
 
 	// Alarms
-	QueryStatus(monitoredPerson string, fenceIds []string) (QueryStatus, error)
-	GetHistoryAlarms(monitoredPerson string, fenceIds []string) (HistoryAlarms, error)
+	QueryStatus(monitoredPerson string, fenceIDs []string) (QueryStatus, error)
+	GetHistoryAlarms(monitoredPerson string, fenceIDs []string) (HistoryAlarms, error)
 	BatchGetHistoryAlarms(input *BatchGetHistoryAlarmsRequest) (BatchHistoryAlarmsResp, error)
 	GetStayPoints(input *GetStayPointsRequest) (StayPoints, error)
 	UnmarshalAlarmNotification(content []byte) (*AlarmNotification, error)
@@ -54,7 +54,7 @@ type LocationProvider interface {
 	AddEntity(EntityName string, EntityDesc string) error
 	UpdateEntity(EntityName string, EntityDesc string) error
 	DeleteEntity(EntityName string) error
-	ListEntity(collectionId string, CoordTypeOutput string, PageIndex int, pageSize int) (int, ListEntityStruct)
+	ListEntity(collectionID string, CoordTypeOutput string, PageIndex int, pageSize int) (int, ListEntityStruct)
 }
 
 type LocationServingOptions struct {
