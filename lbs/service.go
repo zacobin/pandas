@@ -36,33 +36,33 @@ type Service interface {
 	ListCollections(ctx context.Context, token string) ([]string, error)
 
 	// Geofence
-	CreateCircleGeofence(ctx context.Context, token string, projectId string, fence *CircleGeofence) (string, error)
-	UpdateCircleGeofence(ctx context.Context, token string, projectId string, fence *CircleGeofence) error
-	DeleteGeofence(ctx context.Context, token string, projectId string, fenceIDs []string, objects []string) error
-	ListGeofences(ctx context.Context, token string, projectId string, fenceIDs []string, objects []string) ([]*Geofence, error)
-	AddMonitoredObject(ctx context.Context, token string, projectId string, fenceID string, objects []string) error
-	RemoveMonitoredObject(ctx context.Context, token string, projectId string, fenceID string, objects []string) error
-	ListMonitoredObjects(ctx context.Context, token string, projectId string, fenceID string, pageIndex int, pageSize int) (int, []string, error)
-	CreatePolyGeofence(ctx context.Context, token string, projectId string, fence *PolyGeofence) (string, error)
-	UpdatePolyGeofence(ctx context.Context, token string, projectId string, fence *PolyGeofence) error
-	GetFenceIDs(ctx context.Context, token string, projectId string) ([]string, error)
+	CreateCircleGeofence(ctx context.Context, token string, fence *CircleGeofence) (string, error)
+	UpdateCircleGeofence(ctx context.Context, token string, fence *CircleGeofence) error
+	DeleteGeofence(ctx context.Context, token string, fenceIDs []string, objects []string) error
+	ListGeofences(ctx context.Context, token string, fenceIDs []string, objects []string) ([]*Geofence, error)
+	AddMonitoredObject(ctx context.Context, token string, fenceID string, objects []string) error
+	RemoveMonitoredObject(ctx context.Context, token string, fenceID string, objects []string) error
+	ListMonitoredObjects(ctx context.Context, token string, fenceID string, pageIndex int, pageSize int) (int, []string, error)
+	CreatePolyGeofence(ctx context.Context, token string, fence *PolyGeofence) (string, error)
+	UpdatePolyGeofence(ctx context.Context, token string, fence *PolyGeofence) error
+	GetFenceIDs(ctx context.Context, token string) ([]string, error)
 
 	// Alarm
-	QueryStatus(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIDs []string) (*QueryStatus, error)
-	GetHistoryAlarms(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIDs []string) (*HistoryAlarms, error)
-	BatchGetHistoryAlarms(ct context.Context, token string, projectId string, input *BatchGetHistoryAlarmsRequest) (*BatchHistoryAlarmsResp, error)
-	GetStayPoints(ctx context.Context, token string, projectId string, input *GetStayPointsRequest) (*StayPoints, error)
+	QueryStatus(ctx context.Context, token string, monitoredPerson string, fenceIDs []string) (*QueryStatus, error)
+	GetHistoryAlarms(ctx context.Context, token string, monitoredPerson string, fenceIDs []string) (*HistoryAlarms, error)
+	BatchGetHistoryAlarms(ct context.Context, token string, input *BatchGetHistoryAlarmsRequest) (*BatchHistoryAlarmsResp, error)
+	GetStayPoints(ctx context.Context, token string, input *GetStayPointsRequest) (*StayPoints, error)
 
 	// NotifyAlarms is used by apiserver to provide asynchrous notication
-	NotifyAlarms(ctx context.Context, token string, projectId string, content []byte) error
+	NotifyAlarms(ctx context.Context, token string, content []byte) error
 	GetFenceUserID(ctx context.Context, token string, fenceID string) (string, error)
 
 	//Entity
-	AddEntity(ctx context.Context, token string, projectId string, entityName string, entityDesc string) error
-	UpdateEntity(ctx context.Context, token string, projectId string, entityName string, entityDesc string) error
-	DeleteEntity(ctx context.Context, token string, projectId string, entityName string) error
+	AddEntity(ctx context.Context, token string, entityName string, entityDesc string) error
+	UpdateEntity(ctx context.Context, token string, entityName string, entityDesc string) error
+	DeleteEntity(ctx context.Context, token string, entityName string) error
 
-	ListEntity(ctx context.Context, token string, projectId string, coordTypeOutput string, pageIndex int, pageSize int) (int, []*EntityInfo, error)
+	ListEntity(ctx context.Context, token string, coordTypeOutput string, pageIndex int, pageSize int) (int, []*EntityInfo, error)
 }
 
 // New instantiates the lbs service implementation.
@@ -88,7 +88,7 @@ type lbsService struct {
 }
 
 // Geofence
-func (l *lbsService) CreateCircleGeofence(ctx context.Context, token string, projectId string, fence *CircleGeofence) (string, error) {
+func (l *lbsService) CreateCircleGeofence(ctx context.Context, token string, fence *CircleGeofence) (string, error) {
 	logr.Debugf("CreateCircleGeofence ()")
 
 	res, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -96,8 +96,8 @@ func (l *lbsService) CreateCircleGeofence(ctx context.Context, token string, pro
 		return "", ErrUnauthorizedAccess
 	}
 	userID := res.GetValue()
+	name := fmt.Sprintf("%s-%s", userID, fence.Name)
 
-	name := fmt.Sprintf("%s-%s-%s", userID, projectId, fence.Name)
 	fenceID, err := l.provider.CreateCircleGeofence(ctx,
 		CircleGeofence{
 			Name: name,
@@ -115,7 +115,7 @@ func (l *lbsService) CreateCircleGeofence(ctx context.Context, token string, pro
 	return fenceID, nil
 }
 
-func (l *lbsService) CreatePolyGeofence(ctx context.Context, token string, projectId string, fence *PolyGeofence) (string, error) {
+func (l *lbsService) CreatePolyGeofence(ctx context.Context, token string, fence *PolyGeofence) (string, error) {
 	logr.Debugf("CreatePolyGeofence (%s)", fence.Name)
 
 	res, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -124,7 +124,7 @@ func (l *lbsService) CreatePolyGeofence(ctx context.Context, token string, proje
 	}
 	userID := res.GetValue()
 
-	name := fmt.Sprintf("%s-%s-%s", userID, projectId, fence.Name)
+	name := fmt.Sprintf("%s-%s", userID, fence.Name)
 	fenceID, err := l.provider.CreatePolyGeofence(ctx,
 		PolyGeofence{
 			Name: name,
@@ -140,7 +140,7 @@ func (l *lbsService) CreatePolyGeofence(ctx context.Context, token string, proje
 	return fenceID, nil
 }
 
-func (l *lbsService) UpdatePolyGeofence(ctx context.Context, token string, projectId string, fence *PolyGeofence) error {
+func (l *lbsService) UpdatePolyGeofence(ctx context.Context, token string, fence *PolyGeofence) error {
 	logr.Debugf("UpdatePolyGeofence (%s)", fence.Name)
 
 	res, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -149,7 +149,7 @@ func (l *lbsService) UpdatePolyGeofence(ctx context.Context, token string, proje
 	}
 	userID := res.GetValue()
 
-	name := fmt.Sprintf("%s-%s-%s", userID, projectId, fence.Name)
+	name := fmt.Sprintf("%s-%s", userID, fence.Name)
 
 	err = l.provider.UpdatePolyGeofence(ctx,
 		PolyGeofence{
@@ -167,7 +167,7 @@ func (l *lbsService) UpdatePolyGeofence(ctx context.Context, token string, proje
 	return nil
 }
 
-func (l *lbsService) UpdateCircleGeofence(ctx context.Context, token string, projectId string, fence *CircleGeofence) error {
+func (l *lbsService) UpdateCircleGeofence(ctx context.Context, token string, fence *CircleGeofence) error {
 	logr.Debugf("UpdateCircleGeofence ()")
 
 	res, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -176,7 +176,7 @@ func (l *lbsService) UpdateCircleGeofence(ctx context.Context, token string, pro
 	}
 	userID := res.GetValue()
 
-	name := fmt.Sprintf("%s-%s-%s", userID, projectId, fence.Name)
+	name := fmt.Sprintf("%s-%s", userID, fence.Name)
 
 	err = l.provider.UpdateCircleGeofence(ctx,
 		CircleGeofence{
@@ -196,7 +196,7 @@ func (l *lbsService) UpdateCircleGeofence(ctx context.Context, token string, pro
 	return nil
 }
 
-func (l *lbsService) DeleteGeofence(ctx context.Context, token string, projectId string, fenceIDs []string, objects []string) error {
+func (l *lbsService) DeleteGeofence(ctx context.Context, token string, fenceIDs []string, objects []string) error {
 	logr.Debugf("DeleteGeofence (%s)", fenceIDs)
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -213,7 +213,7 @@ func (l *lbsService) DeleteGeofence(ctx context.Context, token string, projectId
 	return nil
 }
 
-func (l *lbsService) ListGeofences(ctx context.Context, token string, projectId string, fenceIDs []string, objects []string) ([]*Geofence, error) {
+func (l *lbsService) ListGeofences(ctx context.Context, token string, fenceIDs []string, objects []string) ([]*Geofence, error) {
 	logr.Debugf("ListGeofence (%s)", fenceIDs)
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -254,7 +254,7 @@ func (l *lbsService) ListGeofences(ctx context.Context, token string, projectId 
 	return fenceList, nil
 }
 
-func (l *lbsService) AddMonitoredObject(ctx context.Context, token string, projectId string, fenceID string, objects []string) error {
+func (l *lbsService) AddMonitoredObject(ctx context.Context, token string, fenceID string, objects []string) error {
 	logr.Debugf("AddMonitoredObject (%s)", fenceID)
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -271,7 +271,7 @@ func (l *lbsService) AddMonitoredObject(ctx context.Context, token string, proje
 	return nil
 }
 
-func (l *lbsService) RemoveMonitoredObject(ctx context.Context, token string, projectId string, fenceID string, objects []string) error {
+func (l *lbsService) RemoveMonitoredObject(ctx context.Context, token string, fenceID string, objects []string) error {
 	logr.Debugf("RemoveMonitoredObject(%s)", fenceID)
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -288,7 +288,7 @@ func (l *lbsService) RemoveMonitoredObject(ctx context.Context, token string, pr
 	return nil
 }
 
-func (l *lbsService) ListMonitoredObjects(ctx context.Context, token string, projectId string, fenceID string, pageIndex int, pageSize int) (int, []string, error) {
+func (l *lbsService) ListMonitoredObjects(ctx context.Context, token string, fenceID string, pageIndex int, pageSize int) (int, []string, error) {
 	logr.Debugf("ListMonitoredObjects(%s)", fenceID)
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -317,8 +317,8 @@ func (l *lbsService) ListCollections(ctx context.Context, token string) ([]strin
 	return nil, nil
 }
 
-func (l *lbsService) GetFenceIDs(ctx context.Context, token string, projectId string) ([]string, error) {
-	logr.Debugf("GetFenceIDs (%s)", projectId)
+func (l *lbsService) GetFenceIDs(ctx context.Context, token string) ([]string, error) {
+	logr.Debugf("GetFenceIDs (%s)", token)
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
 	if err != nil {
@@ -340,7 +340,7 @@ func (l *lbsService) GetFenceIDs(ctx context.Context, token string, projectId st
 	return nil, nil
 }
 
-func (l *lbsService) QueryStatus(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIDs []string) (*QueryStatus, error) {
+func (l *lbsService) QueryStatus(ctx context.Context, token string, monitoredPerson string, fenceIDs []string) (*QueryStatus, error) {
 	logr.Debugf("QueryStatus(%s)", fenceIDs)
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -358,7 +358,7 @@ func (l *lbsService) QueryStatus(ctx context.Context, token string, projectId st
 	return &fenceStatus, nil
 }
 
-func (l *lbsService) GetHistoryAlarms(ctx context.Context, token string, projectId string, monitoredPerson string, fenceIDs []string) (*HistoryAlarms, error) {
+func (l *lbsService) GetHistoryAlarms(ctx context.Context, token string, monitoredPerson string, fenceIDs []string) (*HistoryAlarms, error) {
 	logr.Debugf("GetHistoryAlarms (%s)", fenceIDs)
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -376,7 +376,7 @@ func (l *lbsService) GetHistoryAlarms(ctx context.Context, token string, project
 	return &alarmPoint, nil
 }
 
-func (l *lbsService) BatchGetHistoryAlarms(ctx context.Context, token string, projectId string, input *BatchGetHistoryAlarmsRequest) (*BatchHistoryAlarmsResp, error) {
+func (l *lbsService) BatchGetHistoryAlarms(ctx context.Context, token string, input *BatchGetHistoryAlarmsRequest) (*BatchHistoryAlarmsResp, error) {
 	logr.Debugf("RemoveCollection ")
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -395,7 +395,7 @@ func (l *lbsService) BatchGetHistoryAlarms(ctx context.Context, token string, pr
 
 }
 
-func (l *lbsService) GetStayPoints(ctx context.Context, token string, projectId string, input *GetStayPointsRequest) (*StayPoints, error) {
+func (l *lbsService) GetStayPoints(ctx context.Context, token string, input *GetStayPointsRequest) (*StayPoints, error) {
 	logr.Debugf("GetStayPoints ()")
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -413,7 +413,7 @@ func (l *lbsService) GetStayPoints(ctx context.Context, token string, projectId 
 	return &stayPoints, nil
 }
 
-func (l *lbsService) NotifyAlarms(ctx context.Context, token string, projectId string, content []byte) error {
+func (l *lbsService) NotifyAlarms(ctx context.Context, token string, content []byte) error {
 	logr.Debugf("NotifyAlarms(%s)", content)
 
 	/*
@@ -468,7 +468,7 @@ func getProductList(products []*Collection) *pb.ListCollectionsResponse {
 }
 */
 
-func (l *lbsService) AddEntity(ctx context.Context, token string, projectId string, entityName string, entityDesc string) error {
+func (l *lbsService) AddEntity(ctx context.Context, token string, entityName string, entityDesc string) error {
 	logr.Debugf("AddEntity (%s)", entityName)
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -485,7 +485,7 @@ func (l *lbsService) AddEntity(ctx context.Context, token string, projectId stri
 	return nil
 }
 
-func (l *lbsService) DeleteEntity(ctx context.Context, token string, projectId string, entityName string) error {
+func (l *lbsService) DeleteEntity(ctx context.Context, token string, entityName string) error {
 	logr.Debugf("DeleteEntity (%s)", entityName)
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -502,7 +502,7 @@ func (l *lbsService) DeleteEntity(ctx context.Context, token string, projectId s
 	return nil
 }
 
-func (l *lbsService) UpdateEntity(ctx context.Context, token string, projectId string, entityName string, entityDesc string) error {
+func (l *lbsService) UpdateEntity(ctx context.Context, token string, entityName string, entityDesc string) error {
 	logr.Debugf("UpdateEntity (%s)", entityName)
 
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
@@ -528,7 +528,7 @@ func (l *lbsService) UpdateEntity(ctx context.Context, token string, projectId s
 	return nil
 }
 
-func (l *lbsService) ListEntity(ctx context.Context, token string, projectId string, coordTypeOutput string, pageIndex int, pageSize int) (int, []*EntityInfo, error) {
+func (l *lbsService) ListEntity(ctx context.Context, token string, coordTypeOutput string, pageIndex int, pageSize int) (int, []*EntityInfo, error) {
 	logr.Debugf("ListEntity (%s)", coordTypeOutput)
 	_, err := l.auth.Identify(ctx, &mainflux.Token{Value: token})
 	if err != nil {

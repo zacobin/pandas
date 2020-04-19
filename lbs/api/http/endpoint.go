@@ -49,7 +49,7 @@ func createCircleGeofenceEndpoint(svc lbs.Service) endpoint.Endpoint {
 			fence.MonitoredObjects = append(fence.MonitoredObjects, object)
 		}
 
-		saved, err := svc.CreateCircleGeofence(ctx, req.token, req.projectID, fence)
+		saved, err := svc.CreateCircleGeofence(ctx, req.token, fence)
 		if err != nil {
 			return nil, err
 		}
@@ -79,7 +79,7 @@ func updateCircleGeofenceEndpoint(svc lbs.Service) endpoint.Endpoint {
 		for _, object := range req.fence.MonitoredObjects {
 			fence.MonitoredObjects = append(fence.MonitoredObjects, object)
 		}
-		err := svc.UpdateCircleGeofence(ctx, req.token, req.projectID, fence)
+		err := svc.UpdateCircleGeofence(ctx, req.token, fence)
 		if err != nil {
 			res := updateCircleGeofenceRes{
 				updated: false,
@@ -100,7 +100,7 @@ func deleteGeofenceEndpoint(svc lbs.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		err := svc.DeleteGeofence(ctx, req.token, req.projectID, req.fenceIDs, req.objects)
+		err := svc.DeleteGeofence(ctx, req.token, req.fenceIDs, req.objects)
 		if err != nil {
 			res := deleteGeofenceRes{
 				deleted: false,
@@ -121,7 +121,7 @@ func listGeofencesEndpoint(svc lbs.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		saved, err := svc.ListGeofences(ctx, req.token, req.projectID, req.fenceIDs, req.objects)
+		saved, err := svc.ListGeofences(ctx, req.token, req.fenceIDs, req.objects)
 		if err != nil {
 			return nil, err
 		}
@@ -160,7 +160,7 @@ func addMonitoredObjectEndpoint(svc lbs.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		err := svc.AddMonitoredObject(ctx, req.token, req.projectID, req.fenceID, req.objects)
+		err := svc.AddMonitoredObject(ctx, req.token, req.fenceID, req.objects)
 		if err != nil {
 			return nil, err
 		}
@@ -174,7 +174,7 @@ func removeMonitoredObjectEndpoint(svc lbs.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		err := svc.RemoveMonitoredObject(ctx, req.token, req.projectID, req.fenceID, req.objects)
+		err := svc.RemoveMonitoredObject(ctx, req.token, req.fenceID, req.objects)
 		if err != nil {
 			return nil, err
 		}
@@ -188,7 +188,7 @@ func listMonitoredObjectsEndpoint(svc lbs.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		t, o, err := svc.ListMonitoredObjects(ctx, req.token, req.projectID, req.fenceID, req.pageIndex, req.pageSize)
+		t, o, err := svc.ListMonitoredObjects(ctx, req.token, req.fenceID, req.pageIndex, req.pageSize)
 		if err != nil {
 			return nil, err
 		}
@@ -220,7 +220,7 @@ func createPolyGeofenceEndpoint(svc lbs.Service) endpoint.Endpoint {
 		for _, object := range req.fence.MonitoredObjects {
 			fence.MonitoredObjects = append(fence.MonitoredObjects, object)
 		}
-		saved, err := svc.CreatePolyGeofence(ctx, req.token, req.projectID, fence)
+		saved, err := svc.CreatePolyGeofence(ctx, req.token, fence)
 		if err != nil {
 			return nil, err
 		}
@@ -248,7 +248,7 @@ func updatePolyGeofenceEndpoint(svc lbs.Service) endpoint.Endpoint {
 		for _, object := range req.fence.MonitoredObjects {
 			fence.MonitoredObjects = append(fence.MonitoredObjects, object)
 		}
-		err := svc.UpdatePolyGeofence(ctx, req.token, req.projectID, fence)
+		err := svc.UpdatePolyGeofence(ctx, req.token, fence)
 		if err != nil {
 			return nil, err
 		}
@@ -262,7 +262,7 @@ func getFenceIDsEndpoint(svc lbs.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		saved, err := svc.GetFenceIDs(ctx, req.token, req.projectID)
+		saved, err := svc.GetFenceIDs(ctx, req.token)
 		if err != nil {
 			return nil, err
 		}
@@ -279,7 +279,7 @@ func queryStatusEndpoint(svc lbs.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		saved, err := svc.QueryStatus(ctx, req.token, req.projectID, req.monitoredPerson, req.fenceIDs)
+		saved, err := svc.QueryStatus(ctx, req.token, req.monitoredPerson, req.fenceIDs)
 		if err != nil {
 			return nil, err
 		}
@@ -305,7 +305,7 @@ func getHistoryAlarmsEndpoint(svc lbs.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
-		saved, err := svc.GetHistoryAlarms(ctx, req.token, req.projectID, req.monitoredPerson, req.fenceIDs)
+		saved, err := svc.GetHistoryAlarms(ctx, req.token, req.monitoredPerson, req.fenceIDs)
 		if err != nil {
 			return nil, err
 		}
@@ -359,7 +359,7 @@ func batchGetHistoryAlarmsEndpoint(svc lbs.Service) endpoint.Endpoint {
 			PageSize:        req.input.PageSize,
 			CoordTypeOutput: req.input.CoordTypeOutput,
 		}
-		saved, err := svc.BatchGetHistoryAlarms(ctx, req.token, req.projectID, tmp)
+		saved, err := svc.BatchGetHistoryAlarms(ctx, req.token, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -417,7 +417,7 @@ func getStayPointsEndpoint(svc lbs.Service) endpoint.Endpoint {
 		for _, id := range req.input.FenceIDs {
 			tmp.FenceIDs = append(tmp.FenceIDs, id)
 		}
-		saved, err := svc.GetStayPoints(ctx, req.token, req.projectID, tmp)
+		saved, err := svc.GetStayPoints(ctx, req.token, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -461,7 +461,7 @@ func notifyAlarmsEndpoint(svc lbs.Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		err := svc.NotifyAlarms(ctx, req.token, req.projectID, req.content)
+		err := svc.NotifyAlarms(ctx, req.token, req.content)
 		if err != nil {
 			return nil, err
 		}
@@ -495,7 +495,7 @@ func addEntityEndpoint(svc lbs.Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		err := svc.AddEntity(ctx, req.token, req.projectID, req.entityName, req.entityDesc)
+		err := svc.AddEntity(ctx, req.token, req.entityName, req.entityDesc)
 		if err != nil {
 			return nil, err
 		}
@@ -513,7 +513,7 @@ func deleteEntityEndpoint(svc lbs.Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		err := svc.DeleteEntity(ctx, req.token, req.projectID, req.entityName)
+		err := svc.DeleteEntity(ctx, req.token, req.entityName)
 		if err != nil {
 			return nil, err
 		}
@@ -531,7 +531,7 @@ func updateEntityEndpoint(svc lbs.Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		err := svc.UpdateEntity(ctx, req.token, req.projectID, req.entityName, req.entityDesc)
+		err := svc.UpdateEntity(ctx, req.token, req.entityName, req.entityDesc)
 		if err != nil {
 			return nil, err
 		}
@@ -549,7 +549,7 @@ func listEntityEndpoint(svc lbs.Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		total, saved, err := svc.ListEntity(ctx, req.token, req.projectID, req.coordTypeOutput, req.pageIndex, req.pageSize)
+		total, saved, err := svc.ListEntity(ctx, req.token, req.coordTypeOutput, req.pageIndex, req.pageSize)
 		if err != nil {
 			return nil, err
 		}
