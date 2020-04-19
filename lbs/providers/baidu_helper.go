@@ -160,8 +160,8 @@ func getGrpcStayPoints(stayPoints BaiduGetStayPointResp) *StayPoints {
 	return rsp
 }
 
-func (p *Proxy) UnmarshalAlarmNotification(content []byte) (*AlarmNotification, error) {
-	return p.engine.UnmarshalAlarmNotification(content)
+func (p *Proxy) HandleAlarmNotification(content []byte) (*AlarmNotification, error) {
+	return p.engine.HandleAlarmNotification(content)
 }
 
 //Entity

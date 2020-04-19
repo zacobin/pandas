@@ -11,50 +11,52 @@
 //  under the License.
 package lbs
 
+import "context"
+
 type LocationProvider interface {
 	// Add monitored object's track points
-	AddTrackPoint(point TrackPoint)
-	AddTrackPoints(points []TrackPoint)
+	AddTrackPoint(context.Context, TrackPoint) error
+	AddTrackPoints(context.Context, []TrackPoint) error
 
 	// Create circle geofence and return goefence id if successful
-	CreateCircleGeofence(c CircleGeofence) (string, error)
+	CreateCircleGeofence(context.Context, CircleGeofence) (string, error)
 
 	// Update an existed geofence
-	UpdateCircleGeofence(c CircleGeofence) error
+	UpdateCircleGeofence(context.Context, CircleGeofence) error
 
 	// Delete an existed geofence or monitored objects
-	DeleteGeofence(fenceIDs []string, objects []string) ([]string, error)
+	DeleteGeofence(context.Context, []string, []string) ([]string, error)
 
 	// List geofences matched with ids or objects
-	ListGeofence(fenceIDs []string, objects []string) ([]*Geofence, error)
+	ListGeofence(context.Context, []string, []string) ([]*Geofence, error)
 
 	// Add monitored object for specifed geofence
-	AddMonitoredObject(fenceID string, objects []string) error
+	AddMonitoredObject(context.Context, string, []string) error
 
 	// Remove monitored object from specified geofence
-	RemoveMonitoredObject(fenceID string, objects []string) error
+	RemoveMonitoredObject(context.Context, string, []string) error
 
 	// List monitored object in specifed geofence
-	ListMonitoredObjects(fenceID string, pageIndex int, pageSize int) (int, []string)
+	ListMonitoredObjects(ctx context.Context, fenceID string, pageIndex int, pageSize int) (int, []string)
 
 	// Create poly geofence and return goefence id if successful
-	CreatePolyGeofence(c PolyGeofence) (string, error)
+	CreatePolyGeofence(context.Context, PolyGeofence) (string, error)
 
 	// Update an existed poly geofence
-	UpdatePolyGeofence(c PolyGeofence) error
+	UpdatePolyGeofence(context.Context, PolyGeofence) error
 
 	// Alarms
-	QueryStatus(monitoredPerson string, fenceIDs []string) (QueryStatus, error)
-	GetHistoryAlarms(monitoredPerson string, fenceIDs []string) (HistoryAlarms, error)
-	BatchGetHistoryAlarms(input *BatchGetHistoryAlarmsRequest) (BatchHistoryAlarmsResp, error)
-	GetStayPoints(input *GetStayPointsRequest) (StayPoints, error)
-	UnmarshalAlarmNotification(content []byte) (*AlarmNotification, error)
+	QueryStatus(ctx context.Context, monitoredPerson string, fenceIDs []string) (QueryStatus, error)
+	GetHistoryAlarms(ctx context.Context, monitoredPerson string, fenceIDs []string) (HistoryAlarms, error)
+	BatchGetHistoryAlarms(ctx context.Context, input *BatchGetHistoryAlarmsRequest) (BatchHistoryAlarmsResp, error)
+	GetStayPoints(context.Context, *GetStayPointsRequest) (StayPoints, error)
+	HandleAlarmNotification(context.Context, []byte) (*AlarmNotification, error)
 
 	//Entity
-	AddEntity(EntityName string, EntityDesc string) error
-	UpdateEntity(EntityName string, EntityDesc string) error
-	DeleteEntity(EntityName string) error
-	ListEntity(collectionID string, CoordTypeOutput string, PageIndex int, pageSize int) (int, ListEntityStruct)
+	AddEntity(ctx context.Context, entityName string, entityDesc string) error
+	UpdateEntity(ctx context.Context, entityName string, entityDesc string) error
+	DeleteEntity(ctx context.Context, entityName string) error
+	ListEntity(ctx context.Context, collectionID string, coordTypeOutput string, pageIndex int, pageSize int) (int, ListEntityStruct)
 }
 
 type LocationServingOptions struct {

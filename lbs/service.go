@@ -90,7 +90,7 @@ func (l *lbsService) CreateCircleGeofence(ctx context.Context, token string, pro
 	userID := res.GetValue()
 
 	name := fmt.Sprintf("%s-%s-%s", userID, projectId, fence.Name)
-	fenceID, err := l.provider.CreateCircleGeofence(
+	fenceID, err := l.provider.CreateCircleGeofence(ctx,
 		CircleGeofence{
 			Name: name,
 			//MonitoredObjects: strings.Join(fence.MonitoredObjects, ","),
@@ -117,7 +117,7 @@ func (l *lbsService) CreatePolyGeofence(ctx context.Context, token string, proje
 	userID := res.GetValue()
 
 	name := fmt.Sprintf("%s-%s-%s", userID, projectId, fence.Name)
-	fenceID, err := l.provider.CreatePolyGeofence(
+	fenceID, err := l.provider.CreatePolyGeofence(ctx,
 		PolyGeofence{
 			Name: name,
 			//MonitoredObjects: strings.Join(fence.MonitoredObjects, ","),
@@ -143,7 +143,7 @@ func (l *lbsService) UpdatePolyGeofence(ctx context.Context, token string, proje
 
 	name := fmt.Sprintf("%s-%s-%s", userID, projectId, fence.Name)
 
-	err = l.provider.UpdatePolyGeofence(
+	err = l.provider.UpdatePolyGeofence(ctx,
 		PolyGeofence{
 			Name: name,
 			//			MonitoredObjects: strings.Join(fence.MonitoredObjects, ","),
@@ -170,7 +170,7 @@ func (l *lbsService) UpdateCircleGeofence(ctx context.Context, token string, pro
 
 	name := fmt.Sprintf("%s-%s-%s", userID, projectId, fence.Name)
 
-	err = l.provider.UpdateCircleGeofence(
+	err = l.provider.UpdateCircleGeofence(ctx,
 		CircleGeofence{
 			Name: name,
 			//		MonitoredObjects: strings.Join(fence.MonitoredObjects, ","),
@@ -196,7 +196,7 @@ func (l *lbsService) DeleteGeofence(ctx context.Context, token string, projectId
 		return ErrUnauthorizedAccess
 	}
 
-	_, err = l.provider.DeleteGeofence(
+	_, err = l.provider.DeleteGeofence(ctx,
 		fenceIDs, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("delete geofence failed")
@@ -213,7 +213,7 @@ func (l *lbsService) ListGeofences(ctx context.Context, token string, projectId 
 		return nil, ErrUnauthorizedAccess
 	}
 
-	fences, err := l.provider.ListGeofence(
+	fences, err := l.provider.ListGeofence(ctx,
 		fenceIDs, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("list geofence failed")
@@ -254,7 +254,7 @@ func (l *lbsService) AddMonitoredObject(ctx context.Context, token string, proje
 		return ErrUnauthorizedAccess
 	}
 
-	err = l.provider.AddMonitoredObject(
+	err = l.provider.AddMonitoredObject(ctx,
 		fenceID, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("add monitored object failed")
@@ -271,7 +271,7 @@ func (l *lbsService) RemoveMonitoredObject(ctx context.Context, token string, pr
 		return ErrUnauthorizedAccess
 	}
 
-	err = l.provider.RemoveMonitoredObject(
+	err = l.provider.RemoveMonitoredObject(ctx,
 		fenceID, objects)
 	if err != nil {
 		logr.WithError(err).Errorf("remove monitored object failed")
@@ -288,7 +288,7 @@ func (l *lbsService) ListMonitoredObjects(ctx context.Context, token string, pro
 		return 0, nil, ErrUnauthorizedAccess
 	}
 
-	total, objects := l.provider.ListMonitoredObjects(
+	total, objects := l.provider.ListMonitoredObjects(ctx,
 		fenceID, int(pageIndex), int(pageSize))
 
 	return int(total), objects, nil
@@ -318,7 +318,7 @@ func (l *lbsService) GetFenceIDs(ctx context.Context, token string, projectId st
 	}
 	/*
 
-		fences, err := l.provider.GetFenceIDs(
+		fences, err := l.provider.GetFenceIDs(ctx,
 			auth.NewPrincipal(in.UserID, in.ProjectID))
 		if err != nil {
 			logr.WithError(err).Errorln("ListCollections err:", err)
@@ -340,7 +340,7 @@ func (l *lbsService) QueryStatus(ctx context.Context, token string, projectId st
 		return nil, ErrUnauthorizedAccess
 	}
 
-	fenceStatus, err := l.provider.QueryStatus(
+	fenceStatus, err := l.provider.QueryStatus(ctx,
 		monitoredPerson, fenceIDs)
 	if err != nil {
 		logr.Errorln("QueryStatus failed:", err)
@@ -358,7 +358,7 @@ func (l *lbsService) GetHistoryAlarms(ctx context.Context, token string, project
 		return nil, ErrUnauthorizedAccess
 	}
 
-	alarmPoint, err := l.provider.GetHistoryAlarms(
+	alarmPoint, err := l.provider.GetHistoryAlarms(ctx,
 		monitoredPerson, fenceIDs)
 	if err != nil {
 		logr.Errorln("GetHistoryAlarms failed:", err)
@@ -376,7 +376,7 @@ func (l *lbsService) BatchGetHistoryAlarms(ctx context.Context, token string, pr
 		return nil, ErrUnauthorizedAccess
 	}
 
-	historyAlarms, err := l.provider.BatchGetHistoryAlarms(
+	historyAlarms, err := l.provider.BatchGetHistoryAlarms(ctx,
 		input)
 	if err != nil {
 		logr.Errorln("BatchGetHistoryAlarms failed:", err)
@@ -395,7 +395,7 @@ func (l *lbsService) GetStayPoints(ctx context.Context, token string, projectId 
 		return nil, ErrUnauthorizedAccess
 	}
 
-	stayPoints, err := l.provider.GetStayPoints(
+	stayPoints, err := l.provider.GetStayPoints(ctx,
 		input)
 	if err != nil {
 		logr.Errorln("BatchGetHistoryAlarms failed:", err)
@@ -414,7 +414,7 @@ func (l *lbsService) NotifyAlarms(ctx context.Context, token string, projectId s
 			return ErrUnauthorizedAccess
 		}
 
-		alarm, err := l.provider.UnmarshalAlarmNotification(
+		alarm, err := l.provider.HandleAlarmNotification(ctx,
 			content)
 		if err != nil {
 			logr.WithError(err).Errorf("unmarshal alarm failed")
@@ -440,7 +440,7 @@ func (l *lbsService) GetFenceUserID(ctx context.Context, token string, fenceID s
 		return "", ErrUnauthorizedAccess
 	}
 	/*
-		userID, err := l.provider.GetFenceUserID(nil, fenceID)
+		userID, err := l.provider.GetFenceUserID(ctx, nil, fenceID)
 		if err != nil {
 			logr.WithError(err).Errorf("add collection '%s' failed", fenceID)
 			return nil, err
@@ -468,7 +468,7 @@ func (l *lbsService) AddEntity(ctx context.Context, token string, projectId stri
 		return ErrUnauthorizedAccess
 	}
 
-	err = l.provider.AddEntity(
+	err = l.provider.AddEntity(ctx,
 		entityName, entityDesc)
 	if err != nil {
 		logr.WithError(err).Errorf("AddEntity failed")
@@ -485,7 +485,7 @@ func (l *lbsService) DeleteEntity(ctx context.Context, token string, projectId s
 		return ErrUnauthorizedAccess
 	}
 
-	err = l.provider.DeleteEntity(
+	err = l.provider.DeleteEntity(ctx,
 		entityName)
 	if err != nil {
 		logr.WithError(err).Errorf("DeleteEntity failed")
@@ -502,7 +502,7 @@ func (l *lbsService) UpdateEntity(ctx context.Context, token string, projectId s
 		return ErrUnauthorizedAccess
 	}
 
-	err = l.provider.UpdateEntity(
+	err = l.provider.UpdateEntity(ctx,
 		entityName, entityDesc)
 	if err != nil {
 		logr.WithError(err).Errorf("UpdateEntity failed")
@@ -527,7 +527,7 @@ func (l *lbsService) ListEntity(ctx context.Context, token string, projectId str
 		return 0, nil, ErrUnauthorizedAccess
 	}
 	/*
-		entitiesInfo, err := l.provider.GetEntity(
+		entitiesInfo, err := l.provider.GetEntity(ctx,
 			auth.NewPrincipal(userID, projectId))
 		if err != nil {
 			logr.WithError(err).Errorf("mongo get entities info failed")
@@ -535,7 +535,7 @@ func (l *lbsService) ListEntity(ctx context.Context, token string, projectId str
 		}
 		entitiesName := getEntitiesName(entitiesInfo)
 
-		total, entityInfo := l.provider.ListEntity(userID, projectId, coordTypeOutput, pageIndex, pageSize)
+		total, entityInfo := l.provider.ListEntity(ctx, userID, projectId, coordTypeOutput, pageIndex, pageSize)
 		if total == -1 {
 			logr.Errorf("ListEntity failed")
 			return nil, nil, errors.Wrap(errors.New("ListEntity failed"), err)

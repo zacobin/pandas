@@ -12,6 +12,7 @@
 package providers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -72,7 +73,7 @@ func newBaiduLbsProvider(locationServingOptions lbs.LocationServingOptions) (lbs
 	}, nil
 }
 
-func (b *baiduLbsProvider) AddTrackPoint(point lbs.TrackPoint) {
+func (b *baiduLbsProvider) AddTrackPoint(_ context.Context, point lbs.TrackPoint) error {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/track/addpoint"
 	baiduReq := baiduAddTrackPointRequest{
 		baiduLbsRequest: baiduLbsRequest{
@@ -99,15 +100,13 @@ func (b *baiduLbsProvider) AddTrackPoint(point lbs.TrackPoint) {
 			"coord_type_input": {"bd09ll"},
 		})
 	if err != nil {
-		logrus.WithError(err).Errorln("AddTrackPoint failed:", err)
-		return
+		return err
 	}
-	body, _ := ioutil.ReadAll(resp.Body)
-	logrus.Debugf("AddTrackPoint resp:%s", string(body))
-	return
+	_, err = ioutil.ReadAll(resp.Body)
+	return err
 }
 
-func (b *baiduLbsProvider) AddTrackPoints(points []lbs.TrackPoint) {
+func (b *baiduLbsProvider) AddTrackPoints(_ context.Context, points []lbs.TrackPoint) error {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/track/addpoints"
 	baiduReq := baiduAddTrackPointsRequest{
 		baiduLbsRequest: baiduLbsRequest{
@@ -137,12 +136,10 @@ func (b *baiduLbsProvider) AddTrackPoints(points []lbs.TrackPoint) {
 			"point_list": {string(pointList)},
 		})
 	if err != nil {
-		logrus.WithError(err).Errorln("AddTrackPoint failed:", err)
-		return
+		return err
 	}
-	body, _ := ioutil.ReadAll(resp.Body)
-	logrus.Debugf("AddTrackPoint resp:%s", string(body))
-	return
+	_, err = ioutil.ReadAll(resp.Body)
+	return err
 }
 
 type baiduCircleGeofence struct {
@@ -165,7 +162,7 @@ type baiduCreateCircleGeofenceResponse struct {
 	FenceID string `json:"fence_id"`
 }
 
-func (b *baiduLbsProvider) CreateCircleGeofence(c lbs.CircleGeofence) (string, error) {
+func (b *baiduLbsProvider) CreateCircleGeofence(_ context.Context, c lbs.CircleGeofence) (string, error) {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/createcirclefence"
 	id := ""
 
@@ -200,11 +197,9 @@ func (b *baiduLbsProvider) CreateCircleGeofence(c lbs.CircleGeofence) (string, e
 			"denoise":           {fmt.Sprint(c.Denoise)},
 		})
 	if err != nil {
-		logrus.WithError(err).Errorln("create circle geofence failed:", err)
-		return id, err
+		return id, fmt.Errorf("create circle geofence failed: %w", err)
 	}
 
-	logrus.Debugln("coord_type:", string(c.CoordType))
 	rsp := baiduCreateCircleGeofenceResponse{}
 	if resp.StatusCode != http.StatusOK {
 		return id, fmt.Errorf("exepected status 200, return %d", resp.StatusCode)
@@ -237,7 +232,7 @@ type baiduCreatePolyGeofenceResponse struct {
 	FenceID string `json:"fence_id"`
 }
 
-func (b *baiduLbsProvider) CreatePolyGeofence(c lbs.PolyGeofence) (string, error) {
+func (b *baiduLbsProvider) CreatePolyGeofence(_ context.Context, c lbs.PolyGeofence) (string, error) {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/createpolygonfence"
 	id := ""
 
@@ -287,7 +282,7 @@ func (b *baiduLbsProvider) CreatePolyGeofence(c lbs.PolyGeofence) (string, error
 	return id, nil
 }
 
-func (b *baiduLbsProvider) UpdatePolyGeofence(c lbs.PolyGeofence) error {
+func (b *baiduLbsProvider) UpdatePolyGeofence(_ context.Context, c lbs.PolyGeofence) error {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/updatepolygonfence"
 	baiduReq := baiduCreatePolyGeofenceRequest{
 		baiduLbsRequest: baiduLbsRequest{
@@ -325,7 +320,7 @@ func (b *baiduLbsProvider) UpdatePolyGeofence(c lbs.PolyGeofence) error {
 	return nil
 }
 
-func (b *baiduLbsProvider) UpdateCircleGeofence(c lbs.CircleGeofence) error {
+func (b *baiduLbsProvider) UpdateCircleGeofence(_ context.Context, c lbs.CircleGeofence) error {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/updatecirclefence"
 	baiduReq := baiduCreateCircleGeofenceRequest{
 		baiduLbsRequest: baiduLbsRequest{
@@ -381,8 +376,7 @@ type baiduDeleteGeofenceResponse struct {
 	FenceIDs []int `json:"fence_ids"`
 }
 
-func (b *baiduLbsProvider) DeleteGeofence(fenceIDs []string, objects []string) ([]string, error) {
-	logrus.Debugln("baidulbs deleteGeofence")
+func (b *baiduLbsProvider) DeleteGeofence(_ context.Context, fenceIDs []string, objects []string) ([]string, error) {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/delete"
 	baiduReq := baiduDeleteGeofenceRequest{
 		baiduLbsRequest: baiduLbsRequest{
@@ -439,7 +433,7 @@ type baiduListGeofenceResponse struct {
 	Fences []*lbs.Geofence `json:"fences"`
 }
 
-func (b *baiduLbsProvider) ListGeofence(fenceIDs []string, objects []string) ([]*lbs.Geofence, error) {
+func (b *baiduLbsProvider) ListGeofence(_ context.Context, fenceIDs []string, objects []string) ([]*lbs.Geofence, error) {
 	logrus.Debugln("ListGeofence")
 	url := "http://yingyan.baidu.com/api/v3/fence/list"
 	baiduReq := baiduListGeofenceRequest{
@@ -492,7 +486,7 @@ type baiduAddObjectRequest struct {
 	MonitoredObject string `json:"monitored_person,noempty"`
 }
 
-func (b *baiduLbsProvider) AddMonitoredObject(fenceID string, objects []string) error {
+func (b *baiduLbsProvider) AddMonitoredObject(_ context.Context, fenceID string, objects []string) error {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/addmonitoredperson"
 
 	baiduReq := baiduAddObjectRequest{
@@ -524,7 +518,7 @@ func (b *baiduLbsProvider) AddMonitoredObject(fenceID string, objects []string) 
 	return nil
 }
 
-func (b *baiduLbsProvider) RemoveMonitoredObject(fenceID string, objects []string) error {
+func (b *baiduLbsProvider) RemoveMonitoredObject(_ context.Context, fenceID string, objects []string) error {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/deletemonitoredperson"
 
 	baiduReq := baiduAddObjectRequest{
@@ -572,7 +566,7 @@ type baiduListMonitoredObjectsResponse struct {
 	MonitoredPerson []string `json:"monitored_person"`
 }
 
-func (b *baiduLbsProvider) ListMonitoredObjects(fenceID string, pageIndex int, pageSize int) (int, []string) {
+func (b *baiduLbsProvider) ListMonitoredObjects(_ context.Context, fenceID string, pageIndex int, pageSize int) (int, []string) {
 	url := "http://yingyan.baidu.com/api/v3/fence/listmonitoredperson"
 	id, _ := strconv.Atoi(fenceID)
 
@@ -611,7 +605,7 @@ func (b *baiduLbsProvider) ListMonitoredObjects(fenceID string, pageIndex int, p
 	return rsp.Total, rsp.MonitoredPerson
 }
 
-func (b *baiduLbsProvider) QueryStatus(monitoredPerson string, fenceIDs []string) (lbs.QueryStatus, error) {
+func (b *baiduLbsProvider) QueryStatus(_ context.Context, monitoredPerson string, fenceIDs []string) (lbs.QueryStatus, error) {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/querystatus"
 
 	baiduYYurl = fmt.Sprintf("%s?ak=%s&service_id=%s&monitored_person=%s",
@@ -643,7 +637,7 @@ func (b *baiduLbsProvider) QueryStatus(monitoredPerson string, fenceIDs []string
 	return rsp, nil
 }
 
-func (b *baiduLbsProvider) GetHistoryAlarms(monitoredPerson string, fenceIDs []string) (lbs.HistoryAlarms, error) {
+func (b *baiduLbsProvider) GetHistoryAlarms(_ context.Context, monitoredPerson string, fenceIDs []string) (lbs.HistoryAlarms, error) {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/historyalarm"
 
 	baiduYYurl = fmt.Sprintf("%s?ak=%s&service_id=%s&monitored_person=%s",
@@ -675,7 +669,7 @@ func (b *baiduLbsProvider) GetHistoryAlarms(monitoredPerson string, fenceIDs []s
 	return rsp, nil
 }
 
-func (b *baiduLbsProvider) BatchGetHistoryAlarms(input *lbs.BatchGetHistoryAlarmsRequest) (lbs.BatchHistoryAlarmsResp, error) {
+func (b *baiduLbsProvider) BatchGetHistoryAlarms(_ context.Context, input *lbs.BatchGetHistoryAlarmsRequest) (lbs.BatchHistoryAlarmsResp, error) {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/fence/batchhistoryalarm"
 
 	startTime := int(getUnixTimeStamp(input.StartTime))
@@ -733,16 +727,16 @@ type BaiduGetStayPointResp struct {
 	Points     []lbs.Point `json:"points"`
 }
 type GetStayPointsRequest struct {
-	EndTime         string   `protobuf:"bytes,3,opt,name=end_time,json=endTime" json:"end_time,omitempty", bson:"end_time,omitempty"`
-	EntityName      string   `protobuf:"bytes,4,opt,name=entity_name,json=entityName" json:"entity_name,omitempty", bson:"entity_name,omitempty"`
-	FenceIDs        []string `protobuf:"bytes,5,rep,name=fence_ids,json=fenceIDs" json:"fence_ids,omitempty", bson:"fence_ids,omitempty"`
-	PageIndex       int      `protobuf:"varint,6,opt,name=page_index,json=pageIndex" json:"page_index,omitempty", bson:"page_index,omitempty"`
-	PageSize        int      `protobuf:"varint,7,opt,name=page_size,json=pageSize" json:"page_size,omitempty", bson:"page_size,omitempty"`
-	StartTime       string   `protobuf:"bytes,8,opt,name=start_time,json=startTime" json:"start_time,omitempty", bson:"start_time,omitempty"`
-	CoordTypeOutput string   `protobuf:"bytes,9,opt,name=coord_type_output,json=coordTypeOutput" json:"coord_type_output,omitempty", bson:"coord_type_output,omitempty"`
+	EndTime         string   `json:"end_time,omitempty"`
+	EntityName      string   `json:"entity_name,omitempty"`
+	FenceIDs        []string `json:"fence_ids,omitempty"`
+	PageIndex       int      `json:"page_index,omitempty"`
+	PageSize        int      `json:"page_size,omitempty"`
+	StartTime       string   `json:"start_time,omitempty"`
+	CoordTypeOutput string   `json:"coord_type_output,omitempty"`
 }
 
-func (b *baiduLbsProvider) GetStayPoints(input *lbs.GetStayPointsRequest) (lbs.StayPoints, error) {
+func (b *baiduLbsProvider) GetStayPoints(_ context.Context, input *lbs.GetStayPointsRequest) (lbs.StayPoints, error) {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/track/gettrack"
 
 	startTime := int(getUnixTimeStamp(input.StartTime))
@@ -788,7 +782,7 @@ type baiduAddEntityResponse struct {
 	baiduLbsResponse
 }
 
-func (b *baiduLbsProvider) AddEntity(entityName string, entityDesc string) error {
+func (b *baiduLbsProvider) AddEntity(_ context.Context, entityName string, entityDesc string) error {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/entity/add"
 
 	baiduReq := baiduAddEntityRequest{
@@ -824,7 +818,7 @@ type baiduListEntityRequest struct {
 type baiduListEntityResponse struct {
 }
 
-func (b *baiduLbsProvider) ListEntity(collectionID string, CoordTypeOutput string, PageIndex int, pageSize int) (int, lbs.ListEntityStruct) {
+func (b *baiduLbsProvider) ListEntity(_ context.Context, collectionID string, CoordTypeOutput string, PageIndex int, pageSize int) (int, lbs.ListEntityStruct) {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/entity/list"
 
 	baiduReq := baiduListEntityRequest{
@@ -876,7 +870,7 @@ type baiduUpdateEntityResponse struct {
 	baiduLbsResponse
 }
 
-func (b *baiduLbsProvider) UpdateEntity(entityName string, entityDesc string) error {
+func (b *baiduLbsProvider) UpdateEntity(_ context.Context, entityName string, entityDesc string) error {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/entity/update"
 
 	baiduReq := baiduUpdateEntityRequest{
@@ -911,7 +905,7 @@ type baiduDeleteEntityResponse struct {
 	baiduLbsResponse
 }
 
-func (b *baiduLbsProvider) DeleteEntity(entityName string) error {
+func (b *baiduLbsProvider) DeleteEntity(_ context.Context, entityName string) error {
 	baiduYYurl := "http://yingyan.baidu.com/api/v3/entity/delete"
 
 	baiduReq := baiduDeleteEntityRequest{
@@ -961,7 +955,7 @@ type baiduAlarmNotification struct {
 	Alarms    []*baiduAlarm `json:"content"`
 }
 
-func (b *baiduLbsProvider) UnmarshalAlarmNotification(content []byte) (*lbs.AlarmNotification, error) {
+func (b *baiduLbsProvider) HandleAlarmNotification(_ context.Context, content []byte) (*lbs.AlarmNotification, error) {
 	logrus.Debugf("unmarshal baidu alarm notification")
 
 	n := baiduAlarmNotification{}
