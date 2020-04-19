@@ -32,6 +32,11 @@ func NewDatabase(db *sqlx.DB) Database {
 	}
 }
 
+const (
+	errDuplicate = "unique_violation"
+	errInvalid   = "invalid_text_representation"
+)
+
 func (dm database) NamedExecContext(ctx context.Context, query string, args interface{}) (sql.Result, error) {
 	addSpanTags(ctx, query)
 	result, err := dm.db.NamedExecContext(ctx, query, args)

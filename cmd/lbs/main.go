@@ -28,10 +28,12 @@ import (
 	"github.com/cloustone/pandas/lbs"
 	"github.com/cloustone/pandas/lbs/api"
 	lbshttpapi "github.com/cloustone/pandas/lbs/api/http"
+	"github.com/cloustone/pandas/lbs/postgres"
 	"github.com/cloustone/pandas/lbs/providers"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/logger"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/jmoiron/sqlx"
 	nats "github.com/nats-io/nats.go"
 	opentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
@@ -123,6 +125,7 @@ var (
 
 type config struct {
 	logLevel        string
+	dbConfig        postgres.Config
 	clientTLS       bool
 	caCerts         string
 	httpPort        string
@@ -155,6 +158,9 @@ func main() {
 		log.Fatalf(err.Error())
 	}
 
+	db := connectToDB(cfg.dbConfig, logger)
+	defer db.Close()
+
 	authTracer, authCloser := initJaeger("auth", cfg.jaegerURL, logger)
 	defer authCloser.Close()
 
@@ -162,6 +168,8 @@ func main() {
 	if close != nil {
 		defer close()
 	}
+	dbTracer, dbCloser := initJaeger("lbs_db", cfg.jaegerURL, logger)
+	defer dbCloser.Close()
 
 	lbsTracer, lbsCloser := initJaeger("lbs", cfg.jaegerURL, logger)
 	defer lbsCloser.Close()
@@ -181,7 +189,7 @@ func main() {
 	ncTracer, ncCloser := initJaeger("v2ms_nats", cfg.jaegerURL, logger)
 	defer ncCloser.Close()
 
-	svc := newService(auth, nc, ncTracer, cfg.channelID, provider, nil, nil, nil, logger)
+	svc := newService(auth, nc, ncTracer, cfg.channelID, provider, dbTracer, db, logger)
 	errs := make(chan error, 2)
 
 	go startHTTPServer(lbshttpapi.MakeHandler(lbsTracer, svc), cfg.httpPort, cfg, logger, errs)
@@ -208,9 +216,21 @@ func loadConfig() config {
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envAuthTimeout, err.Error())
 	}
+	dbConfig := postgres.Config{
+		Host:        pandas.Env(envDBHost, defDBHost),
+		Port:        pandas.Env(envDBPort, defDBPort),
+		User:        pandas.Env(envDBUser, defDBUser),
+		Pass:        pandas.Env(envDBPass, defDBPass),
+		Name:        pandas.Env(envDBName, defDBName),
+		SSLMode:     pandas.Env(envDBSSLMode, defDBSSLMode),
+		SSLCert:     pandas.Env(envDBSSLCert, defDBSSLCert),
+		SSLKey:      pandas.Env(envDBSSLKey, defDBSSLKey),
+		SSLRootCert: pandas.Env(envDBSSLRootCert, defDBSSLRootCert),
+	}
 
 	return config{
 		logLevel:  pandas.Env(envLogLevel, defLogLevel),
+		dbConfig:  dbConfig,
 		clientTLS: tls,
 		caCerts:   pandas.Env(envCACerts, defCACerts),
 
@@ -233,9 +253,11 @@ func loadConfig() config {
 
 }
 
-func newService(auth mainflux.AuthNServiceClient, nc *nats.Conn, ncTracer opentracing.Tracer, chanID string, provider lbs.LocationProvider, collections lbs.CollectionRepository, entities lbs.EntityRepository, geofences lbs.GeofenceRepository, logger logger.Logger) lbs.Service {
+func newService(auth mainflux.AuthNServiceClient, nc *nats.Conn, ncTracer opentracing.Tracer, chanID string, provider lbs.LocationProvider, dbTracer opentracing.Tracer, db *sqlx.DB, logger logger.Logger) lbs.Service {
+	//	database := postgres.NewDatabase(db)
+
 	np := natspub.NewPublisher(nc, chanID, logger)
-	svc := lbs.New(auth, provider, collections, entities, geofences, np)
+	svc := lbs.New(auth, provider, nil, nil, nil, np)
 	svc = api.LoggingMiddleware(svc, logger)
 	svc = api.MetricsMiddleware(
 		svc,
@@ -322,4 +344,13 @@ func startHTTPServer(handler http.Handler, port string, cfg config, logger logge
 	}
 	logger.Info(fmt.Sprintf("Things service started using http on port %s", cfg.httpPort))
 	errs <- http.ListenAndServe(p, handler)
+}
+
+func connectToDB(dbConfig postgres.Config, logger logger.Logger) *sqlx.DB {
+	db, err := postgres.Connect(dbConfig)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to connect to postgres: %s", err))
+		os.Exit(1)
+	}
+	return db
 }

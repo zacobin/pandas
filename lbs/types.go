@@ -18,14 +18,14 @@ type TrackPoint struct {
 
 // Geofence
 type CircleGeofence struct {
-	Name             string
-	MonitoredObjects []string
-	Longitude        float64
-	Latitude         float64
-	Radius           float64
-	CoordType        CoordType
-	Denoise          int
-	FenceID          string
+	Name             string    `json:"name"`
+	MonitoredObjects []string  `json:"monitored_objects"`
+	Longitude        float64   `json:"longitude"`
+	Latitude         float64   `json:"latitude"`
+	Radius           float64   `json:"radius"`
+	CoordType        CoordType `json:"coord_type"`
+	Denoise          int       `json:"denoise"`
+	FenceID          string    `json:"fencie_id"`
 }
 
 type Vertexe struct {
@@ -49,27 +49,27 @@ type Geofence struct {
 }
 
 type PolyGeofence struct {
-	Name             string
-	MonitoredObjects []string
-	Vertexes         string
-	CoordType        CoordType
-	Denoise          int
-	FenceID          string
+	Name             string    `json:"name"`
+	MonitoredObjects []string  `json:"monitored_objects"`
+	Vertexes         string    `json:"vertexes"`
+	CoordType        CoordType `json:"coord_type"`
+	Denoise          int       `json:"denoise"`
+	FenceID          string    `json:"fencie_id"`
 }
 
 type PrePoint struct {
-	Longitude  float64
-	Latitude   float64
-	Radius     int
-	CoordType  string
-	LocTime    string
-	CreateTime string
+	Longitude  float64 `json:"longitude"`
+	Latitude   float64 `json:"latitude"`
+	Radius     int     `json:"radius"`
+	CoordType  string  `json:"coord_type"`
+	LocTime    string  `json:"loctime"`
+	CreateTime string  `json:"create_time"`
 }
 
 type EntityInfo struct {
-	EntityName string
-	Latitude   float64
-	Longitude  float64
+	EntityName string  `json:"entity_name"`
+	Latitude   float64 `json:"latitude"`
+	Longitude  float64 `json:"longitude"`
 }
 
 type AlarmPoint struct {
@@ -129,29 +129,29 @@ type AlarmInfo struct {
 }
 
 type QueryStatus struct {
-	Status            int
-	Message           string
-	Size              int
-	MonitoredStatuses []MonitoredStatus
+	Status            int               `json:"status"`
+	Message           string            `json:"message"`
+	Size              int               `json:"size"`
+	MonitoredStatuses []MonitoredStatus `json:"monitored+statuses"`
 }
 
 type StayPoints struct {
-	Status     int
-	Message    string
-	Total      int
-	Size       int
-	Distance   int
-	EndPoint   *Point
-	StartPoint *Point
-	Points     []*Point
+	Status     int      `json:"status"`
+	Message    string   `json:"message"`
+	Total      int      `json:"total"`
+	Size       int      `json:"size"`
+	Distance   int      `json:"distance"`
+	EndPoint   *Point   `json:"end_point"`
+	StartPoint *Point   `json:"start_point"`
+	Points     []*Point `json:"points"`
 }
 
 type HistoryAlarms struct {
-	Status  int
-	Message string
-	Total   int
-	Size    int
-	Alarms  []*Alarm
+	Status  int      `json:"status"`
+	Message string   `json:"message"`
+	Total   int      `json:"total"`
+	Size    int      `json:"size"`
+	Alarms  []*Alarm `json:"alarms"`
 }
 
 // Location is reported by iot terminal to lbs service
@@ -267,22 +267,4 @@ type BatchGetHistoryAlarmsRequest struct {
 	StartTime       string `json:"start_time,omitempty"`
 	PageIndex       int    `json:"page_index,omitempty"`
 	PageSize        int    `json:"page_size,omitempty"`
-}
-
-const (
-	AlarmMessageTopic = "pandas-alarm"
-)
-
-type AlarmTopic struct {
-	TopicName string
-	Alarm     *AlarmNotification `json:"alarm"`
-}
-
-func (p *AlarmTopic) Topic() string        { return AlarmMessageTopic }
-func (p *AlarmTopic) SetTopic(name string) {}
-func (p *AlarmTopic) Serialize(opt SerializeOption) ([]byte, error) {
-	return Serialize(p, opt)
-}
-func (p *AlarmTopic) Deserialize(buf []byte, opt SerializeOption) error {
-	return Deserialize(buf, opt, p)
 }
