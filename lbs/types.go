@@ -240,9 +240,11 @@ type LastLocationStruct struct {
 }
 
 type Entity struct {
+	ID           string             `json:"id"`
 	EntityName   string             `json:"entity_name"`
 	EntityDesc   string             `json:"entity_desc"`
 	LastLocation LastLocationStruct `json:"latest_location"`
+	Metadata     Metadata           `json:"metadata"`
 }
 
 type ListEntityStruct struct {

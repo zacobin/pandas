@@ -11,6 +11,13 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 )
 
+const (
+	errDuplicate  = "unique_violation"
+	errFK         = "foreign_key_violation"
+	errInvalid    = "invalid_text_representation"
+	errTruncation = "string_data_right_truncation"
+)
+
 var _ Database = (*database)(nil)
 
 type database struct {
@@ -23,6 +30,7 @@ type Database interface {
 	QueryRowxContext(context.Context, string, ...interface{}) *sqlx.Row
 	NamedQueryContext(context.Context, string, interface{}) (*sqlx.Rows, error)
 	GetContext(context.Context, interface{}, string, ...interface{}) error
+	BeginTxx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
 }
 
 // NewDatabase creates a ThingDatabase instance
@@ -31,11 +39,6 @@ func NewDatabase(db *sqlx.DB) Database {
 		db: db,
 	}
 }
-
-const (
-	errDuplicate = "unique_violation"
-	errInvalid   = "invalid_text_representation"
-)
 
 func (dm database) NamedExecContext(ctx context.Context, query string, args interface{}) (sql.Result, error) {
 	addSpanTags(ctx, query)
@@ -59,6 +62,16 @@ func (dm database) NamedQueryContext(ctx context.Context, query string, args int
 func (dm database) GetContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error {
 	addSpanTags(ctx, query)
 	return dm.db.GetContext(ctx, dest, query, args...)
+}
+
+func (dm database) BeginTxx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error) {
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		span.SetTag("span.kind", "client")
+		span.SetTag("peer.service", "postgres")
+		span.SetTag("db.type", "sql")
+	}
+	return dm.db.BeginTxx(ctx, opts)
 }
 
 func addSpanTags(ctx context.Context, query string) {
