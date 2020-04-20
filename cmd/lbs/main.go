@@ -100,7 +100,7 @@ const (
 	envESURL           = "PD_THINGS_ES_URL"
 	envESPass          = "PD_THINGS_ES_PASS"
 	envESDB            = "PD_THINGS_ES_DB"
-	envHTTPPort        = "PD_THINGS_HTTP_PORT"
+	envHTTPPort        = "PD_LBS_HTTP_PORT"
 	envAuthHTTPPort    = "PD_THINGS_AUTH_HTTP_PORT"
 	envAuthGRPCPort    = "PD_THINGS_AUTH_GRPC_PORT"
 	envServerCert      = "PD_THINGS_SERVER_CERT"
