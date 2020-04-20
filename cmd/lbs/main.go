@@ -53,7 +53,7 @@ const (
 	defDBPort          = "5432"
 	defDBUser          = "mainflux"
 	defDBPass          = "mainflux"
-	defDBName          = "things"
+	defDBName          = "lbs"
 	defDBSSLMode       = "disable"
 	defDBSSLCert       = ""
 	defDBSSLKey        = ""
@@ -82,31 +82,31 @@ const (
 	defNatsURL         = nats.DefaultURL
 	defChannelID       = ""
 
-	envLogLevel        = "PD_THINGS_LOG_LEVEL"
-	envDBHost          = "PD_THINGS_DB_HOST"
-	envDBPort          = "PD_THINGS_DB_PORT"
-	envDBUser          = "PD_THINGS_DB_USER"
-	envDBPass          = "PD_THINGS_DB_PASS"
-	envDBName          = "PD_THINGS_DB"
-	envDBSSLMode       = "PD_THINGS_DB_SSL_MODE"
-	envDBSSLCert       = "PD_THINGS_DB_SSL_CERT"
-	envDBSSLKey        = "PD_THINGS_DB_SSL_KEY"
-	envDBSSLRootCert   = "PD_THINGS_DB_SSL_ROOT_CERT"
-	envClientTLS       = "PD_THINGS_CLIENT_TLS"
-	envCACerts         = "PD_THINGS_CA_CERTS"
-	envCacheURL        = "PD_THINGS_CACHE_URL"
-	envCachePass       = "PD_THINGS_CACHE_PASS"
-	envCacheDB         = "PD_THINGS_CACHE_DB"
-	envESURL           = "PD_THINGS_ES_URL"
-	envESPass          = "PD_THINGS_ES_PASS"
-	envESDB            = "PD_THINGS_ES_DB"
+	envLogLevel        = "PD_LBS_LOG_LEVEL"
+	envDBHost          = "PD_LBS_DB_HOST"
+	envDBPort          = "PD_LBS_DB_PORT"
+	envDBUser          = "PD_LBS_DB_USER"
+	envDBPass          = "PD_LBS_DB_PASS"
+	envDBName          = "PD_LBS_DB"
+	envDBSSLMode       = "PD_LBS_DB_SSL_MODE"
+	envDBSSLCert       = "PD_LBS_DB_SSL_CERT"
+	envDBSSLKey        = "PD_LBS_DB_SSL_KEY"
+	envDBSSLRootCert   = "PD_LBS_DB_SSL_ROOT_CERT"
+	envClientTLS       = "PD_LBS_CLIENT_TLS"
+	envCACerts         = "PD_LBS_CA_CERTS"
+	envCacheURL        = "PD_LBS_CACHE_URL"
+	envCachePass       = "PD_LBS_CACHE_PASS"
+	envCacheDB         = "PD_LBS_CACHE_DB"
+	envESURL           = "PD_LBS_ES_URL"
+	envESPass          = "PD_LBS_ES_PASS"
+	envESDB            = "PD_LBS_ES_DB"
 	envHTTPPort        = "PD_LBS_HTTP_PORT"
-	envAuthHTTPPort    = "PD_THINGS_AUTH_HTTP_PORT"
-	envAuthGRPCPort    = "PD_THINGS_AUTH_GRPC_PORT"
-	envServerCert      = "PD_THINGS_SERVER_CERT"
-	envServerKey       = "PD_THINGS_SERVER_KEY"
-	envSingleUserEmail = "PD_THINGS_SINGLE_USER_EMAIL"
-	envSingleUserToken = "PD_THINGS_SINGLE_USER_TOKEN"
+	envAuthHTTPPort    = "PD_LBS_AUTH_HTTP_PORT"
+	envAuthGRPCPort    = "PD_LBS_AUTH_GRPC_PORT"
+	envServerCert      = "PD_LBS_SERVER_CERT"
+	envServerKey       = "PD_LBS_SERVER_KEY"
+	envSingleUserEmail = "PD_LBS_SINGLE_USER_EMAIL"
+	envSingleUserToken = "PD_LBS_SINGLE_USER_TOKEN"
 	envJaegerURL       = "PD_JAEGER_URL"
 	envAuthURL         = "PD_AUTH_URL"
 	envAuthTimeout     = "PD_AUTH_TIMEOUT"
@@ -337,12 +337,12 @@ func connectToAuth(cfg config, logger logger.Logger) *grpc.ClientConn {
 func startHTTPServer(handler http.Handler, port string, cfg config, logger logger.Logger, errs chan error) {
 	p := fmt.Sprintf(":%s", port)
 	if cfg.serverCert != "" || cfg.serverKey != "" {
-		logger.Info(fmt.Sprintf("Things service started using https on port %s with cert %s key %s",
+		logger.Info(fmt.Sprintf("LBS service started using https on port %s with cert %s key %s",
 			port, cfg.serverCert, cfg.serverKey))
 		errs <- http.ListenAndServeTLS(p, cfg.serverCert, cfg.serverKey, handler)
 		return
 	}
-	logger.Info(fmt.Sprintf("Things service started using http on port %s", cfg.httpPort))
+	logger.Info(fmt.Sprintf("LBS service started using http on port %s", cfg.httpPort))
 	errs <- http.ListenAndServe(p, handler)
 }
 
