@@ -83,9 +83,9 @@ const (
 	envDBSSLCert     = "PD_USERS_DB_SSL_CERT"
 	envDBSSLKey      = "PD_USERS_DB_SSL_KEY"
 	envDBSSLRootCert = "PD_USERS_DB_SSL_ROOT_CERT"
-	envHTTPPort      = "PD_USERS_HTTP_PORT"
-	envServerCert    = "PD_USERS_SERVER_CERT"
-	envServerKey     = "PD_USERS_SERVER_KEY"
+	envHTTPPort      = "PD_AUTHZ_HTTP_PORT"
+	envServerCert    = "PD_AUTHZ_SERVER_CERT"
+	envServerKey     = "PD_AUTHZ_SERVER_KEY"
 	envJaegerURL     = "PD_JAEGER_URL"
 
 	envAuthnHTTPPort = "PD_AUTHN_HTTP_PORT"

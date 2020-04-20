@@ -395,3 +395,34 @@ services:
       PD_JAEGER_URL: ${PD_JAEGER_URL}
     depends_on:
       - lbs-db
+  
+  authz:
+    image: cloustone/pandas-authz:latest
+    container_name: pandas-authz
+    volumes:
+      - ./users/emailer/templates/${PD_EMAIL_TEMPLATE}:/${PD_EMAIL_TEMPLATE}
+    depends_on:
+      - users-db
+      - authn
+    restart: on-failure
+    environment:
+      PD_USERS_LOG_LEVEL: ${PD_USERS_LOG_LEVEL}
+      PD_USERS_DB_HOST: users-db
+      PD_USERS_DB_PORT: ${PD_USERS_DB_PORT}
+      PD_USERS_DB_USER: ${PD_USERS_DB_USER}
+      PD_USERS_DB_PASS: ${PD_USERS_DB_PASS}
+      PD_USERS_DB: ${PD_USERS_DB}
+      PD_AUTHZ_HTTP_PORT: ${PD_AUTHZ_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_EMAIL_DRIVER: ${PD_EMAIL_DRIVER}
+      PD_EMAIL_HOST: ${PD_EMAIL_HOST}
+      PD_EMAIL_PORT: ${PD_EMAIL_PORT}
+      PD_EMAIL_USERNAME: ${PD_EMAIL_USERNAME}
+      PD_EMAIL_PASSWORD: ${PD_EMAIL_PASSWORD}
+      PD_EMAIL_FROM_ADDRESS: ${PD_EMAIL_FROM_ADDRESS}
+      PD_EMAIL_FROM_NAME: ${PD_EMAIL_FROM_NAME}
+      PD_EMAIL_TEMPLATE: ${PD_EMAIL_TEMPLATE}
+      PD_TOKEN_RESET_ENDPOINT: ${PD_TOKEN_RESET_ENDPOINT}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+    ports:
+      - ${PD_AUTHZ_HTTP_PORT}:${PD_AUTHZ_HTTP_PORT}
