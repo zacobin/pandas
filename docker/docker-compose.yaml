@@ -296,5 +296,6 @@ services:
       - ${PD_LBS_HTTP_PORT}:${PD_LBS_HTTP_PORT}
     restart: always
     environment:
+      PD_LBS_LOG_LEVEL: ${PD_LBS_LOG_LEVEL}
       PD_LBS_HTTP_PORT: ${PD_LBS_HTTP_PORT}
       PANDAS_DNS_SERVER: "docker-compose"

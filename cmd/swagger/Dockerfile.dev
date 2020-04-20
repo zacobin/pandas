@@ -4,7 +4,7 @@ LABEL vendor=cloustone
 LABEL product=pandas
 
 # ADD certs/* /etc/ssl/pandas
-ADD pandas/cmd/things/bin/* /
+ADD pandas/cmd/swagger/bin/* /
 RUN chmod 755 /main
 RUN chmod 755 /dockerize
 
