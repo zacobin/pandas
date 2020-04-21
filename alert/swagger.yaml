@@ -1,0 +1,817 @@
+swagger: '2.0'
+info:
+  description: "pandas alert service" 
+  version: 1.0.0
+  title:  alert 
+basePath: /v1
+consumes:
+  - application/json
+produces:
+  - application/json
+schemes:
+  - http
+tags:
+  - name: Alert 
+    description: Alert managed service 
+paths:
+  /alert:
+    post:
+      tags:
+        - Alert
+      summary: Create alert.
+      description: Create alert.
+      operationId: CreateAlert
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - in: body
+          name: alert
+          description: The alert to create.
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              method:
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - MESSAGE
+                    - EMAIL
+                    - TEL
+                  default: EMAIL
+              onoff:
+                type: boolean
+                default: true
+              time:
+                type: string
+              users:
+                type: array
+                items:
+                  type: string
+      responses:
+        '200':
+          description: alert ID
+          schema:
+            type: object
+            properties:
+              alertid:
+                type: string
+                description: The id of alert.
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags:
+        - Alert
+      summary: Get alert.
+      description: Get alert.
+      operationId: GetAlert
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - in: query
+          name: alertid
+          type: string
+          required: true
+          description: The alert to get.
+      responses:
+        '200':
+          description: alert information
+          schema:
+            $ref: '#/definitions/AlertWithUsers'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      tags:
+        - Alert
+      summary: Update alert.
+      description: Update alert.
+      operationId: UpdateAlert
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - in: query
+          name: alertid
+          type: string
+          required: true
+          description: The alert to update.
+        - in: body
+          name: alert
+          description: The alert to update.
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              method:
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - MESSAGE
+                    - EMAIL
+                    - TEL
+                  default: EMAIL
+              onoff:
+                type: boolean
+                default: true
+              time:
+                type: string
+              users:
+                type: array
+                items:
+                  type: string
+      responses:
+        '200':
+          description: alert ID
+          schema:
+            type: object
+            properties:
+              alertid:
+                type: string
+                description: The id of alert.
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+        - Alert
+      summary: Delete alert.
+      description: Delete alert.
+      operationId: DeleteAlert
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - in: query
+          name: alertid
+          type: string
+          required: true
+          description: The alert to delete.
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: Delete Alert Status
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+  /alert/user:
+    post:
+      tags:
+        - Alert
+      summary: Add user to alert.
+      description: Add user to alert.
+      operationId: AddUserToAlert
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - in: query
+          name: alertid
+          type: string
+          required: true
+          description: The alert to add user.
+        - in: query
+          name: userid
+          type: string
+          required: true
+          description: The user to add.
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: Status
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags:
+        - Alert
+      summary: Get alert's users.
+      description: Get alert's users.
+      operationId: GetAlertUsers
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - in: query
+          name: alertid
+          type: string
+          required: true
+          description: The alert to get.
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+        - Alert
+      summary: Delete user from alert.
+      description: Delete user from alert.
+      operationId: DeleteUserFromAlert
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - in: query
+          name: alertid
+          type: string
+          required: true
+          description: The alert to delete user.
+        - in: query
+          name: userid
+          type: string
+          required: true
+          description: The user to delete.
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: Status
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+  /alert/rule:
+    post:
+      tags:
+        - Alert
+      summary: create alert rule
+      description: create alert rule
+      operationId: CreateAlertRule
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - name: payload
+          in: body
+          description: alert rule
+          required: true
+          schema:
+            $ref: '#/definitions/AlertRule'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/AlertRule'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      tags:
+        - Alert
+      summary: update alert rule
+      description: update alert rule
+      operationId: UpdateAlertRule
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - name: payload
+          in: body
+          description: alert rule
+          required: true
+          schema:
+            $ref: '#/definitions/AlertRule'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/AlertRule'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+        - Alert
+      summary: delete alert rule
+      description: delete alert rule
+      operationId: DeleteAlertRule
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - in: query
+          name: alert
+          type: string
+          required: true
+          description: alert name
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+  /alert/rules:
+    get:
+      tags:
+        - Alert
+      summary: get alert rules
+      description: get alert rules
+      operationId: GetAlertRules
+      security:
+        - roleAuth:
+          - admin
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ExtendedAlertRule'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+  /alerts:
+    get:
+      tags:
+        - Alert
+      summary: Get all alerts.
+      description: Get all alert.
+      operationId: GetAlerts
+      security:
+        - roleAuth:
+          - admin
+      responses:
+        '200':
+          description: all alert
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/AlertWithUsers'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+  /alertlist:
+    get:
+      tags:
+        - Alert
+      summary: Get all alerts.
+      description: Get all alert.
+      operationId: GetAlertList
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - in: query
+          name: type
+          type: string
+          enum:
+            - all
+            - now
+          default: all
+          description: get alert list type(now)
+        - name: pageSize
+          in: query
+          description: Page size
+          type: integer
+        - name: pageNumber
+          in: query
+          description: Page number
+          type: integer
+        - name: q
+          in: query
+          description: >
+            query object for alerts.You can get query key from ExtendedAlert object. This is a json string.
+            For Example
+              * 模糊检索alertname
+              {"alert.labels.alertname": "TotalMemory"}
+              * 模糊检索instance
+              {"alert.labels.instance": "node3"}
+              * 多条件模糊检索(and)
+              {"alert.labels.alertname": "TotalMemory", "alert.labels.instance": "node3"}
+              * 模糊检索annotations
+              {"alert.annotations.description": "TotalMemory description"}
+              * 模糊检索state
+              {"status.state": "active"}
+              {"status.state": "unprocessed"}
+              {"status.state": "suppressed"}
+              * 支持所有alert.labels.和alert.annotations.的模糊检索和多条件检索
+              * 支持state与alert.labels.和alert.annotations.的模糊检索和多条件检索
+              * 支持时间的精确检索
+              {"alert.startsat": "2018-09-10T03:50:47.676Z"}
+              {"alert.endsat": "2018-09-10T03:50:47.676Z"}
+              * 支持其它精确检索
+              * TODO 时间段检索
+              // TODO not support 2018-09-10T03:50:47.676Z <= startsat
+              {"alert.startsat": {"$gte": "2018-09-10T03:50:47.676Z"}}
+              // TODO not support 2018-09-10T03:50:47.676Z <= startsat <= 2018-09-11T03:50:47.676Z
+              {"alert.startsat": {"$gte": "2018-09-10T03:50:47.676Z", "$lte": "2018-09-11T03:50:47.676Z"}}
+              // TODO not support 2018-09-10T03:50:47.676Z <= ends_at
+              {"alert.ends_at": {"$gte": "2018-09-10T03:50:47.676Z"}}
+              // TODO not support 2018-09-10T03:50:47.676Z <= ends_at <= 2018-09-11T03:50:47.676Z
+              {"alert.ends_at": {"$gte": "2018-09-10T03:50:47.676Z", "$lte": "2018-09-11T03:50:47.676Z"}}
+            Operate: "$lt": "<", "$lte": "<=", "$gt": ">", "$gte": ">=", "$ne":"!="
+          type: string
+      responses:
+        '200':
+          description: all alert
+          schema:
+            type: object
+            properties:
+              items:
+                type: array
+                description: alert list from query
+                items:
+                  $ref: '#/definitions/ExtendedAlert'
+              total_count:
+                type: integer
+                format: int32
+                description: total count of alert list
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+  /alarmlist:
+    get:
+      tags:
+        - Alert
+      summary: Get all map alarms.
+      description: Get all alarms.
+      operationId: GetAlarmList
+      security:
+        - roleAuth:
+          - user
+      parameters:
+        - name: pageSize
+          in: query
+          description: Page size
+          type: integer
+        - name: pageNumber
+          in: query
+          description: Page number
+          type: integer
+        - name: q
+          in: query
+          description: >
+            query object for alerts.You can get query key from ExtendedAlert object. This is a json string.
+            For Example
+          type: string
+      responses:
+        '200':
+          description: all alarms
+          schema:
+            type: object
+            properties:
+              items:
+                type: array
+                description: alarm list from query
+                items:
+                  $ref: '#/definitions/Alarm'
+              total_count:
+                type: integer
+                format: int32
+                description: total count of alarm list
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+  /user/alerts:
+    get:
+      tags:
+        - User
+      summary: Get user's alerts.
+      description: Get user's alert.
+      operationId: GetUserAlerts
+      security:
+        - roleAuth:
+          - admin
+      parameters:
+        - in: query
+          name: userid
+          type: string
+          required: true
+          description: The user's id to get alert.
+      responses:
+        '200':
+          description: all alert
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Unable to find something.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: HTTP-Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  AlarmInfo:
+    type: object
+    properties:
+      type:
+        description: message type (type 1 checkup, 2 message)
+        type: integer
+      service_id:
+        description: the service id of baidu yingyan
+        type: integer
+      content:
+        description: fence alarm infos
+        type: array
+        items:
+          $ref: '#/definitions/FenceAlarmInfo'
+
+  principal:
+    type: object
+    properties:
+      id:
+        description: User ID
+        type: string
+      name:
+        description: User name
+        type: string
+      roles:
+        type: array
+        items:
+          type: string
+  Timedef:
+    type: object
+    properties:
+      created:
+        type: string
+        format: dateTime
+        readOnly: true
+      updated:
+        type: string
+        format: dateTime
+        readOnly: true
+    example:
+      created: '2018-09-20T11:05:54Z'
+      updated: '2018-09-20T11:05:54Z'
+
+  Event:
+    type: object
+    properties:
+      type:
+        type: string
+  Message:
+    type: object
+    properties:
+      topic:
+        type: string
+      body:
+        type: string
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      error:
+        type: string
+      description:
+        type: string
+
+  AlertWithUsers:
+    type: object
+    description: get alert with user info(not user id)
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      time:
+        type: string
+      onoff:
+        type: boolean
+      method:
+        type: array
+        items:
+          type: string
+          enum:
+            - EMAIL
+            - MESSAGE
+            - TEL
+      users:
+        type: array
+        items:
+          $ref: '#/definitions/User'
+  ExtendedAlert:
+    type: object
+    description: get alert from alert manager
+    properties:
+      labels:
+        type: object
+        additionalProperties:
+          type: string
+      annotations:
+        type: object
+        additionalProperties:
+          type: string
+      starts_at:
+        type: string
+      ends_at:
+        type: string
+      generator_url:
+        type: string
+      state:
+        type: string
+        enum:
+          - unprocessed
+          - active
+          - suppressed
+      silenced_by:
+        type: array
+        items:
+          type: string
+      inhibited_by:
+        type: array
+        items:
+          type: string
+  ExtendedAlertRule:
+    type: object
+    properties:
+      id:
+        type: string
+      group:
+        type: string
+      alert:
+        description: alert
+        type: string
+      expr:
+        description: expr
+        type: string
+      for:
+        description: for
+        type: string
+      labels:
+        description: labels
+        type: object
+        additionalProperties:
+          type: string
+      annotations:
+        description: annotations
+        type: object
+        additionalProperties:
+          type: string
+
+  Certificate:
+    type: object
+    properties:
+      ca_crt:
+        type: string
+        format: byte
+      client_crt:
+        type: string
+        format: byte
+      client_key:
+        type: string
+        format: byte
