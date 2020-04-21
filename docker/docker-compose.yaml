@@ -559,5 +559,23 @@ services:
       PD_REALMS_SECRET: ${PD_REALMS_SECRET}
     ports:
       - ${PD_REALMS_HTTP_PORT}:${PD_REALMS_HTTP_PORT}
+  
+  swagger:
+    image: cloustone/pandas-swagger:latest
+    container_name: pandas-swagger
+
+    restart: on-failure
+    environment:
+      PD_SWAGGER_LOG_LEVEL: ${PD_SWAGGER_LOG_LEVEL}
+      PD_SWAGGER_HTTP_PORT: ${PD_SWAGGER_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_SWAGGER_AUTH_HTTP_PORT: ${PD_SWAGGER_AUTH_HTTP_PORT}
+      PD_SWAGGER_AUTH_GRPC_PORT: ${PD_SWAGGER_AUTH_GRPC_PORT}
+      PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_SWAGGER_SECRET: ${PD_SWAGGER_SECRET}
+    ports:
+      - ${PD_SWAGGER_HTTP_PORT}:${PD_SWAGGER_HTTP_PORT}
 
   

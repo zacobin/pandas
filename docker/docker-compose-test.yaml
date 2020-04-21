@@ -1,7 +1,5 @@
 version: "3.1"
 
-volumes:
-  pandas-realms-db-volume:
 services:
   nats:
     image: nats:1.3.0
@@ -18,38 +16,21 @@ services:
       - ${PD_JAEGER_FRONTEND}:${PD_JAEGER_FRONTEND}
       - ${PD_JAEGER_COLLECTOR}:${PD_JAEGER_COLLECTOR}
       - ${PD_JAEGER_CONFIGS}:${PD_JAEGER_CONFIGS}
-  realms-db:
-    image: postgres:10.8-alpine
-    container_name: pandas-realms-db
-    restart: on-failure
-    environment:
-      POSTGRES_USER: ${PD_REALMS_DB_USER}
-      POSTGRES_PASSWORD: ${PD_REALMS_DB_USER}
-      POSTGRES_DB: ${PD_REALMS_DB}
-    volumes:
-      - pandas-realms-db-volume:/var/lib/postgresql/data
 
-  realms:
-    image: cloustone/pandas-realms:latest
-    container_name: pandas-realms
-    depends_on:
-      - realms-db
+  swagger:
+    image: cloustone/pandas-swagger:latest
+    container_name: pandas-swagger
 
     restart: on-failure
     environment:
-      PD_REALMS_LOG_LEVEL: ${PD_REALMS_LOG_LEVEL}
-      PD_REALMS_HTTP_PORT: ${PD_REALMS_HTTP_PORT}
+      PD_SWAGGER_LOG_LEVEL: ${PD_SWAGGER_LOG_LEVEL}
+      PD_SWAGGER_HTTP_PORT: ${PD_SWAGGER_HTTP_PORT}
       PD_JAEGER_URL: ${PD_JAEGER_URL}
       PD_NATS_URL: ${PD_NATS_URL}
       PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
-      PD_REALMS_DB_HOST: realms-db
-      PD_REALMS_DB_PORT: ${PD_REALMS_DB_PORT}
-      PD_REALMS_DB_USER: ${PD_REALMS_DB_USER}
-      PD_REALMS_DB_PASS: ${PD_REALMS_DB_PASS}
-      PD_REALMS_DB: ${PD_REALMS_DB}
-      PD_REALMS_AUTH_HTTP_PORT: ${PD_REALMS_AUTH_HTTP_PORT}
-      PD_REALMS_AUTH_GRPC_PORT: ${PD_REALMS_AUTH_GRPC_PORT}
+      PD_SWAGGER_AUTH_HTTP_PORT: ${PD_SWAGGER_AUTH_HTTP_PORT}
+      PD_SWAGGER_AUTH_GRPC_PORT: ${PD_SWAGGER_AUTH_GRPC_PORT}
       PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
-      PD_REALMS_SECRET: ${PD_REALMS_SECRET}
+      PD_SWAGGER_SECRET: ${PD_SWAGGER_SECRET}
     ports:
-      - ${PD_REALMS_HTTP_PORT}:${PD_REALMS_HTTP_PORT}
+      - ${PD_SWAGGER_HTTP_PORT}:${PD_SWAGGER_HTTP_PORT}
