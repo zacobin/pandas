@@ -14,6 +14,8 @@ volumes:
   pandas-twins-db-configdb-volume:
   pandas-vms-db-volume:
   pandas-vms-redis-volume:
+  pandas-pms-db-volume:
+  pandas-pms-redis-volume:
 
 services:
   nats:
@@ -474,5 +476,51 @@ services:
       PD_NATS_URL: ${PD_NATS_URL}
     ports:
       - ${PD_VMS_HTTP_PORT}:${PD_VMS_HTTP_PORT}
+  
+  pms-db:
+    image: postgres:10.8-alpine
+    container_name: pandas-pms-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${PD_PMS_DB_USER}
+      POSTGRES_PASSWORD: ${PD_PMS_DB_USER}
+      POSTGRES_DB: ${PD_PMS_DB}
+    volumes:
+      - pandas-pms-db-volume:/var/lib/postgresql/data
+
+  pms-redis:
+    image: redis:5.0-alpine
+    container_name: pandas-pms-redis
+    restart: on-failure
+    volumes:
+      - pandas-pms-redis-volume:/data
+
+  pms:
+    image: cloustone/pandas-pms:latest
+    container_name: pandas-pms
+    depends_on:
+      - pms-db
+      - authn
+    restart: on-failure
+    environment:
+      PD_PMS_LOG_LEVEL: ${PD_PMS_LOG_LEVEL}
+      PD_PMS_HTTP_PORT: ${PD_PMS_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_PMS_DB_HOST: pms-db
+      PD_PMS_DB_PORT: ${PD_PMS_DB_PORT}
+      PD_PMS_DB_USER: ${PD_PMS_DB_USER}
+      PD_PMS_DB_PASS: ${PD_PMS_DB_PASS}
+      PD_PMS_DB: ${PD_PMS_DB}
+      PD_PMS_AUTH_HTTP_PORT: ${PD_PMS_AUTH_HTTP_PORT}
+      PD_PMS_AUTH_GRPC_PORT: ${PD_PMS_AUTH_GRPC_PORT}
+      PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_PMS_SECRET: ${PD_PMS_SECRET}
+      PD_PMS_CACHE_URL: pms-redis:${PD_REDIS_TCP_PORT}
+      PD_PMS_ES_URL: es-redis:${PD_REDIS_TCP_PORT}
+      PD_NATS_URL: ${PD_NATS_URL}
+    ports:
+      - ${PD_PMS_HTTP_PORT}:${PD_PMS_HTTP_PORT}
 
   
