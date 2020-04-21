@@ -12,6 +12,8 @@ volumes:
   pandas-bootstrap-db-volume:
   pandas-twins-db-volume:
   pandas-twins-db-configdb-volume:
+  pandas-vms-db-volume:
+  pandas-vms-redis-volume:
 
 services:
   nats:
@@ -239,7 +241,7 @@ services:
     ports:
       - ${PD_COAP_ADAPTER_PORT}:${PD_COAP_ADAPTER_PORT}/udp
       - ${PD_COAP_ADAPTER_PORT}:${PD_COAP_ADAPTER_PORT}/tcp
-  
+
   bootstrap-db:
     image: postgres:10.8-alpine
     container_name: pandas-bootstrap-db
@@ -426,3 +428,51 @@ services:
       PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
     ports:
       - ${PD_AUTHZ_HTTP_PORT}:${PD_AUTHZ_HTTP_PORT}
+
+  vms-db:
+    image: postgres:10.8-alpine
+    container_name: pandas-vms-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${PD_V2MS_DB_USER}
+      POSTGRES_PASSWORD: ${PD_V2MS_DB_USER}
+      POSTGRES_DB: ${PD_V2MS_DB}
+    volumes:
+      - pandas-vms-db-volume:/var/lib/postgresql/data
+
+  vms-redis:
+    image: redis:5.0-alpine
+    container_name: pandas-vms-redis
+    restart: on-failure
+    volumes:
+      - pandas-vms-redis-volume:/data
+
+  vms:
+    image: cloustone/pandas-v2ms:latest
+    container_name: pandas-vms
+    depends_on:
+      - vms-db
+      - authn
+    restart: on-failure
+    environment:
+      PD_V2MS_LOG_LEVEL: ${PD_V2MS_LOG_LEVEL}
+      PD_V2MS_HTTP_PORT: ${PD_V2MS_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_V2MS_DB_HOST: vms-db
+      PD_V2MS_DB_PORT: ${PD_V2MS_DB_PORT}
+      PD_V2MS_DB_USER: ${PD_V2MS_DB_USER}
+      PD_V2MS_DB_PASS: ${PD_V2MS_DB_PASS}
+      PD_V2MS_DB: ${PD_V2MS_DB}
+      PD_V2MS_AUTH_HTTP_PORT: ${PD_V2MS_AUTH_HTTP_PORT}
+      PD_V2MS_AUTH_GRPC_PORT: ${PD_V2MS_AUTH_GRPC_PORT}
+      PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_V2MS_SECRET: ${PD_V2MS_SECRET}
+      PD_V2MS_CACHE_URL: vms-redis:${PD_REDIS_TCP_PORT}
+      PD_V2MS_ES_URL: es-redis:${PD_REDIS_TCP_PORT}
+      PD_NATS_URL: ${PD_NATS_URL}
+    ports:
+      - ${PD_V2MS_HTTP_PORT}:${PD_V2MS_HTTP_PORT}
+
+  
