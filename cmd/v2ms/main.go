@@ -49,7 +49,7 @@ const (
 	defDBPort          = "5432"
 	defDBUser          = "mainflux"
 	defDBPass          = "mainflux"
-	defDBName          = "things"
+	defDBName          = "v2ms"
 	defDBSSLMode       = "disable"
 	defDBSSLCert       = ""
 	defDBSSLKey        = ""
@@ -140,8 +140,8 @@ func main() {
 		log.Fatalf(err.Error())
 	}
 
-	thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
-	defer thingsCloser.Close()
+	v2msTracer, v2msCloser := initJaeger("v2ms", cfg.jaegerURL, logger)
+	defer v2msCloser.Close()
 
 	cacheClient := connectToRedis(cfg.cacheURL, cfg.cachePass, cfg.cacheDB, logger)
 
@@ -177,7 +177,7 @@ func main() {
 	svc := newService(nc, ncTracer, cfg.channelID, auth, dbTracer, cacheTracer, db, cacheClient, esClient, logger)
 	errs := make(chan error, 2)
 
-	go startHTTPServer(httpapi.MakeHandler(thingsTracer, svc), cfg.httpPort, cfg, logger, errs)
+	go startHTTPServer(httpapi.MakeHandler(v2msTracer, svc), cfg.httpPort, cfg, logger, errs)
 
 	go func() {
 		c := make(chan os.Signal)
@@ -277,6 +277,7 @@ func connectToRedis(cacheURL, cachePass string, cacheDB string, logger logger.Lo
 }
 
 func connectToDB(dbConfig postgres.Config, logger logger.Logger) *sqlx.DB {
+	fmt.Printf("host is %s,user is %s,pass is %s", dbConfig.Host, dbConfig.User, dbConfig.Pass)
 	db, err := postgres.Connect(dbConfig)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to connect to postgres: %s", err))
@@ -346,13 +347,13 @@ func newService(nc *nats.Conn, ncTracer opentracing.Tracer, chanID string, auth 
 	svc = api.MetricsMiddleware(
 		svc,
 		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "things",
+			Namespace: "v2ms",
 			Subsystem: "api",
 			Name:      "request_count",
 			Help:      "Number of requests received.",
 		}, []string{"method"}),
 		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "things",
+			Namespace: "v2ms",
 			Subsystem: "api",
 			Name:      "request_latency_microseconds",
 			Help:      "Total duration of requests in microseconds.",
