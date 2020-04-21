@@ -434,9 +434,9 @@ services:
     container_name: pandas-vms-db
     restart: on-failure
     environment:
-      POSTGRES_USER: ${PD_V2MS_DB_USER}
-      POSTGRES_PASSWORD: ${PD_V2MS_DB_USER}
-      POSTGRES_DB: ${PD_V2MS_DB}
+      POSTGRES_USER: ${PD_VMS_DB_USER}
+      POSTGRES_PASSWORD: ${PD_VMS_DB_USER}
+      POSTGRES_DB: ${PD_VMS_DB}
     volumes:
       - pandas-vms-db-volume:/var/lib/postgresql/data
 
@@ -448,31 +448,31 @@ services:
       - pandas-vms-redis-volume:/data
 
   vms:
-    image: cloustone/pandas-v2ms:latest
+    image: cloustone/pandas-vms:latest
     container_name: pandas-vms
     depends_on:
       - vms-db
       - authn
     restart: on-failure
     environment:
-      PD_V2MS_LOG_LEVEL: ${PD_V2MS_LOG_LEVEL}
-      PD_V2MS_HTTP_PORT: ${PD_V2MS_HTTP_PORT}
+      PD_VMS_LOG_LEVEL: ${PD_VMS_LOG_LEVEL}
+      PD_VMS_HTTP_PORT: ${PD_VMS_HTTP_PORT}
       PD_JAEGER_URL: ${PD_JAEGER_URL}
       PD_NATS_URL: ${PD_NATS_URL}
       PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
-      PD_V2MS_DB_HOST: vms-db
-      PD_V2MS_DB_PORT: ${PD_V2MS_DB_PORT}
-      PD_V2MS_DB_USER: ${PD_V2MS_DB_USER}
-      PD_V2MS_DB_PASS: ${PD_V2MS_DB_PASS}
-      PD_V2MS_DB: ${PD_V2MS_DB}
-      PD_V2MS_AUTH_HTTP_PORT: ${PD_V2MS_AUTH_HTTP_PORT}
-      PD_V2MS_AUTH_GRPC_PORT: ${PD_V2MS_AUTH_GRPC_PORT}
+      PD_VMS_DB_HOST: vms-db
+      PD_VMS_DB_PORT: ${PD_VMS_DB_PORT}
+      PD_VMS_DB_USER: ${PD_VMS_DB_USER}
+      PD_VMS_DB_PASS: ${PD_VMS_DB_PASS}
+      PD_VMS_DB: ${PD_VMS_DB}
+      PD_VMS_AUTH_HTTP_PORT: ${PD_VMS_AUTH_HTTP_PORT}
+      PD_VMS_AUTH_GRPC_PORT: ${PD_VMS_AUTH_GRPC_PORT}
       PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
-      PD_V2MS_SECRET: ${PD_V2MS_SECRET}
-      PD_V2MS_CACHE_URL: vms-redis:${PD_REDIS_TCP_PORT}
-      PD_V2MS_ES_URL: es-redis:${PD_REDIS_TCP_PORT}
+      PD_VMS_SECRET: ${PD_VMS_SECRET}
+      PD_VMS_CACHE_URL: vms-redis:${PD_REDIS_TCP_PORT}
+      PD_VMS_ES_URL: es-redis:${PD_REDIS_TCP_PORT}
       PD_NATS_URL: ${PD_NATS_URL}
     ports:
-      - ${PD_V2MS_HTTP_PORT}:${PD_V2MS_HTTP_PORT}
+      - ${PD_VMS_HTTP_PORT}:${PD_VMS_HTTP_PORT}
 
   

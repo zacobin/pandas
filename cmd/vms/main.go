@@ -1,14 +1,6 @@
-//  Licensed under the Apache License, Version 2.0 (the "License"); you may
-//  not use p file except in compliance with the License. You may obtain
-//  a copy of the License at
-//
-//        http://www.apache.org/licenses/LICENSE-2.0
-//
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-//  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-//  License for the specific language governing permissions and limitations
-//  under the License.
+// Copyright (c) Mainflux
+// SPDX-License-Identifier: Apache-2.0
+
 package main
 
 import (
@@ -16,7 +8,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,35 +16,40 @@ import (
 	"time"
 
 	"github.com/cloustone/pandas"
-	"github.com/cloustone/pandas/lbs"
-	"github.com/cloustone/pandas/lbs/api"
-	lbshttpapi "github.com/cloustone/pandas/lbs/api/http"
-	"github.com/cloustone/pandas/lbs/postgres"
-	"github.com/cloustone/pandas/lbs/providers"
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/pkg/logger"
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
-	"github.com/jmoiron/sqlx"
-	nats "github.com/nats-io/nats.go"
-	opentracing "github.com/opentracing/opentracing-go"
-	stdprometheus "github.com/prometheus/client_golang/prometheus"
-	jconfig "github.com/uber/jaeger-client-go/config"
+	"github.com/cloustone/pandas/vms"
+	"github.com/cloustone/pandas/vms/tracing"
 
-	authapi "github.com/cloustone/pandas/authn/api/grpc"
-	natspub "github.com/cloustone/pandas/lbs/nats/publisher"
-	localusers "github.com/cloustone/pandas/things/users"
+	"github.com/jmoiron/sqlx"
+	opentracing "github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc/credentials"
 
+	authapi "github.com/cloustone/pandas/authn/api/grpc"
+	"github.com/cloustone/pandas/pkg/logger"
+	localusers "github.com/cloustone/pandas/things/users"
+	"github.com/cloustone/pandas/vms/api"
+	httpapi "github.com/cloustone/pandas/vms/api/http"
+	"github.com/cloustone/pandas/vms/postgres"
+	rediscache "github.com/cloustone/pandas/vms/redis"
+	"github.com/cloustone/pandas/vms/uuid"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/go-redis/redis"
+	nats "github.com/nats-io/nats.go"
+	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	jconfig "github.com/uber/jaeger-client-go/config"
 	"google.golang.org/grpc"
+
+	natspub "github.com/cloustone/pandas/vms/nats/publisher"
+	natssub "github.com/cloustone/pandas/vms/nats/subscriber"
 )
 
 const (
 	defLogLevel        = "error"
 	defDBHost          = "localhost"
 	defDBPort          = "5432"
-	defDBUser          = "mainflux"
-	defDBPass          = "mainflux"
-	defDBName          = "lbs"
+	defDBUser          = "postgres"
+	defDBPass          = "postgres"
+	defDBName          = "vms"
 	defDBSSLMode       = "disable"
 	defDBSSLCert       = ""
 	defDBSSLKey        = ""
@@ -76,51 +72,39 @@ const (
 	defJaegerURL       = ""
 	defAuthURL         = "localhost:8181"
 	defAuthTimeout     = "1" // in seconds
-	defLbsProvider     = "baidu"
-	defLbsAK           = ""
-	defLbsServiceID    = ""
 	defNatsURL         = nats.DefaultURL
 	defChannelID       = ""
 
-	envLogLevel        = "PD_LBS_LOG_LEVEL"
-	envDBHost          = "PD_LBS_DB_HOST"
-	envDBPort          = "PD_LBS_DB_PORT"
-	envDBUser          = "PD_LBS_DB_USER"
-	envDBPass          = "PD_LBS_DB_PASS"
-	envDBName          = "PD_LBS_DB"
-	envDBSSLMode       = "PD_LBS_DB_SSL_MODE"
-	envDBSSLCert       = "PD_LBS_DB_SSL_CERT"
-	envDBSSLKey        = "PD_LBS_DB_SSL_KEY"
-	envDBSSLRootCert   = "PD_LBS_DB_SSL_ROOT_CERT"
-	envClientTLS       = "PD_LBS_CLIENT_TLS"
-	envCACerts         = "PD_LBS_CA_CERTS"
-	envCacheURL        = "PD_LBS_CACHE_URL"
-	envCachePass       = "PD_LBS_CACHE_PASS"
-	envCacheDB         = "PD_LBS_CACHE_DB"
-	envESURL           = "PD_LBS_ES_URL"
-	envESPass          = "PD_LBS_ES_PASS"
-	envESDB            = "PD_LBS_ES_DB"
-	envHTTPPort        = "PD_LBS_HTTP_PORT"
-	envAuthHTTPPort    = "PD_LBS_AUTH_HTTP_PORT"
-	envAuthGRPCPort    = "PD_LBS_AUTH_GRPC_PORT"
-	envServerCert      = "PD_LBS_SERVER_CERT"
-	envServerKey       = "PD_LBS_SERVER_KEY"
-	envSingleUserEmail = "PD_LBS_SINGLE_USER_EMAIL"
-	envSingleUserToken = "PD_LBS_SINGLE_USER_TOKEN"
+	envLogLevel        = "PD_VMS_LOG_LEVEL"
+	envDBHost          = "PD_VMS_DB_HOST"
+	envDBPort          = "PD_VMS_DB_PORT"
+	envDBUser          = "PD_VMS_DB_USER"
+	envDBPass          = "PD_VMS_DB_PASS"
+	envDBName          = "PD_VMS_DB"
+	envDBSSLMode       = "PD_VMS_DB_SSL_MODE"
+	envDBSSLCert       = "PD_VMS_DB_SSL_CERT"
+	envDBSSLKey        = "PD_VMS_DB_SSL_KEY"
+	envDBSSLRootCert   = "PD_VMS_DB_SSL_ROOT_CERT"
+	envClientTLS       = "PD_VMS_CLIENT_TLS"
+	envCACerts         = "PD_VMS_CA_CERTS"
+	envCacheURL        = "PD_VMS_CACHE_URL"
+	envCachePass       = "PD_VMS_CACHE_PASS"
+	envCacheDB         = "PD_VMS_CACHE_DB"
+	envESURL           = "PD_VMS_ES_URL"
+	envESPass          = "PD_VMS_ES_PASS"
+	envESDB            = "PD_VMS_ES_DB"
+	envHTTPPort        = "PD_VMS_HTTP_PORT"
+	envAuthHTTPPort    = "PD_VMS_AUTH_HTTP_PORT"
+	envAuthGRPCPort    = "PD_VMS_AUTH_GRPC_PORT"
+	envServerCert      = "PD_VMS_SERVER_CERT"
+	envServerKey       = "PD_VMS_SERVER_KEY"
+	envSingleUserEmail = "PD_VMS_SINGLE_USER_EMAIL"
+	envSingleUserToken = "PD_VMS_SINGLE_USER_TOKEN"
 	envJaegerURL       = "PD_JAEGER_URL"
 	envAuthURL         = "PD_AUTH_URL"
 	envAuthTimeout     = "PD_AUTH_TIMEOUT"
-	envLbsProvider     = "PD_LBS_PROVIDER"
-	envLbsAK           = "PD_LBS_AK"
-	envLbsServiceID    = "PD_LBS_SERVICEID"
 	envNatsURL         = "PD_NATS_URL"
-	envChannelID       = "PD_LBS_CHANNEL_ID"
-)
-
-// inject by go build
-var (
-	Version   = "0.0.0"
-	BuildTime = "2020-01-13-0802 UTC"
+	envChannelID       = "PD_VMS_CHANNEL_ID"
 )
 
 type config struct {
@@ -128,6 +112,12 @@ type config struct {
 	dbConfig        postgres.Config
 	clientTLS       bool
 	caCerts         string
+	cacheURL        string
+	cachePass       string
+	cacheDB         string
+	esURL           string
+	esPass          string
+	esDB            string
 	httpPort        string
 	authHTTPPort    string
 	authGRPCPort    string
@@ -138,16 +128,8 @@ type config struct {
 	jaegerURL       string
 	authURL         string
 	authTimeout     time.Duration
-	lbsProvider     string
-	lbsAK           string
-	lbsServiceID    string
 	NatsURL         string
 	channelID       string
-}
-
-func init() {
-	fmt.Println("Version:", Version)
-	fmt.Println("BuildTime:", BuildTime)
 }
 
 func main() {
@@ -157,6 +139,13 @@ func main() {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
+
+	vmsTracer, vmsCloser := initJaeger("vms", cfg.jaegerURL, logger)
+	defer vmsCloser.Close()
+
+	cacheClient := connectToRedis(cfg.cacheURL, cfg.cachePass, cfg.cacheDB, logger)
+
+	esClient := connectToRedis(cfg.esURL, cfg.esPass, cfg.esDB, logger)
 
 	db := connectToDB(cfg.dbConfig, logger)
 	defer db.Close()
@@ -168,17 +157,12 @@ func main() {
 	if close != nil {
 		defer close()
 	}
-	dbTracer, dbCloser := initJaeger("lbs_db", cfg.jaegerURL, logger)
+
+	dbTracer, dbCloser := initJaeger("vms_db", cfg.jaegerURL, logger)
 	defer dbCloser.Close()
 
-	lbsTracer, lbsCloser := initJaeger("lbs", cfg.jaegerURL, logger)
-	defer lbsCloser.Close()
-
-	servingOptions := lbs.NewLocationServingOptions(cfg.lbsProvider, cfg.lbsAK, cfg.lbsServiceID)
-	provider, err := providers.New(servingOptions)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
+	cacheTracer, cacheCloser := initJaeger("vms_cache", cfg.jaegerURL, logger)
+	defer cacheCloser.Close()
 
 	nc, err := nats.Connect(cfg.NatsURL)
 	if err != nil {
@@ -186,13 +170,14 @@ func main() {
 		os.Exit(1)
 	}
 	defer nc.Close()
+
 	ncTracer, ncCloser := initJaeger("vms_nats", cfg.jaegerURL, logger)
 	defer ncCloser.Close()
 
-	svc := newService(auth, nc, ncTracer, cfg.channelID, provider, dbTracer, db, logger)
+	svc := newService(nc, ncTracer, cfg.channelID, auth, dbTracer, cacheTracer, db, cacheClient, esClient, logger)
 	errs := make(chan error, 2)
 
-	go startHTTPServer(lbshttpapi.MakeHandler(lbsTracer, svc), cfg.httpPort, cfg, logger, errs)
+	go startHTTPServer(httpapi.MakeHandler(vmsTracer, svc), cfg.httpPort, cfg, logger, errs)
 
 	go func() {
 		c := make(chan os.Signal)
@@ -201,9 +186,7 @@ func main() {
 	}()
 
 	err = <-errs
-	logger.Error(fmt.Sprintf("Lbs service terminated: %s", err))
-	rand.Seed(time.Now().UTC().UnixNano())
-
+	logger.Error(fmt.Sprintf("Vms service terminated: %s", err))
 }
 
 func loadConfig() config {
@@ -216,6 +199,7 @@ func loadConfig() config {
 	if err != nil {
 		log.Fatalf("Invalid %s value: %s", envAuthTimeout, err.Error())
 	}
+
 	dbConfig := postgres.Config{
 		Host:        pandas.Env(envDBHost, defDBHost),
 		Port:        pandas.Env(envDBPort, defDBPort),
@@ -229,11 +213,16 @@ func loadConfig() config {
 	}
 
 	return config{
-		logLevel:  pandas.Env(envLogLevel, defLogLevel),
-		dbConfig:  dbConfig,
-		clientTLS: tls,
-		caCerts:   pandas.Env(envCACerts, defCACerts),
-
+		logLevel:        pandas.Env(envLogLevel, defLogLevel),
+		dbConfig:        dbConfig,
+		clientTLS:       tls,
+		caCerts:         pandas.Env(envCACerts, defCACerts),
+		cacheURL:        pandas.Env(envCacheURL, defCacheURL),
+		cachePass:       pandas.Env(envCachePass, defCachePass),
+		cacheDB:         pandas.Env(envCacheDB, defCacheDB),
+		esURL:           pandas.Env(envESURL, defESURL),
+		esPass:          pandas.Env(envESPass, defESPass),
+		esDB:            pandas.Env(envESDB, defESDB),
 		httpPort:        pandas.Env(envHTTPPort, defHTTPPort),
 		authHTTPPort:    pandas.Env(envAuthHTTPPort, defAuthHTTPPort),
 		authGRPCPort:    pandas.Env(envAuthGRPCPort, defAuthGRPCPort),
@@ -243,39 +232,12 @@ func loadConfig() config {
 		singleUserToken: pandas.Env(envSingleUserToken, defSingleUserToken),
 		jaegerURL:       pandas.Env(envJaegerURL, defJaegerURL),
 		authURL:         pandas.Env(envAuthURL, defAuthURL),
-		authTimeout:     time.Duration(timeout) * time.Second,
-		lbsProvider:     pandas.Env(envLbsProvider, defLbsProvider),
-		lbsAK:           pandas.Env(envLbsAK, defLbsAK),
-		lbsServiceID:    pandas.Env(envLbsServiceID, defLbsServiceID),
 		NatsURL:         pandas.Env(envNatsURL, defNatsURL),
 		channelID:       pandas.Env(envChannelID, defChannelID),
+		authTimeout:     time.Duration(timeout) * time.Second,
 	}
-
 }
 
-func newService(auth mainflux.AuthNServiceClient, nc *nats.Conn, ncTracer opentracing.Tracer, chanID string, provider lbs.LocationProvider, dbTracer opentracing.Tracer, db *sqlx.DB, logger logger.Logger) lbs.Service {
-	//	database := postgres.NewDatabase(db)
-
-	np := natspub.NewPublisher(nc, chanID, logger)
-	svc := lbs.New(auth, provider, nil, nil, nil, np)
-	svc = api.LoggingMiddleware(svc, logger)
-	svc = api.MetricsMiddleware(
-		svc,
-		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "lbs",
-			Subsystem: "api",
-			Name:      "request_count",
-			Help:      "Number of requests received.",
-		}, []string{"method"}),
-		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "lbs",
-			Subsystem: "api",
-			Name:      "request_latency_microseconds",
-			Help:      "Total duration of requests in microseconds.",
-		}, []string{"method"}),
-	)
-	return svc
-}
 func initJaeger(svcName, url string, logger logger.Logger) (opentracing.Tracer, io.Closer) {
 	if url == "" {
 		return opentracing.NoopTracer{}, ioutil.NopCloser(nil)
@@ -298,6 +260,30 @@ func initJaeger(svcName, url string, logger logger.Logger) (opentracing.Tracer, 
 	}
 
 	return tracer, closer
+}
+
+func connectToRedis(cacheURL, cachePass string, cacheDB string, logger logger.Logger) *redis.Client {
+	db, err := strconv.Atoi(cacheDB)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to connect to cache: %s", err))
+		os.Exit(1)
+	}
+
+	return redis.NewClient(&redis.Options{
+		Addr:     cacheURL,
+		Password: cachePass,
+		DB:       db,
+	})
+}
+
+func connectToDB(dbConfig postgres.Config, logger logger.Logger) *sqlx.DB {
+	fmt.Printf("host is %s,user is %s,pass is %s", dbConfig.Host, dbConfig.User, dbConfig.Pass)
+	db, err := postgres.Connect(dbConfig)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to connect to postgres: %s", err))
+		os.Exit(1)
+	}
+	return db
 }
 
 func createAuthClient(cfg config, tracer opentracing.Tracer, logger logger.Logger) (mainflux.AuthNServiceClient, func() error) {
@@ -334,23 +320,58 @@ func connectToAuth(cfg config, logger logger.Logger) *grpc.ClientConn {
 	return conn
 }
 
+func newService(nc *nats.Conn, ncTracer opentracing.Tracer, chanID string, auth mainflux.AuthNServiceClient, dbTracer opentracing.Tracer, cacheTracer opentracing.Tracer, db *sqlx.DB, cacheClient *redis.Client, esClient *redis.Client, logger logger.Logger) vms.Service {
+	database := postgres.NewDatabase(db)
+
+	viewsRepo := postgres.NewViewRepository(database)
+	viewsRepo = tracing.ViewRepositoryMiddleware(dbTracer, viewsRepo)
+	viewCache := rediscache.NewViewCache(cacheClient)
+	viewCache = tracing.ViewCacheMiddleware(cacheTracer, viewCache)
+
+	variablesRepo := postgres.NewVariableRepository(database)
+	variablesRepo = tracing.VariableRepositoryMiddleware(dbTracer, variablesRepo)
+	variableCache := rediscache.NewVariableCache(cacheClient)
+	variableCache = tracing.VariableCacheMiddleware(cacheTracer, variableCache)
+
+	modelsRepo := postgres.NewModelRepository(database)
+	modelsRepo = tracing.ModelRepositoryMiddleware(dbTracer, modelsRepo)
+	modelCache := rediscache.NewModelCache(cacheClient)
+	modelCache = tracing.ModelCacheMiddleware(cacheTracer, modelCache)
+
+	idp := uuid.New()
+
+	np := natspub.NewPublisher(nc, chanID, logger)
+	svc := vms.New(auth, viewsRepo, variablesRepo, modelsRepo, viewCache, variableCache, modelCache, idp, np)
+	//svc = rediscache.NewEventStoreMiddleware(svc, esClient)
+	svc = api.LoggingMiddleware(svc, logger)
+	svc = api.MetricsMiddleware(
+		svc,
+		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+			Namespace: "vms",
+			Subsystem: "api",
+			Name:      "request_count",
+			Help:      "Number of requests received.",
+		}, []string{"method"}),
+		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+			Namespace: "vms",
+			Subsystem: "api",
+			Name:      "request_latency_microseconds",
+			Help:      "Total duration of requests in microseconds.",
+		}, []string{"method"}),
+	)
+
+	natssub.NewSubscriber(nc, chanID, svc, logger)
+	return svc
+}
+
 func startHTTPServer(handler http.Handler, port string, cfg config, logger logger.Logger, errs chan error) {
 	p := fmt.Sprintf(":%s", port)
 	if cfg.serverCert != "" || cfg.serverKey != "" {
-		logger.Info(fmt.Sprintf("LBS service started using https on port %s with cert %s key %s",
+		logger.Info(fmt.Sprintf("Vms service started using https on port %s with cert %s key %s",
 			port, cfg.serverCert, cfg.serverKey))
 		errs <- http.ListenAndServeTLS(p, cfg.serverCert, cfg.serverKey, handler)
 		return
 	}
-	logger.Info(fmt.Sprintf("LBS service started using http on port %s", cfg.httpPort))
+	logger.Info(fmt.Sprintf("Vms service started using http on port %s", cfg.httpPort))
 	errs <- http.ListenAndServe(p, handler)
-}
-
-func connectToDB(dbConfig postgres.Config, logger logger.Logger) *sqlx.DB {
-	db, err := postgres.Connect(dbConfig)
-	if err != nil {
-		logger.Error(fmt.Sprintf("Failed to connect to postgres: %s", err))
-		os.Exit(1)
-	}
-	return db
 }
