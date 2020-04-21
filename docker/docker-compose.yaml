@@ -16,6 +16,7 @@ volumes:
   pandas-vms-redis-volume:
   pandas-pms-db-volume:
   pandas-pms-redis-volume:
+  pandas-realms-db-volume:
 
 services:
   nats:
@@ -522,5 +523,41 @@ services:
       PD_NATS_URL: ${PD_NATS_URL}
     ports:
       - ${PD_PMS_HTTP_PORT}:${PD_PMS_HTTP_PORT}
+
+  realms-db:
+    image: postgres:10.8-alpine
+    container_name: pandas-realms-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${PD_REALMS_DB_USER}
+      POSTGRES_PASSWORD: ${PD_REALMS_DB_USER}
+      POSTGRES_DB: ${PD_REALMS_DB}
+    volumes:
+      - pandas-realms-db-volume:/var/lib/postgresql/data
+
+  realms:
+    image: cloustone/pandas-realms:latest
+    container_name: pandas-realms
+    depends_on:
+      - realms-db
+      - authn
+    restart: on-failure
+    environment:
+      PD_REALMS_LOG_LEVEL: ${PD_REALMS_LOG_LEVEL}
+      PD_REALMS_HTTP_PORT: ${PD_REALMS_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_REALMS_DB_HOST: realms-db
+      PD_REALMS_DB_PORT: ${PD_REALMS_DB_PORT}
+      PD_REALMS_DB_USER: ${PD_REALMS_DB_USER}
+      PD_REALMS_DB_PASS: ${PD_REALMS_DB_PASS}
+      PD_REALMS_DB: ${PD_REALMS_DB}
+      PD_REALMS_AUTH_HTTP_PORT: ${PD_REALMS_AUTH_HTTP_PORT}
+      PD_REALMS_AUTH_GRPC_PORT: ${PD_REALMS_AUTH_GRPC_PORT}
+      PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_REALMS_SECRET: ${PD_REALMS_SECRET}
+    ports:
+      - ${PD_REALMS_HTTP_PORT}:${PD_REALMS_HTTP_PORT}
 
   

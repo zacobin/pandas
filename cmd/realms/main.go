@@ -74,19 +74,19 @@ const (
 
 	defTokenResetEndpoint = "/reset-request" // URL where user lands after click on the reset link from email
 
-	envLogLevel      = "PD_USERS_LOG_LEVEL"
-	envDBHost        = "PD_USERS_DB_HOST"
-	envDBPort        = "PD_USERS_DB_PORT"
-	envDBUser        = "PD_USERS_DB_USER"
-	envDBPass        = "PD_USERS_DB_PASS"
-	envDBName        = "PD_USERS_DB"
-	envDBSSLMode     = "PD_USERS_DB_SSL_MODE"
-	envDBSSLCert     = "PD_USERS_DB_SSL_CERT"
-	envDBSSLKey      = "PD_USERS_DB_SSL_KEY"
-	envDBSSLRootCert = "PD_USERS_DB_SSL_ROOT_CERT"
-	envHTTPPort      = "PD_USERS_HTTP_PORT"
-	envServerCert    = "PD_USERS_SERVER_CERT"
-	envServerKey     = "PD_USERS_SERVER_KEY"
+	envLogLevel      = "PD_REALMS_LOG_LEVEL"
+	envDBHost        = "PD_REALMS_DB_HOST"
+	envDBPort        = "PD_REALMS_DB_PORT"
+	envDBUser        = "PD_REALMS_DB_USER"
+	envDBPass        = "PD_REALMS_DB_PASS"
+	envDBName        = "PD_REALMS_DB"
+	envDBSSLMode     = "PD_REALMS_DB_SSL_MODE"
+	envDBSSLCert     = "PD_REALMS_DB_SSL_CERT"
+	envDBSSLKey      = "PD_REALMS_DB_SSL_KEY"
+	envDBSSLRootCert = "PD_REALMS_DB_SSL_ROOT_CERT"
+	envHTTPPort      = "PD_REALMS_HTTP_PORT"
+	envServerCert    = "PD_REALMS_SERVER_CERT"
+	envServerKey     = "PD_REALMS_SERVER_KEY"
 	envJaegerURL     = "PD_JAEGER_URL"
 
 	envAuthnHTTPPort = "PD_AUTHN_HTTP_PORT"
@@ -166,7 +166,7 @@ func main() {
 	}()
 
 	err = <-errs
-	logger.Error(fmt.Sprintf("Users service terminated: %s", err))
+	logger.Error(fmt.Sprintf("Realms service terminated: %s", err))
 }
 
 func loadConfig() config {
