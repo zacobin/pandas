@@ -18,6 +18,7 @@ import (
 	"github.com/cloustone/pandas/v2ms"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
 	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-zoo/bone"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -160,7 +161,23 @@ func MakeHandler(tracer opentracing.Tracer, svc v2ms.Service) http.Handler {
 	r.GetFunc("/version", pandas.Version("twins"))
 	r.Handle("/metrics", promhttp.Handler())
 
+	r.Handle("/swagger", RedocUI(promhttp.Handler()))
+
 	return r
+}
+
+//RedocUI docs to show redoc ui
+func RedocUI(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		opts := middleware.RedocOpts{
+			Path:     "v2msdocs",
+			SpecURL:  r.URL.Host + "/v2ms/swagger.yaml",
+			RedocURL: r.URL.Host + "/swagger/static/js/redoc.standalone.js",
+			Title:    "v2ms api",
+		}
+		middleware.Redoc(opts, handler).ServeHTTP(w, r)
+		return
+	})
 }
 
 // View handlers

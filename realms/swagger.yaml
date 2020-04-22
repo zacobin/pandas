@@ -22,6 +22,7 @@ paths:
           schema:
             $ref: "#/definitions/Realm"
           required: true
+        - $ref: "#/parameters/Authorization"
       responses:
         201:
           description: Registered new realm.
@@ -34,7 +35,6 @@ paths:
         500:
           $ref: "#/responses/ServiceError"
 
-  /realms:
     get:
       summary: Gets all registered realm info.
       description: |
@@ -77,14 +77,13 @@ paths:
         200:
           description: Data retrieved.
           schema:
-            $ref: "#/definitions/UsersPage"
+            $ref: "#/definitions/Realm"          
         400:
           description: Failed due to malformed query parameters.
         403:
           description: Missing or invalid access token provided.
         500:
           $ref: "#/responses/ServiceError"
-  /realms/{realmName}:
     put:
       summary: Updates info on specified realm.
       description: |
@@ -94,6 +93,7 @@ paths:
         - realms 
       parameters:
         - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/RealmName"
         - name: realm 
           description: JSON-formatted document containing realm info.
           in: body
@@ -109,7 +109,6 @@ paths:
           description: Missing or invalid access token provided.
         500:
           $ref: "#/responses/ServiceError"
-  /realms/{realmName}:
     delete:
       summary: delete specified realm 
       description: |
@@ -124,9 +123,7 @@ paths:
           required: true
       responses:
         201:
-          description: User authenticated.
-          schema:
-            $ref: "#/definitions/Token"
+          description: realm deleted.
         400:
           description: |
             Failed due to malformed JSON.
@@ -147,15 +144,8 @@ paths:
 responses:
   ServiceError:
     description: Unexpected server-side error occurred.
+
 definitions:
-  Token:
-    type: object
-    properties:
-      token:
-        type: string
-        description: Generated access token.
-    required:
-      - token
   Realm:
     type: object
     properties:
@@ -186,21 +176,24 @@ definitions:
       - keyfile
       - serviceURL
       - searchDN
-  Email:
+  Error:
+    type: object
     properties:
-      email:
+      error:
         type: string
-        format: email
-        example: "test@example.com"
-        description: User's email address will be used as its unique identifier
-    required:
-      - email
+        description: Error message
 
 parameters:
   Authorization:
     name: Authorization
     description: User's access token.
     in: header
+    type: string
+    required: true
+  RealmName:
+    name: realmName
+    description: realm name
+    in: path
     type: string
     required: true
   Referer:
@@ -217,55 +210,4 @@ parameters:
     minimum: 0
     required: false
 
-responses:
-  ServiceError:
-    description: Unexpected server-side error occurred.
 
-definitions:
-  UsersPage:
-    type: object
-    properties:
-      email:
-        type: string
-        description: ID of the user
-      metadata:
-        type: object
-        description: Custom metadata related to User
-  updateUserReq:
-    type: object
-    description: Arbitrary, object-encoded user's data.
-  PasswordResetRequest:
-    type: object
-    properties:
-      email:
-        type: string
-        description: Email of the user
-  PasswordReset:
-    type: object
-    properties:
-      password:
-        type: string
-        description: New password
-        minimum: 8
-      confirm_password:
-        type: string
-        description: New password confirmed
-        minimum: 8
-      token:
-        type: string
-        description: Reset token generated and sent in email
-  PasswordChange:
-    type: object
-    properties:
-      password:
-        type: string
-        description: New password
-      old_password:
-        type: string
-        description: Confirm password
-  Error:
-    type: object
-    properties:
-      error:
-        type: string
-        description: Error message

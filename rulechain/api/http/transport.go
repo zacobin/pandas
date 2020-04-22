@@ -15,6 +15,7 @@ import (
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/errors"
 	"github.com/cloustone/pandas/rulechain"
+	"github.com/go-openapi/runtime/middleware"
 
 	log "github.com/cloustone/pandas/pkg/logger"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
@@ -47,44 +48,44 @@ func MakeHandler(svc rulechain.Service, tracer opentracing.Tracer, l log.Logger)
 
 	mux := bone.New()
 
-	mux.Put("/realms/:userID", kithttp.NewServer(
+	mux.Post("/rulechain", kithttp.NewServer(
 		kitot.TraceServer(tracer, "add_rulechain")(addRuleChainEndpoint(svc)),
 		decodeNewRuleChainRequest,
 		encodeResponse,
 		opts...,
 	))
 
-	mux.Get("/rulechain/:userID", kithttp.NewServer(
+	mux.Get("/rulechain", kithttp.NewServer(
 		kitot.TraceServer(tracer, "rulechain_list")(listRuleChainEndpoint(svc)),
 		decodeListRuleChainRequest,
 		encodeResponse,
 		opts...,
 	))
 
-	mux.Get("/rulechain/:userID", kithttp.NewServer(
+	mux.Get("/rulechain/:id", kithttp.NewServer(
 		kitot.TraceServer(tracer, "rulechain_info")(rulechainInfoEndpoint(svc)),
 		decodeRuleChainRequest,
 		encodeResponse,
 		opts...,
 	))
 
-	mux.Put("/realms/:userID", kithttp.NewServer(
+	mux.Put("/rulechain/:id", kithttp.NewServer(
 		kitot.TraceServer(tracer, "update_rulechain")(updateRuleChainEndpoint(svc)),
 		decodeUpdateRuleChainRequest,
 		encodeResponse,
 		opts...,
 	))
 
-	mux.Delete("/realms/:userID", kithttp.NewServer(
+	mux.Delete("/rulechain/:id", kithttp.NewServer(
 		kitot.TraceServer(tracer, "delete_rulechain")(deleteRuleChainEndpoint(svc)),
 		decodeRuleChainRequest,
 		encodeResponse,
 		opts...,
 	))
 
-	mux.Put("/realms/:userID", kithttp.NewServer(
-		kitot.TraceServer(tracer, "update_rulechain")(updateRuleChainStatusEndpoint(svc)),
-		decodeRuleChainRequest,
+	mux.Put("/updateRulechainStatus/:id", kithttp.NewServer(
+		kitot.TraceServer(tracer, "update_rulechain_status")(updateRuleChainStatusEndpoint(svc)),
+		decodeRuleChainStatusUpdateRequest,
 		encodeResponse,
 		opts...,
 	))
@@ -92,7 +93,23 @@ func MakeHandler(svc rulechain.Service, tracer opentracing.Tracer, l log.Logger)
 	mux.GetFunc("/version", pandas.Version("rulechain"))
 	mux.Handle("/metrics", promhttp.Handler())
 
+	mux.Handle("/swagger", RedocUI(promhttp.Handler()))
+
 	return mux
+}
+
+//RedocUI docs to show redoc ui
+func RedocUI(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		opts := middleware.RedocOpts{
+			Path:     "rulechaindocs",
+			SpecURL:  r.URL.Host + "/rulechain/swagger.yaml",
+			RedocURL: r.URL.Host + "/swagger/static/js/redoc.standalone.js",
+			Title:    "rulechain api",
+		}
+		middleware.Redoc(opts, handler).ServeHTTP(w, r)
+		return
+	})
 }
 
 func decodeNewRuleChainRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -119,9 +136,18 @@ func decodeListRuleChainRequest(_ context.Context, r *http.Request) (interface{}
 }
 
 func decodeRuleChainRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	req := RuleChainRequestInfo{
+	req := RuleChainInfoRequest{
 		token:       r.Header.Get("Authorization"),
 		RuleChainID: r.Header.Get("RuleChainID"),
+	}
+	return req, nil
+}
+
+func decodeUpdateRuleChainStatusRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	req := updateRuleChainStatusRequest{
+		token:        r.Header.Get("Authorization"),
+		RuleChainID:  r.Header.Get("RuleChainID"),
+		updatestatus: r.Header.Get("updatestatus"),
 	}
 	return req, nil
 }

@@ -43,22 +43,22 @@ paths:
       summary: Retrieves managed models
       description: |
         Retrieves a list of managed models. Due to performance concerns, data
-        is retrieved in subsets. The API things must ensure that the entire
+        is retrieved in subsets. The API models must ensure that the entire
         dataset is consumed either by making subsequent requests, or by
         increasing the subset size of the initial request.
       tags:
-        - things
+        - models
       parameters:
         - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/Offset"        
         - $ref: "#/parameters/Limit"
-        - $ref: "#/parameters/Offset"
         - $ref: "#/parameters/Name"
         - $ref: "#/parameters/Metadata"
       responses:
         200:
           description: Data retrieved.
           schema:
-            $ref: "#/definitions/ThingsPage"
+            $ref: "#/definitions/ModelsPage"
         400:
           description: Failed due to malformed query parameters.
         403:
@@ -77,7 +77,7 @@ paths:
         200:
           description: Data retrieved.
           schema:
-            $ref: "#/definitions/ThingRes"
+            $ref: "#/definitions/ModelRes"
         403:
           description: Missing or invalid access token provided.
         404:
@@ -99,7 +99,7 @@ paths:
           description: JSON-formatted document describing the updated thing.
           in: body
           schema:
-            $ref: "#/definitions/UpdateThingReq"
+            $ref: "#/definitions/UpdateModelReq"
           required: true
       responses:
         200:
@@ -134,27 +134,280 @@ paths:
         500:
           $ref: "#/responses/ServiceError"
 
+  /views:
+    post:
+      summary: Adds new view 
+      description: |
+        Adds new view to the list of views owned by user identified using
+        the provided access token.
+      tags:
+        - views 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: model 
+          description: JSON-formatted document describing the new  model.
+          in: body
+          schema:
+            $ref: "#/definitions/CreateViewReq"
+          required: true
+      responses:
+        201:
+          description: view registered.
+          headers:
+            Location:
+              type: string
+              description: Created view's relative URL (i.e. /models/{thingId}).
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        415:
+          description: Missing or invalid content type.
+        500:
+          $ref: "#/responses/ServiceError"
+    get:
+      summary: Retrieves managed views
+      description: |
+        Retrieves a list of managed views. Due to performance concerns, data
+        is retrieved in subsets. The API views must ensure that the entire
+        dataset is consumed either by making subsequent requests, or by
+        increasing the subset size of the initial request.
+      tags:
+        - views
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/Offset"        
+        - $ref: "#/parameters/Limit"
+        - $ref: "#/parameters/Name"
+        - $ref: "#/parameters/Metadata"
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            $ref: "#/definitions/ViewsPage"
+        400:
+          description: Failed due to malformed query parameters.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+  /views/{viewId}:
+    get:
+      summary: Retrieves views info
+      tags:
+        - views 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/ViewId"
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            $ref: "#/definitions/ViewRes"
+        403:
+          description: Missing or invalid access token provided.
+        404:
+          description: Thing does not exist.
+        500:
+          $ref: "#/responses/ServiceError"
+    put:
+      summary: Updates view info
+      description: |
+        Update is performed by replacing the current resource data with values
+        provided in a request payload. Note that the thing's type and ID
+        cannot be changed.
+      tags:
+        - views 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/ViewId"
+        - name: view 
+          description: JSON-formatted document describing the updated thing.
+          in: body
+          schema:
+            $ref: "#/definitions/UpdateViewReq"
+          required: true
+      responses:
+        200:
+          description: view updated.
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        404:
+          description: Thing does not exist.
+        415:
+          description: Missing or invalid content type.
+        500:
+          $ref: "#/responses/ServiceError"
+    delete:
+      summary: Removes a view 
+      description: |
+        Removes a  view. The service will ensure that the removed model is
+        disconnected from all of the existing channels.
+      tags:
+        - views 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/ViewId"
+      responses:
+        204:
+          description: View removed.
+        400:
+          description: Failed due to malformed view's ID.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+
+
+  /vars:
+    post:
+      summary: Adds new var 
+      description: |
+        Adds new var to the list of vars owned by user identified using
+        the provided access token.
+      tags:
+        - vars 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: var 
+          description: JSON-formatted document describing the new  model.
+          in: body
+          schema:
+            $ref: "#/definitions/CreateVarReq"
+          required: true
+      responses:
+        201:
+          description: var registered.
+          headers:
+            Location:
+              type: string
+              description: Created var's relative URL (i.e. /models/{thingId}).
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        415:
+          description: Missing or invalid content type.
+        500:
+          $ref: "#/responses/ServiceError"
+    get:
+      summary: Retrieves managed vars
+      description: |
+        Retrieves a list of managed vars. Due to performance concerns, data
+        is retrieved in subsets. The API things must ensure that the entire
+        dataset is consumed either by making subsequent requests, or by
+        increasing the subset size of the initial request.
+      tags:
+        - vars
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/Offset"        
+        - $ref: "#/parameters/Limit"
+        - $ref: "#/parameters/Name"
+        - $ref: "#/parameters/Metadata"
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            $ref: "#/definitions/VarsPage"
+        400:
+          description: Failed due to malformed query parameters.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+  /vars/{varId}:
+    get:
+      summary: Retrieves model info
+      tags:
+        - vars 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/VarId"
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            $ref: "#/definitions/VarRes"
+        403:
+          description: Missing or invalid access token provided.
+        404:
+          description: Thing does not exist.
+        500:
+          $ref: "#/responses/ServiceError"
+    put:
+      summary: Updates var info
+      description: |
+        Update is performed by replacing the current resource data with values
+        provided in a request payload. Note that the var's type and ID
+        cannot be changed.
+      tags:
+        - vars 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/VarId"
+        - name: var 
+          description: JSON-formatted document describing the updated var.
+          in: body
+          schema:
+            $ref: "#/definitions/UpdateVarReq"
+          required: true
+      responses:
+        200:
+          description: Var updated.
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        404:
+          description: Thing does not exist.
+        415:
+          description: Missing or invalid content type.
+        500:
+          $ref: "#/responses/ServiceError"
+    delete:
+      summary: Removes a var 
+      description: |
+        Removes a  var. The service will ensure that the removed model is
+        disconnected from all of the existing channels.
+      tags:
+        - vars 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/VarId"
+      responses:
+        204:
+          description: Var removed.
+        400:
+          description: Failed due to malformed var's ID.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
 
 parameters:
+  ModelId:
+    name: modelId
+    in: path
+    type: string
+    required: true
+  ViewId:
+    name: viewId
+    in: path
+    type: string
+    required: true
+  VarId:
+    name: varId
+    in: path
+    type: string
+    required: true
   Authorization:
     name: Authorization
     description: User's access token.
     in: header
     type: string
-    required: true
-  ChanId:
-    name: chanId
-    description: Unique channel identifier.
-    in: path
-    type: integer
-    minimum: 1
-    required: true
-  ThingId:
-    name: thingId
-    description: Unique thing identifier.
-    in: path
-    type: integer
-    minimum: 1
     required: true
   Limit:
     name: limit
@@ -193,58 +446,86 @@ responses:
     description: Unexpected server-side error occurred.
 
 definitions:
-  ChannelsPage:
+  CreateVarReq:
     type: object
     properties:
-      channels:
-        type: array
-        minItems: 0
-        uniqueItems: true
-        items:
-          $ref: "#/definitions/ChannelRes"
-      total:
-        type: integer
-        description: Total number of items.
-      offset:
-        type: integer
-        description: Number of items to skip during retrieval.
-      limit:
-        type: integer
-        description: Maximum number of items to return in one page.
-    required:
-      - channels
-  ChannelRes:
+      name:
+        type: string
+      var:
+        $ref: "#/definitions/Var"
+      metadata:
+        type: object
+  Var:
     type: object
     properties:
+      owner:
+        type: string
       id:
         type: string
-        description: Unique channel identifier generated by the service.
       name:
         type: string
-        description: Free-form channel name.
+      created:
+        type: string
+      updated:
+        type: string
+      revision:
+        type: integer
       metadata:
-        type: object
-        description: Arbitrary, object-encoded channel's data.
-    required:
-      - id
-  ChannelReq:
+        type: object    
+  CreateViewReq:
     type: object
     properties:
       name:
         type: string
-        description: Free-form channel name.
+      view:
+        $ref: "#/definitions/View"
       metadata:
         type: object
-        description: Arbitrary, object-encoded channel's data.
-  ThingsPage:
+  View:
     type: object
     properties:
-      things:
-        type: array
-        minItems: 0
-        uniqueItems: true
-        items:
-          $ref: "#/definitions/ThingRes"
+      owner:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      created:
+        type: string
+      updated:
+        type: string
+      revision:
+        type: integer
+      metadata:
+        type: object      
+  CreateModelReq:
+    type: object
+    properties:
+      name:
+        type: string
+      model:
+        $ref: "#/definitions/Model"
+      metadata:
+        type: object
+  Model:
+    type: object
+    properties:
+      owner:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      created:
+        type: integer
+      updated:
+        type: integer
+      metadata:
+        type: object
+
+  VarsPage:
+    type: object
+    properties:
       total:
         type: integer
         description: Total number of items.
@@ -254,74 +535,165 @@ definitions:
       limit:
         type: integer
         description: Maximum number of items to return in one page.
+      vars:
+        type: array
+        minItems: 0
+        uniqueItems: true
+        items:
+          $ref: "#/definitions/VarRes"    
     required:
-      - things
-  ThingRes:
+      - vars
+  VarRes:
     type: object
     properties:
+      owner:
+        type: string
+      id:
+        type: string
+        description: Unique thing identifier generated by the service.
+      thingid:
+        type: string
+      name:
+        type: string
+        description: Free-form thing name.
+      revision:
+        type: integer
+      created:
+        type: string
+      updated:
+        type: string
+      metadata:
+        type: object
+        description: Arbitrary, object-encoded thing's data.
+    required:
+      - id
+
+  ViewsPage:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: Total number of items.
+      offset:
+        type: integer
+        description: Number of items to skip during retrieval.
+      limit:
+        type: integer
+        description: Maximum number of items to return in one page.
+      views:
+        type: array
+        minItems: 0
+        uniqueItems: true
+        items:
+          $ref: "#/definitions/ViewRes"    
+    required:
+      - views
+  ViewRes:
+    type: object
+    properties:
+      owner:
+        type: string
+      id:
+        type: string
+        description: Unique thing identifier generated by the service.
+      thingid:
+        type: string
+      name:
+        type: string
+        description: Free-form thing name.
+      revision:
+        type: integer
+      created:
+        type: string
+      updated:
+        type: string
+      metadata:
+        type: object
+        description: Arbitrary, object-encoded thing's data.
+    required:
+      - id
+  ModelsPage:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: Total number of items.
+      offset:
+        type: integer
+        description: Number of items to skip during retrieval.
+      limit:
+        type: integer
+        description: Maximum number of items to return in one page.
+      models:
+        type: array
+        minItems: 0
+        uniqueItems: true
+        items:
+          $ref: "#/definitions/ModelRes"    
+    required:
+      - models
+  ModelRes:
+    type: object
+    properties:
+      owner:
+        type: string
       id:
         type: string
         description: Unique thing identifier generated by the service.
       name:
         type: string
         description: Free-form thing name.
-      key:
+      revision:
+        type: integer
+      created:
         type: string
-        description: Auto-generated access key.
+      updated:
+        type: string
       metadata:
         type: object
         description: Arbitrary, object-encoded thing's data.
     required:
       - id
-      - type
-      - key
-  CreateThingReq:
-    type: object
-    properties:
-      key:
-        type: string
-        description: |
-          Thing key that is used for thing auth. If there is
-          not one provided service will generate one in UUID
-          format.
-      name:
-        type: string
-        description: Free-form thing name.
-      metadata:
-        type: object
-        description: Arbitrary, object-encoded thing's data.
-  UpdateThingReq:
+
+  UpdateVarReq:
     type: object
     properties:
       name:
         type: string
         description: Free-form thing name.
+      thingid:
+        type: string
+      variable:
+        $ref: "#/definitions/Var"
       metadata:
         type: object
         description: Arbitrary, object-encoded thing's data.
-  UpdateKeyReq:
+
+
+  UpdateViewReq:
     type: object
     properties:
-      key:
+      name:
         type: string
-        description: Thing key that is used for thing auth.
-  IdentityReq:
+        description: Free-form thing name.
+      thingid:
+        type: string
+      view:
+        $ref: "#/definitions/View"
+      metadata:
+        type: object
+        description: Arbitrary, object-encoded thing's data.
+
+
+  UpdateModelReq:
     type: object
     properties:
-      token:
+      name:
         type: string
-        description: Thing key that is used for thing auth.
-    required:
-      - token
-  AccessByIDReq:
-    type: object
-    properties:
-      thing_id:
-        type: string
-        description: Thing ID by which thing is uniquely identified.
-  Identity:
-    type: object
-    properties:
-      id:
-        type: string
-        description: Thing unique identifier.
+        description: Free-form thing name.
+      model:
+        $ref: "#/definitions/Model"
+      metadata:
+        type: object
+        description: Arbitrary, object-encoded thing's data.
+

@@ -79,7 +79,7 @@ paths:
           description: JSON-formatted document describing the new things.
           in: body
           schema:
-            $ref: "#/definitions/CreateThingsReq"
+            $ref: "#/definitions/CreateThingReq"
           required: true
       responses:
         201:
@@ -571,6 +571,10 @@ responses:
     description: Unexpected server-side error occurred.
 
 definitions:
+  CreateChannelsReq:
+    type: array
+    items:
+      $ref: "#/definitions/ChannelReq"
   ChannelsPage:
     type: object
     properties:
@@ -651,7 +655,7 @@ definitions:
         description: Arbitrary, object-encoded thing's data.
     required:
       - id
-      - type
+      - name
       - key
   CreateThingReq:
     type: object
