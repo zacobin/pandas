@@ -23,8 +23,8 @@ default values.
 | PD_PMS_CLIENT_TLS        | Flag that indicates if TLS should be turned on                       | false                 |
 | PD_PMS_CA_CERTS          | Path to trusted CAs in PEM format                                    |                       |
 | PD_PMS_MQTT_URL          | Mqtt broker URL for twin CRUD and states update notifications        | tcp://localhost:1883  |
-| PD_PMS_THING_ID          | ID of thing representing v2ms service & mqtt user                   |                       |
-| PD_PMS_THING_KEY         | Key of thing representing v2ms service & mqtt pass                  |                       |
+| PD_PMS_THING_ID          | ID of thing representing vms service & mqtt user                   |                       |
+| PD_PMS_THING_KEY         | Key of thing representing vms service & mqtt pass                  |                       |
 | PD_PMS_CHANNEL_ID        | Mqtt notifications topic                                             |                       |
 | PD_NATS_URL                | Mainflux NATS broker URL                                             | nats://127.0.0.1:4222 |
 | PD_AUTHN_GRPC_PORT         | Authn service gRPC port                                              | 8181                  |
@@ -40,8 +40,8 @@ locally:
 ```yaml
 version: "3"
 services:
-  v2ms:
-    image: v2ms:[version]
+  vms:
+    image: vms:[version]
     container_name: [instance name]
     ports:
       - [host machine port]:[configured HTTP port]
@@ -59,8 +59,8 @@ services:
       PD_PMS_CLIENT_TLS: [Flag that indicates if TLS should be turned on]
       PD_PMS_CA_CERTS: [Path to trusted CAs in PEM format]
       PD_PMS_MQTT_URL: [Mqtt broker URL for twin CRUD and states]
-      PD_PMS_THING_ID: [ID of thing representing v2ms service]
-      PD_PMS_THING_KEY: [Key of thing representing v2ms service]
+      PD_PMS_THING_ID: [ID of thing representing vms service]
+      PD_PMS_THING_KEY: [Key of thing representing vms service]
       PD_PMS_CHANNEL_ID: [Mqtt notifications topic]
       PD_NATS_URL: [Mainflux NATS broker URL]
       PD_AUTHN_GRPC_PORT: [Authn service gRPC port]
@@ -76,8 +76,8 @@ go get github.com/cloustone/pandas/mainflux
 
 cd $GOPATH/src/github.com/cloustone/pandas/mainflux
 
-# compile the v2ms
-make v2ms
+# compile the vms
+make vms
 
 # copy binary to bin
 make install
@@ -96,20 +96,20 @@ PD_PMS_SINGLE_USER_TOKEN: [User token for single user mode]
 PD_PMS_CLIENT_TLS: [Flag that indicates if TLS should be turned on] 
 PD_PMS_CA_CERTS: [Path to trusted CAs in PEM format] 
 PD_PMS_MQTT_URL: [Mqtt broker URL for twin CRUD and states] 
-PD_PMS_THING_ID: [ID of thing representing v2ms service] 
-PD_PMS_THING_KEY: [Key of thing representing v2ms service]
+PD_PMS_THING_ID: [ID of thing representing vms service] 
+PD_PMS_THING_KEY: [Key of thing representing vms service]
 PD_PMS_CHANNEL_ID: [Mqtt notifications topic]
 PD_NATS_URL: [Mainflux NATS broker URL] 
 PD_AUTHN_GRPC_PORT: [Authn service gRPC port] 
 PD_AUTHN_TIMEOUT: [Authn gRPC request timeout in seconds]
-PD_AUTHN_URL: [Authn service URL] $GOBIN/mainflux-v2ms
+PD_AUTHN_URL: [Authn service URL] $GOBIN/mainflux-vms
 ```
 
 ## Usage
 
-### Starting v2ms service
+### Starting vms service
 
-The v2ms service publishes notifications on an mqtt topic of the format
+The vms service publishes notifications on an mqtt topic of the format
 `channels/<PD_PMS_CHANNEL_ID>/messages/<twinID>/<crudOp>`, where `crudOp`
 stands for the crud operation done on twin - create, update, delete or
 retrieve - or state - save state. In order to use twin service, one must

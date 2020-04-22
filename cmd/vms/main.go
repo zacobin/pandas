@@ -17,8 +17,8 @@ import (
 
 	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/pms"
-	"github.com/cloustone/pandas/pms/tracing"
+	"github.com/cloustone/pandas/vms"
+	"github.com/cloustone/pandas/vms/tracing"
 
 	"github.com/jmoiron/sqlx"
 	opentracing "github.com/opentracing/opentracing-go"
@@ -26,12 +26,12 @@ import (
 
 	authapi "github.com/cloustone/pandas/authn/api/grpc"
 	"github.com/cloustone/pandas/pkg/logger"
-	"github.com/cloustone/pandas/pms/api"
-	httpapi "github.com/cloustone/pandas/pms/api/http"
-	"github.com/cloustone/pandas/pms/postgres"
-	rediscache "github.com/cloustone/pandas/pms/redis"
-	"github.com/cloustone/pandas/pms/uuid"
 	localusers "github.com/cloustone/pandas/things/users"
+	"github.com/cloustone/pandas/vms/api"
+	httpapi "github.com/cloustone/pandas/vms/api/http"
+	"github.com/cloustone/pandas/vms/postgres"
+	rediscache "github.com/cloustone/pandas/vms/redis"
+	"github.com/cloustone/pandas/vms/uuid"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/go-redis/redis"
 	nats "github.com/nats-io/nats.go"
@@ -39,17 +39,17 @@ import (
 	jconfig "github.com/uber/jaeger-client-go/config"
 	"google.golang.org/grpc"
 
-	natspub "github.com/cloustone/pandas/pms/nats/publisher"
-	natssub "github.com/cloustone/pandas/pms/nats/subscriber"
+	natspub "github.com/cloustone/pandas/vms/nats/publisher"
+	natssub "github.com/cloustone/pandas/vms/nats/subscriber"
 )
 
 const (
 	defLogLevel        = "error"
 	defDBHost          = "localhost"
 	defDBPort          = "5432"
-	defDBUser          = "mainflux"
-	defDBPass          = "mainflux"
-	defDBName          = "pms"
+	defDBUser          = "postgres"
+	defDBPass          = "postgres"
+	defDBName          = "vms"
 	defDBSSLMode       = "disable"
 	defDBSSLCert       = ""
 	defDBSSLKey        = ""
@@ -75,36 +75,36 @@ const (
 	defNatsURL         = nats.DefaultURL
 	defChannelID       = ""
 
-	envLogLevel        = "PD_PMS_LOG_LEVEL"
-	envDBHost          = "PD_PMS_DB_HOST"
-	envDBPort          = "PD_PMS_DB_PORT"
-	envDBUser          = "PD_PMS_DB_USER"
-	envDBPass          = "PD_PMS_DB_PASS"
-	envDBName          = "PD_PMS_DB"
-	envDBSSLMode       = "PD_PMS_DB_SSL_MODE"
-	envDBSSLCert       = "PD_PMS_DB_SSL_CERT"
-	envDBSSLKey        = "PD_PMS_DB_SSL_KEY"
-	envDBSSLRootCert   = "PD_PMS_DB_SSL_ROOT_CERT"
-	envClientTLS       = "PD_PMS_CLIENT_TLS"
-	envCACerts         = "PD_PMS_CA_CERTS"
-	envCacheURL        = "PD_PMS_CACHE_URL"
-	envCachePass       = "PD_PMS_CACHE_PASS"
-	envCacheDB         = "PD_PMS_CACHE_DB"
-	envESURL           = "PD_PMS_ES_URL"
-	envESPass          = "PD_PMS_ES_PASS"
-	envESDB            = "PD_PMS_ES_DB"
-	envHTTPPort        = "PD_PMS_HTTP_PORT"
-	envAuthHTTPPort    = "PD_PMS_AUTH_HTTP_PORT"
-	envAuthGRPCPort    = "PD_PMS_AUTH_GRPC_PORT"
-	envServerCert      = "PD_PMS_SERVER_CERT"
-	envServerKey       = "PD_PMS_SERVER_KEY"
-	envSingleUserEmail = "PD_PMS_SINGLE_USER_EMAIL"
-	envSingleUserToken = "PD_PMS_SINGLE_USER_TOKEN"
+	envLogLevel        = "PD_VMS_LOG_LEVEL"
+	envDBHost          = "PD_VMS_DB_HOST"
+	envDBPort          = "PD_VMS_DB_PORT"
+	envDBUser          = "PD_VMS_DB_USER"
+	envDBPass          = "PD_VMS_DB_PASS"
+	envDBName          = "PD_VMS_DB"
+	envDBSSLMode       = "PD_VMS_DB_SSL_MODE"
+	envDBSSLCert       = "PD_VMS_DB_SSL_CERT"
+	envDBSSLKey        = "PD_VMS_DB_SSL_KEY"
+	envDBSSLRootCert   = "PD_VMS_DB_SSL_ROOT_CERT"
+	envClientTLS       = "PD_VMS_CLIENT_TLS"
+	envCACerts         = "PD_VMS_CA_CERTS"
+	envCacheURL        = "PD_VMS_CACHE_URL"
+	envCachePass       = "PD_VMS_CACHE_PASS"
+	envCacheDB         = "PD_VMS_CACHE_DB"
+	envESURL           = "PD_VMS_ES_URL"
+	envESPass          = "PD_VMS_ES_PASS"
+	envESDB            = "PD_VMS_ES_DB"
+	envHTTPPort        = "PD_VMS_HTTP_PORT"
+	envAuthHTTPPort    = "PD_VMS_AUTH_HTTP_PORT"
+	envAuthGRPCPort    = "PD_VMS_AUTH_GRPC_PORT"
+	envServerCert      = "PD_VMS_SERVER_CERT"
+	envServerKey       = "PD_VMS_SERVER_KEY"
+	envSingleUserEmail = "PD_VMS_SINGLE_USER_EMAIL"
+	envSingleUserToken = "PD_VMS_SINGLE_USER_TOKEN"
 	envJaegerURL       = "PD_JAEGER_URL"
 	envAuthURL         = "PD_AUTH_URL"
 	envAuthTimeout     = "PD_AUTH_TIMEOUT"
 	envNatsURL         = "PD_NATS_URL"
-	envChannelID       = "PD_PMS_CHANNEL_ID"
+	envChannelID       = "PD_VMS_CHANNEL_ID"
 )
 
 type config struct {
@@ -140,8 +140,8 @@ func main() {
 		log.Fatalf(err.Error())
 	}
 
-	pmsTracer, pmsCloser := initJaeger("pms", cfg.jaegerURL, logger)
-	defer pmsCloser.Close()
+	vmsTracer, vmsCloser := initJaeger("vms", cfg.jaegerURL, logger)
+	defer vmsCloser.Close()
 
 	cacheClient := connectToRedis(cfg.cacheURL, cfg.cachePass, cfg.cacheDB, logger)
 
@@ -158,10 +158,10 @@ func main() {
 		defer close()
 	}
 
-	dbTracer, dbCloser := initJaeger("pms_db", cfg.jaegerURL, logger)
+	dbTracer, dbCloser := initJaeger("vms_db", cfg.jaegerURL, logger)
 	defer dbCloser.Close()
 
-	cacheTracer, cacheCloser := initJaeger("pms_cache", cfg.jaegerURL, logger)
+	cacheTracer, cacheCloser := initJaeger("vms_cache", cfg.jaegerURL, logger)
 	defer cacheCloser.Close()
 
 	nc, err := nats.Connect(cfg.NatsURL)
@@ -171,13 +171,13 @@ func main() {
 	}
 	defer nc.Close()
 
-	ncTracer, ncCloser := initJaeger("pms_nats", cfg.jaegerURL, logger)
+	ncTracer, ncCloser := initJaeger("vms_nats", cfg.jaegerURL, logger)
 	defer ncCloser.Close()
 
 	svc := newService(nc, ncTracer, cfg.channelID, auth, dbTracer, cacheTracer, db, cacheClient, esClient, logger)
 	errs := make(chan error, 2)
 
-	go startHTTPServer(httpapi.MakeHandler(pmsTracer, svc), cfg.httpPort, cfg, logger, errs)
+	go startHTTPServer(httpapi.MakeHandler(vmsTracer, svc), cfg.httpPort, cfg, logger, errs)
 
 	go func() {
 		c := make(chan os.Signal)
@@ -186,7 +186,7 @@ func main() {
 	}()
 
 	err = <-errs
-	logger.Error(fmt.Sprintf("PMS service terminated: %s", err))
+	logger.Error(fmt.Sprintf("Vms service terminated: %s", err))
 }
 
 func loadConfig() config {
@@ -277,6 +277,7 @@ func connectToRedis(cacheURL, cachePass string, cacheDB string, logger logger.Lo
 }
 
 func connectToDB(dbConfig postgres.Config, logger logger.Logger) *sqlx.DB {
+	fmt.Printf("host is %s,user is %s,pass is %s", dbConfig.Host, dbConfig.User, dbConfig.Pass)
 	db, err := postgres.Connect(dbConfig)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to connect to postgres: %s", err))
@@ -319,31 +320,40 @@ func connectToAuth(cfg config, logger logger.Logger) *grpc.ClientConn {
 	return conn
 }
 
-func newService(nc *nats.Conn, ncTracer opentracing.Tracer, chanID string, auth mainflux.AuthNServiceClient, dbTracer opentracing.Tracer, cacheTracer opentracing.Tracer, db *sqlx.DB, cacheClient *redis.Client, esClient *redis.Client, logger logger.Logger) pms.Service {
+func newService(nc *nats.Conn, ncTracer opentracing.Tracer, chanID string, auth mainflux.AuthNServiceClient, dbTracer opentracing.Tracer, cacheTracer opentracing.Tracer, db *sqlx.DB, cacheClient *redis.Client, esClient *redis.Client, logger logger.Logger) vms.Service {
 	database := postgres.NewDatabase(db)
 
-	projectsRepo := postgres.NewProjectRepository(database)
-	projectsRepo = tracing.ProjectRepositoryMiddleware(dbTracer, projectsRepo)
+	viewsRepo := postgres.NewViewRepository(database)
+	viewsRepo = tracing.ViewRepositoryMiddleware(dbTracer, viewsRepo)
+	viewCache := rediscache.NewViewCache(cacheClient)
+	viewCache = tracing.ViewCacheMiddleware(cacheTracer, viewCache)
 
-	projectCache := rediscache.NewProjectCache(cacheClient)
-	projectCache = tracing.ProjectCacheMiddleware(cacheTracer, projectCache)
+	variablesRepo := postgres.NewVariableRepository(database)
+	variablesRepo = tracing.VariableRepositoryMiddleware(dbTracer, variablesRepo)
+	variableCache := rediscache.NewVariableCache(cacheClient)
+	variableCache = tracing.VariableCacheMiddleware(cacheTracer, variableCache)
+
+	modelsRepo := postgres.NewModelRepository(database)
+	modelsRepo = tracing.ModelRepositoryMiddleware(dbTracer, modelsRepo)
+	modelCache := rediscache.NewModelCache(cacheClient)
+	modelCache = tracing.ModelCacheMiddleware(cacheTracer, modelCache)
 
 	idp := uuid.New()
 
 	np := natspub.NewPublisher(nc, chanID, logger)
-	svc := pms.New(auth, projectsRepo, projectCache, idp, np)
+	svc := vms.New(auth, viewsRepo, variablesRepo, modelsRepo, viewCache, variableCache, modelCache, idp, np)
 	//svc = rediscache.NewEventStoreMiddleware(svc, esClient)
 	svc = api.LoggingMiddleware(svc, logger)
 	svc = api.MetricsMiddleware(
 		svc,
 		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "pms",
+			Namespace: "vms",
 			Subsystem: "api",
 			Name:      "request_count",
 			Help:      "Number of requests received.",
 		}, []string{"method"}),
 		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "pms",
+			Namespace: "vms",
 			Subsystem: "api",
 			Name:      "request_latency_microseconds",
 			Help:      "Total duration of requests in microseconds.",
@@ -357,11 +367,11 @@ func newService(nc *nats.Conn, ncTracer opentracing.Tracer, chanID string, auth 
 func startHTTPServer(handler http.Handler, port string, cfg config, logger logger.Logger, errs chan error) {
 	p := fmt.Sprintf(":%s", port)
 	if cfg.serverCert != "" || cfg.serverKey != "" {
-		logger.Info(fmt.Sprintf("pms service started using https on port %s with cert %s key %s",
+		logger.Info(fmt.Sprintf("Vms service started using https on port %s with cert %s key %s",
 			port, cfg.serverCert, cfg.serverKey))
 		errs <- http.ListenAndServeTLS(p, cfg.serverCert, cfg.serverKey, handler)
 		return
 	}
-	logger.Info(fmt.Sprintf("pms service started using http on port %s", cfg.httpPort))
+	logger.Info(fmt.Sprintf("Vms service started using http on port %s", cfg.httpPort))
 	errs <- http.ListenAndServe(p, handler)
 }

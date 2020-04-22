@@ -15,6 +15,11 @@ envsubst '
     ${PD_HTTP_ADAPTER_PORT}
     ${PD_WS_ADAPTER_PORT}
     ${PD_LBS_HTTP_PORT}
-    ${PD_RULECHAIN_HTTP_PORT}' </etc/nginx/nginx.conf.template >/etc/nginx/nginx.conf
+    ${PD_RULECHAIN_HTTP_PORT}
+    ${PD_TWINS_HTTP_PORT}
+    ${PD_AUTHZ_HTTP_PORT}
+    ${PD_VMS_HTTP_PORT}
+    ${PD_PMS_HTTP_PORT}
+    ${PD_SWAGGER_HTTP_PORT}' </etc/nginx/nginx.conf.template >/etc/nginx/nginx.conf
 
 exec nginx -g "daemon off;"

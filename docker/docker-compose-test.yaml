@@ -1,0 +1,36 @@
+version: "3.1"
+
+services:
+  nats:
+    image: nats:1.3.0
+    container_name: pandas-nats
+    command: "-c /etc/nats/nats.conf"
+    restart: on-failure
+    volumes:
+      - ./nats/:/etc/nats
+  jaeger:
+    image: jaegertracing/all-in-one:1.13
+    container_name: pandas-jaeger
+    ports:
+      - ${PD_JAEGER_PORT}:${PD_JAEGER_PORT}/udp
+      - ${PD_JAEGER_FRONTEND}:${PD_JAEGER_FRONTEND}
+      - ${PD_JAEGER_COLLECTOR}:${PD_JAEGER_COLLECTOR}
+      - ${PD_JAEGER_CONFIGS}:${PD_JAEGER_CONFIGS}
+
+  swagger:
+    image: cloustone/pandas-swagger:latest
+    container_name: pandas-swagger
+
+    restart: on-failure
+    environment:
+      PD_SWAGGER_LOG_LEVEL: ${PD_SWAGGER_LOG_LEVEL}
+      PD_SWAGGER_HTTP_PORT: ${PD_SWAGGER_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_SWAGGER_AUTH_HTTP_PORT: ${PD_SWAGGER_AUTH_HTTP_PORT}
+      PD_SWAGGER_AUTH_GRPC_PORT: ${PD_SWAGGER_AUTH_GRPC_PORT}
+      PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_SWAGGER_SECRET: ${PD_SWAGGER_SECRET}
+    ports:
+      - ${PD_SWAGGER_HTTP_PORT}:${PD_SWAGGER_HTTP_PORT}

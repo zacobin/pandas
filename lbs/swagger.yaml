@@ -1,0 +1,1022 @@
+swagger: '2.0'
+info:
+  description: "pandas location based service" 
+  version: 1.0.0
+  title: lbs 
+basePath: /v1
+consumes:
+  - application/json
+produces:
+  - application/json
+schemes:
+  - http
+tags:
+  - name: Lbs
+    description: Location based service
+paths:
+  /collections:
+    post:
+      tags:
+        - Lbs
+      summary: Create a new geofence collection with user Id
+      operationId: CreateCollection
+      parameters:
+        - name: collectionId
+          in: query
+          type: string
+          required: true
+          description: collection identifier
+      responses:
+        '200':
+          description: create collection successful
+          schema:
+            type: string
+        '400':
+          description: invalid argument
+        '404':
+          description: user not found
+    delete:
+      tags:
+        - Lbs
+      summary: remove a collection from user's collections
+      operationId: DeleteCollection
+      parameters:
+        - name: collectionId
+          in: query
+          type: string
+          required: true
+      responses:
+        '200':
+          description: delete collection successful
+        '400':
+          description: invalid argument
+        '404':
+          description: user not found
+    get:
+      tags:
+        - Lbs
+      summary: getuser's collections
+      operationId: GetCollections
+      parameters: []
+      responses:
+        '200':
+          description: get user's collections successful
+          schema:
+            type: array
+            items:
+              type: string
+        '400':
+          description: invalid argument
+        '404':
+          description: user not found
+
+  /fenceIds:
+    get:
+      tags:
+        - Lbs
+      summary: get mongo fences
+      operationId: GetFenceIds
+      description: ''
+      parameters:
+        - name: collectionId
+          type: string
+          required: true
+          in: query
+      responses:
+        '200':
+          description: get collection's fences successful
+          schema:
+            type: array
+            items:
+              type: string
+        '400':
+          description: Invalid input
+        '404':
+          description: user not found
+
+  /geofences:
+    post:
+      tags:
+        - Lbs
+      summary: Create Geofence
+      operationId: CreateCircleGeofence
+      description: ''
+      parameters:
+        - name: collectionId
+          in: query
+          type: string
+          required: true
+        - name: fence
+          in: body
+          description: ''
+          required: true
+          schema:
+            $ref: '#/definitions/CircleGeofence'
+      responses:
+        '201':
+          description: successful operation
+          schema:
+            type: string
+        '400':
+          description: Invalid input
+    delete:
+      tags:
+        - Lbs
+      summary: Delete Geofence
+      operationId: DeleteGeofence
+      description: ''
+      parameters:
+        - in: body
+          name: geofence
+          description: Geofence
+          schema:
+            type: object
+            required:
+              - collectionId
+            properties:
+              collectionId:
+                type: string
+              fenceIds:
+                type: array
+                items:
+                  type: string
+              objects:
+                type: array
+                items:
+                  type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              type: string
+        '400':
+          description: Invalid argument
+        '404':
+          description: not found
+    put:
+      tags:
+        - Lbs
+      summary: Update Geofence
+      operationId: UpdateCircleGeofence
+      description: ''
+      parameters:
+        - in: body
+          name: circleGeofence
+          description: CircleGeofence
+          schema:
+            type: object
+            required:
+              - collectionId
+            properties:
+              collectionId:
+                type: string
+              fenceId:
+                type: string
+              fence:
+                $ref: '#/definitions/CircleGeofence'
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid input
+        '404':
+          description: not found
+
+  /geofences/list:
+    post:
+      tags:
+        - Lbs
+      summary: Get genfences
+      description: ListGeofences
+      operationId: ListGeofences
+      parameters:
+        - name: collectionId
+          type: string
+          required: true
+          in: query
+        - in: body
+          name: fenceInfo
+          description: fenceInfo
+          schema:
+            type: object
+            properties:
+              objects:
+                type: array
+                items:
+                  type: string
+              fenceIds:
+                type: array
+                items:
+                  type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Geofence'
+        '400':
+          description: invalid argument
+        '404':
+          description: not found
+  /gonfence/poly:
+    post:
+      tags:
+        - Lbs
+      summary: Create poly Geofence
+      operationId: CreatePolyGeofence
+      description: ''
+      parameters:
+        - name: collectionId
+          in: query
+          type: string
+          required: true
+        - name: fence
+          in: body
+          description: ''
+          required: true
+          schema:
+            $ref: '#/definitions/PolyGeofence'
+      responses:
+        '201':
+          description: successful operation
+          schema:
+            type: string
+        '400':
+          description: Invalid input
+    put:
+      tags:
+        - Lbs
+      summary: Update poly Geofence
+      operationId: UpdatePolyGeofence
+      description: ''
+      parameters:
+        - in: body
+          name: polyGeofence
+          description: polyGeofence
+          schema:
+            type: object
+            required:
+              - collectionId
+            properties:
+              collectionId:
+                type: string
+              fenceId:
+                type: string
+              fence:
+                $ref: '#/definitions/PolyGeofence'
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid input
+        '404':
+          description: not found
+
+  /monitors:
+    post:
+      tags:
+        - Lbs
+      summary: AddMonitoredObject
+      operationId: AddMonitoredObject
+      description: ''
+      parameters:
+        - name: collectionId
+          in: query
+          required: true
+          type: string
+        - name: monitoredObj
+          description: ''
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/NewMonitoredObject'
+      responses:
+        '201':
+          description: successful operation
+        '400':
+          description: Invalid input
+        '404':
+          description: not found
+
+  /monitors/{fenceId}:
+    get:
+      tags:
+        - Lbs
+      summary: ListMonitoredObjects
+      description: ListMonitoredObjects
+      operationId: ListMonitoredObjects
+      parameters:
+        - name: collectionId
+          type: string
+          in: query
+          required: true
+        - name: fenceId
+          required: true
+          in: path
+          type: string
+        - name: pageIndex
+          in: query
+          type: integer
+          format: int32
+        - name: pageSize
+          in: query
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/MonitoredObjectsList'
+        '400':
+          description: invalid fence id
+        '404':
+          description: not found
+    delete:
+      tags:
+        - Lbs
+      summary: RemoveMonitoredObject
+      description: RemoveMonitoredObject
+      operationId: RemoveMonitoredObject
+      parameters:
+        - name: fenceId
+          required: true
+          in: path
+          type: string
+        - in: body
+          name: monitorObject
+          description: monitor object.
+          schema:
+            type: object
+            required:
+              - collectionId
+            properties:
+              collectionId:
+                type: string
+              objects:
+                type: array
+                items:
+                  type: string
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid input
+        '404':
+          description: not found
+  /query/status:
+    post:
+      tags:
+        - Lbs
+      summary: QueryStatus
+      description: QueryStatus
+      operationId: QueryStatus
+      parameters:
+      - name: collectionId
+        in: query
+        required: true
+        type: string
+      - name: monitored_person
+        in: query
+        required: true
+        type: string
+      - name: fence_ids
+        description: ''
+        required: true
+        in: body
+        schema:
+          $ref: '#/definitions/FenceIds'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              status:
+                description: the status of query fence
+                type: integer
+              message:
+                description: the message of query fence
+                type: string
+              size:
+                description: the size of query fence number
+                type: integer
+              MonitoredStatuses:
+                description: entities names
+                type: array
+                items:
+                  $ref: '#/definitions/MonitoredStatus'
+        '400':
+          description: invalid argument
+        '404':
+          description: not found
+  /alarm/history:
+    post:
+      tags:
+        - Lbs
+      summary: GetHistoryAlarms
+      description: GetHistoryAlarms
+      operationId: GetHistoryAlarms
+      parameters:
+      - name: monitored_person
+        in: query
+        required: true
+        type: string
+      - name: collectionId
+        description: collectionId
+        in: query
+        required: true
+        type: string
+      - name: fence_ids
+        description: ''
+        required: true
+        in: body
+        schema:
+          $ref: '#/definitions/FenceIds'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              status:
+                description: the status of HistoryAlarm
+                type: integer
+              message:
+                description: the message of HistoryAlarm
+                type: string
+              size:
+                description: the size of HistoryAlarm number
+                type: integer
+              alarms:
+                type: array
+                items:
+                  $ref: '#/definitions/Alarm'
+        '400':
+          description: invalid argument
+        '404':
+          description: not found
+  /alarms/history/batch:
+    get:
+      tags:
+        - Lbs
+      summary: BatchGetHistoryAlarms
+      description: BatchGetHistoryAlarms
+      operationId: BatchGetHistoryAlarms
+      parameters:
+      - name: collectionId
+        description: collectionId
+        in: query
+        required: true
+        type: string
+      - name: start_time
+        in: query
+        required: true
+        type: string
+      - name: end_time
+        in: query
+        required: true
+        type: string
+      - name: coord_type_output
+        in: query
+        required: true
+        type: string
+      - name: page_index
+        in: query
+        required: true
+        type: integer
+      - name: page_size
+        in: query
+        required: true
+        type: integer
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              status:
+                description: the status of HistoryAlarm
+                type: integer
+              message:
+                description: the message of HistoryAlarm
+                type: string
+              size:
+                description: the size of HistoryAlarm number
+                type: integer
+              total:
+                description: the size of HistoryAlarm number
+                type: integer
+              alarms:
+                type: array
+                items:
+                  $ref: '#/definitions/Alarm'
+        '400':
+          description: invalid argument
+        '404':
+          description: not found
+  /alarms/notify:
+    post:
+      tags:
+        - Lbs
+      summary: NotifyAlarms
+      description: NotifyAlarms
+      operationId: NotifyAlarms
+      parameters:
+        - in: body
+          required: true
+          name: content
+          schema:
+            type: string
+            format: byte
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: invalid argument
+  /staypoints:
+    get:
+      tags:
+        - Lbs
+      summary: GetStayPoints
+      description: GetStayPoints
+      operationId: GetStayPoints
+      parameters:
+      - name: collectionId
+        description: collectionId
+        in: query
+        required: true
+        type: string
+      - name: start_time
+        in: query
+        required: true
+        type: string
+      - name: end_time
+        in: query
+        required: true
+        type: string
+      - name: entity_name
+        in: query
+        required: true
+        type: string
+      - name: page_index
+        in: query
+        required: true
+        type: integer
+      - name: page_size
+        in: query
+        required: true
+        type: integer
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/StayPoints'
+        '400':
+          description: invalid entity name
+        '404':
+          description: not found
+  /entity:
+    post:
+      tags:
+        - Lbs
+      summary: add entity
+      description: add entity
+      operationId: addEntity
+      parameters:
+        - name: collectionId
+          type: string
+          in: query
+          required: true
+        - name: entity_name
+          type: string
+          in: query
+          required: true
+        - name: entity_desc
+          required: false
+          in: query
+          type: string
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: invalid entity name
+        '404':
+          description: not found
+    put:
+      tags:
+        - Lbs
+      summary: update entity
+      description: update entity
+      operationId: updateEntity
+      parameters:
+        - name: collectionId
+          type: string
+          in: query
+          required: true
+        - name: entity_name
+          type: string
+          in: query
+          required: true
+        - name: entity_desc
+          required: false
+          in: query
+          type: string
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: invalid entity name
+        '404':
+          description: not found
+    delete:
+      tags:
+        - Lbs
+      summary: delete entity
+      description: delete entity
+      operationId: deleteEntity
+      parameters:
+        - name: collectionId
+          type: string
+          in: query
+          required: true
+        - name: entity_name
+          type: string
+          in: query
+          required: true
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: invalid entity name
+        '404':
+          description: not found
+    get:
+      tags:
+        - Lbs
+      summary: list entity
+      description: list entity
+      operationId: listEntity
+      parameters:
+        - name: collectionId
+          type: string
+          in: query
+          required: true
+        - name: coord_type_output
+          type: string
+          in: query
+          required: true
+        - name: page_index
+          required: false
+          in: query
+          type: integer
+        - name: page_size
+          required: false
+          in: query
+          type: integer
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Entity'
+        '400':
+          description: invalid entity name
+        '404':
+          description: not found
+
+definitions:
+  AlarmInfo:
+    type: object
+    properties:
+      type:
+        description: message type (type 1 checkup, 2 message)
+        type: integer
+      service_id:
+        description: the service id of baidu yingyan
+        type: integer
+      content:
+        description: fence alarm infos
+        type: array
+        items:
+          $ref: '#/definitions/FenceAlarmInfo'
+
+  FenceAlarmInfo:
+    type: object
+    properties:
+      fence_id:
+        description: fence id
+        type: integer
+      fence_name:
+        description: fence name
+        type: string
+      monitored_person:
+        description: entity name
+        type: string
+      action:
+        description: enter or exit
+        type: string
+      alarm_point:
+        description: alarm points
+        $ref: '#/definitions/AlarmPoint'
+      pre_point:
+        description: alarm points
+        $ref: '#/definitions/AlarmPoint'
+
+  AlarmPoint:
+    type: object
+    properties:
+      longitude:
+        description: the status of AlarmPoint
+        type: number
+        format: double
+      latitude:
+        description: the status of AlarmPoint
+        type: number
+        format: double
+      radius:
+        description: the radius of AlarmPoint
+        type: integer
+      coord_type:
+        description: the coord_type of AlarmPoint
+        type: string
+      loc_time:
+        description: the coord_type of AlarmPoint
+        type: string
+      create_time:
+        description: the coord_type of AlarmPoint
+        type: string
+
+  StayPoints:
+    type: object
+    properties:
+      status:
+        description: the status of StayPoints
+        type: integer
+      message:
+        description: the status of StayPoints
+        type: string
+      size:
+        description: the status of StayPoints
+        type: integer
+      total:
+        description: the status of StayPoints
+        type: integer
+      distance:
+        description: the status of StayPoints
+        type: integer
+      start_point:
+        $ref: '#/definitions/Point'
+      end_point:
+        $ref: '#/definitions/Point'
+      points:
+        type: array
+        items:
+          $ref: '#/definitions/Point'
+
+  FenceIds:
+    properties:
+      fence_ids:
+        type: array
+        items:
+          type: string
+
+  MonitoredStatus:
+    type: object
+    properties:
+      fence_id:
+        description: fence id
+        type: integer
+      monitored_status:
+        description: monitored status
+        type: string
+
+  Entity:
+    type: object
+    properties:
+      total:
+        description: total entity count
+        type: integer
+      entities:
+        description: entities names
+        type: array
+        items:
+          $ref: '#/definitions/EntityInfo'
+
+  EntityInfo:
+    type: object
+    properties:
+      entity_name:
+        description: entity's name
+        type: string
+      latitude:
+        description: latitude
+        type: number
+        format: double
+      longitude:
+        description: longitude
+        type: number
+        format: double
+
+  principal:
+    type: object
+    properties:
+      id:
+        description: User ID
+        type: string
+      name:
+        description: User name
+        type: string
+      roles:
+        type: array
+        items:
+          type: string
+  Timedef:
+    type: object
+    properties:
+      created:
+        type: string
+        format: dateTime
+        readOnly: true
+      updated:
+        type: string
+        format: dateTime
+        readOnly: true
+    example:
+      created: '2018-09-20T11:05:54Z'
+      updated: '2018-09-20T11:05:54Z'
+
+  Event:
+    type: object
+    properties:
+      type:
+        type: string
+  Message:
+    type: object
+    properties:
+      topic:
+        type: string
+      body:
+        type: string
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      error:
+        type: string
+      description:
+        type: string
+
+  CircleGeofence:
+    properties:
+      name:
+        type: string
+      monitoredObjects:
+        type: array
+        items:
+          type: string
+      longitude:
+        type: number
+        format: double
+      latitude:
+        type: number
+        format: double
+      radius:
+        type: number
+        format: double
+      coordType:
+        type: string
+      denoise:
+        type: integer
+        format: int32
+
+  PolyGeofence:
+    properties:
+      name:
+        type: string
+      monitoredObjects:
+        type: array
+        items:
+          type: string
+      vertexes:
+        description: point array(eg:"double,double;double,double")
+        type: string
+      coordType:
+        type: string
+      denoise:
+        type: integer
+        format: int32
+
+  Geofence:
+    allOf:
+      - $ref: '#/definitions/Timedef'
+      - properties:
+          fenceId:
+            type: string
+          fenceName:
+            type: string
+          monitoredObjects:
+            type: array
+            items:
+              type: string
+          shape:
+            type: string
+          longitude:
+            type: number
+            format: double
+          latitude:
+            type: number
+            format: double
+          radius:
+            type: number
+            format: double
+          coordType:
+            type: string
+          denoise:
+            type: integer
+            format: int32
+          vertexes:
+            type: array
+            items:
+              $ref: '#/definitions/Vertexe'
+
+  Vertexe:
+    type: object
+    properties:
+      longitude:
+        type: number
+        format: double
+      latitude:
+        type: number
+        format: double
+
+  NewMonitoredObject:
+    properties:
+      fenceId:
+        type: string
+      objects:
+        type: array
+        items:
+          type: string
+  MonitoredObjectsList:
+    properties:
+      totalFences:
+        type: integer
+        format: int32
+      objects:
+        type: array
+        items:
+          type: string
+  Point:
+    type: object
+    properties:
+      longitude:
+        type: integer
+        format: double
+      latitude:
+        type: integer
+        format: double
+      radius:
+        type: integer
+        format: int32
+      coord_type:
+        type: string
+      loc_time:
+        type: string
+      create_time:
+        type: string
+  Alarm:
+    type: object
+    properties:
+      fence_id:
+        type: integer
+        format: int32
+      fence_name:
+        type: string
+      monitored_person:
+        type: string
+      action:
+        type: string
+        enum:
+          - enter
+          - exit
+      alarm_point:
+        $ref: '#/definitions/Point'
+      pre_point:
+        $ref: '#/definitions/Point'
+
+  Certificate:
+    type: object
+    properties:
+      ca_crt:
+        type: string
+        format: byte
+      client_crt:
+        type: string
+        format: byte
+      client_key:
+        type: string
+        format: byte

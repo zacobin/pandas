@@ -28,7 +28,7 @@
           "host": "localhost",
           "swaggerUrl": "/swagger"
         },
-        { "name": "v2ms",
+        { "name": "vms",
           "host": "localhost",
           "swaggerUrl": "/swagger"
         }
