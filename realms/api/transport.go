@@ -15,6 +15,7 @@ import (
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/errors"
 	"github.com/cloustone/pandas/realms"
+	"github.com/go-openapi/runtime/middleware"
 
 	log "github.com/cloustone/pandas/pkg/logger"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
@@ -91,7 +92,23 @@ func MakeHandler(svc realms.Service, tracer opentracing.Tracer, l log.Logger) ht
 	mux.GetFunc("/version", pandas.Version("realms"))
 	mux.Handle("/metrics", promhttp.Handler())
 
+	mux.Handle("/swagger", RedocUI(promhttp.Handler()))
+
 	return mux
+}
+
+//RedocUI docs to show redoc ui
+func RedocUI(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		opts := middleware.RedocOpts{
+			Path:     "realmsdocs",
+			SpecURL:  r.URL.Host + "/realms/swagger.yaml",
+			RedocURL: r.URL.Host + "/swagger/static/js/redoc.standalone.js",
+			Title:    "realms api",
+		}
+		middleware.Redoc(opts, handler).ServeHTTP(w, r)
+		return
+	})
 }
 
 func decodeNewRealmRequest(_ context.Context, r *http.Request) (interface{}, error) {

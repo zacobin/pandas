@@ -1,46 +1,19 @@
 swagger: "2.0"
 info:
-  title: Pandas realm service
-  description: HTTP API for managing platform realms.
+  title: Pandas authz service
+  description: HTTP API for authz service.
   version: "1.0.0"
 consumes:
   - "application/json"
 produces:
   - "application/json"
 paths:
-  /realms:
-    post:
-      summary: Registers new realm 
-      description: |
-        Registers new realm given name and password.
-      tags:
-        - realms 
-      parameters:
-        - name: realm 
-          description: JSON-formatted document describing the new realm.
-          in: body
-          schema:
-            $ref: "#/definitions/Realm"
-          required: true
-      responses:
-        201:
-          description: Registered new realm.
-        400:
-          description: Failed due to malformed JSON.
-        409:
-          description: Failed due to using an existing email address.
-        415:
-          description: Missing or invalid content type.
-        500:
-          $ref: "#/responses/ServiceError"
-
-  /realms:
+  /roles:
     get:
-      summary: Gets all registered realm info.
       description: |
-        Gets all realms. Info is obtained using authorization token
+        get roles
       tags:
-        - realms 
+        - roles 
       parameters:
         - $ref: "#/parameters/Authorization"
       responses:
@@ -49,104 +22,111 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/definitions/Realm"
+              $ref: "#/definitions/Role"
         400:
-          description: Failed due to malformed query parameters.
-        403:
-          description: Missing or invalid access token provided.
+          description: Failed due to malformed JSON.
+        409:
+          description: Failed due to using an existing email address.
+        415:
+          description: Missing or invalid content type.
         500:
           $ref: "#/responses/ServiceError"
-
-
-  /realms/{realmName}:
-    get:
-      summary: Gets info on specified realm info.
-      description: |
-        Gets info on specified realm. Info is obtained using
-        authorization token and realm name
+    patch:
       tags:
-        - realms 
+        - roles
       parameters:
         - $ref: "#/parameters/Authorization"
-        - name: realmName
-          in: path
-          description: realm name
-          required: true
-          type: string
-      responses:
-        200:
-          description: Data retrieved.
-          schema:
-            $ref: "#/definitions/UsersPage"
-        400:
-          description: Failed due to malformed query parameters.
-        403:
-          description: Missing or invalid access token provided.
-        500:
-          $ref: "#/responses/ServiceError"
-  /realms/{realmName}:
-    put:
-      summary: Updates info on specified realm.
-      description: |
-        Updates info on specified realm . Info is updated using
-        authorization token and the new received info.
-      tags:
-        - realms 
-      parameters:
-        - $ref: "#/parameters/Authorization"
-        - name: realm 
-          description: JSON-formatted document containing realm info.
+        - name: role
           in: body
           schema:
-            $ref: "#/definitions/Realm"
+            $ref: "#/definitions/Role"
           required: true
       responses:
         200:
-          description: realm updated.
+          description: role updated.
         400:
           description: Failed due to malformed JSON.
         403:
           description: Missing or invalid access token provided.
         500:
-          $ref: "#/responses/ServiceError"
-  /realms/{realmName}:
-    delete:
-      summary: delete specified realm 
-      description: |
-        Delete a specified realm
+          $ref: "#/responses/ServiceError"        
+  /realms/{roleName}:
+    get:
       tags:
-        - realms 
+        - roles
       parameters:
         - $ref: "#/parameters/Authorization"
-        - name: realmName 
-          in: path 
-          type: string
-          required: true
+        - $ref: "#/parameters/RoleName"
       responses:
-        201:
-          description: User authenticated.
+        200:
+          description: Data retrieved.
           schema:
-            $ref: "#/definitions/Token"
+            $ref: "#/definitions/Role"
         400:
-          description: |
-            Failed due to malformed JSON.
-          schema:
-            $ref: "#/definitions/Error"
-        403:
-          description: |
-            Failed due to using invalid credentials.
-          schema:
-            $ref: "#/definitions/Error"
+          description: Failed due to malformed JSON.
+        409:
+          description: Failed due to using an existing email address.
         415:
           description: Missing or invalid content type.
-          schema:
-            $ref: "#/definitions/Error"
         500:
           $ref: "#/responses/ServiceError"
+  /authz:
+    post:
+      tags:
+        - authz
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/RoleName"
+        - $ref: "#/parameters/Subject"
+      responses:
+        200:
+          description: role updated.
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"   
 
 responses:
   ServiceError:
     description: Unexpected server-side error occurred.
+
+
+parameters:
+  Authorization:
+    name: Authorization
+    description: User's access token.
+    in: header
+    type: string
+    required: true
+  Subject:
+    name: subject
+    in: header
+    type: string
+    required: true
+  RoleName:
+    name: roleName
+    description: User's role name
+    in: path
+    type: string
+    required: true
+  Referer:
+    name: Referer
+    description: Host being sent by browser.
+    in: header
+    type: string
+    required: true
+  Metadata:
+    name: metadata
+    description: Metadata filter. Filtering is performed matching the parameter with metadata on top level. Parameter is json.
+    in: query
+    type: string
+    minimum: 0
+    required: false
+
+
+
 definitions:
   Token:
     type: object
@@ -195,33 +175,16 @@ definitions:
         description: User's email address will be used as its unique identifier
     required:
       - email
+  Role:
+    type: object
+    properties:
+      name: 
+        type: string
+      routes:
+        type: array
+        items:
+          type: string 
 
-parameters:
-  Authorization:
-    name: Authorization
-    description: User's access token.
-    in: header
-    type: string
-    required: true
-  Referer:
-    name: Referer
-    description: Host being sent by browser.
-    in: header
-    type: string
-    required: true
-  Metadata:
-    name: metadata
-    description: Metadata filter. Filtering is performed matching the parameter with metadata on top level. Parameter is json.
-    in: query
-    type: string
-    minimum: 0
-    required: false
-
-responses:
-  ServiceError:
-    description: Unexpected server-side error occurred.
-
-definitions:
   UsersPage:
     type: object
     properties:

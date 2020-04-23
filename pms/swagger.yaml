@@ -1,36 +1,36 @@
 swagger: "2.0"
 info:
-  title: rulechain service
-  description: HTTP API for rulechain service
+  title: project management service
+  description: HTTP API for project management service
   version: "1.0.0"
 consumes:
   - "application/json"
 produces:
   - "application/json"
 paths:
-  /rulechain:
+  /projects:
     post:
-      summary: Adds new rulechain
+      summary: Adds new project
       description: |
-        Adds new rulechain to the list of rulechains owned by user identified using
+        Adds new project to the list of projects owned by user identified using
         the provided access token.
       tags:
-        - rulechain
+        - projects
       parameters:
         - $ref: "#/parameters/Authorization"
-        - name: rulechain
-          description: JSON-formatted document describing the new rulechain.
+        - name: project
+          description: JSON-formatted document describing the new project.
           in: body
           schema:
-            $ref: "#/definitions/RuleChain"
+            $ref: "#/definitions/CreateProjectReq"
           required: true
       responses:
         201:
-          description: rulechain registered.
+          description: Project registered.
           headers:
             Location:
               type: string
-              description: Created rulechain's relative URL (i.e. /rulechain/{rulechainId}).
+              description: Created project's relative URL (i.e. /projects/{projectId}).
         400:
           description: Failed due to malformed JSON.
         403:
@@ -39,43 +39,46 @@ paths:
           description: Missing or invalid content type.
         500:
           $ref: "#/responses/ServiceError"
+  /views:
     get:
-      summary: Retrieves rulechains
+      summary: Retrieves managed projects
       description: |
-        Retrieves a list of rulechains. Due to performance concerns, data
-        is retrieved in subsets. The API rulechains must ensure that the entire
+        Retrieves a list of managed projects. Due to performance concerns, data
+        is retrieved in subsets. The API projects must ensure that the entire
         dataset is consumed either by making subsequent requests, or by
         increasing the subset size of the initial request.
       tags:
-        - rulechain
+        - projects
       parameters:
         - $ref: "#/parameters/Authorization"
-        - $ref: "#/parameters/Offset"
         - $ref: "#/parameters/Limit"
+        - $ref: "#/parameters/Offset"
+        - $ref: "#/parameters/Name"
+        - $ref: "#/parameters/Metadata"
       responses:
         200:
           description: Data retrieved.
           schema:
-            $ref: "#/definitions/RuleChainPage"
+            $ref: "#/definitions/ProjectsPage"
         400:
           description: Failed due to malformed query parameters.
         403:
           description: Missing or invalid access token provided.
         500:
           $ref: "#/responses/ServiceError"
-  /rulechain/{rulechainId}:
+  /projects/{projectId}:
     get:
-      summary: Retrieves rulechain info
+      summary: Retrieves project info
       tags:
-        - rulechain
+        - projects
       parameters:
         - $ref: "#/parameters/Authorization"
-        - $ref: "#/parameters/RuleChainId"
+        - $ref: "#/parameters/ProjectId"
       responses:
         200:
           description: Data retrieved.
           schema:
-            $ref: "#/definitions/RuleChain"
+            $ref: "#/definitions/ProjectRes"
         403:
           description: Missing or invalid access token provided.
         404:
@@ -83,75 +86,53 @@ paths:
         500:
           $ref: "#/responses/ServiceError"
     put:
-      summary: Updates rulechain info
+      summary: Updates project info
       description: |
         Update is performed by replacing the current resource data with values
-        provided in a request payload. Note that the rulechain's ID
+        provided in a request payload. Note that the project's ID
         cannot be changed.
       tags:
-        - rulechain
+        - projects
       parameters:
         - $ref: "#/parameters/Authorization"
-        - $ref: "#/parameters/RuleChainId"
-        - name: rulechain
+        - $ref: "#/parameters/ProjectId"
+        - name: project
           description: JSON-formatted document describing the updated project.
           in: body
           schema:
-            $ref: "#/definitions/RuleChain"
+            $ref: "#/definitions/UpdateProjectReq"
           required: true
       responses:
         200:
-          description: rulechain updated.
+          description: Thing updated.
         400:
           description: Failed due to malformed JSON.
         403:
           description: Missing or invalid access token provided.
         404:
-          description: rulechain does not exist.
+          description: Thing does not exist.
         415:
           description: Missing or invalid content type.
         500:
           $ref: "#/responses/ServiceError"
     delete:
-      summary: Removes a rulechain
+      summary: Removes a project
       description: |
-        Removes a rulechain. The service will ensure that the rulechain is removed
+        Removes a project. The service will ensure that the project is removed
       tags:
-        - rulechain
+        - projects
       parameters:
         - $ref: "#/parameters/Authorization"
-        - $ref: "#/parameters/RuleChainId"
+        - $ref: "#/parameters/ProjectId"
       responses:
         204:
-          description: rulechain removed.
+          description: Project removed.
         400:
-          description: Failed due to malformed rulechain's ID.
+          description: Failed due to malformed project's ID.
         403:
           description: Missing or invalid access token provided.
         500:
           $ref: "#/responses/ServiceError"
-  /rulechain/{rulechainId}/status:
-    put:
-      summary: Updates rulechain status
-      description: |
-        Update is performed by replacing the current resource data with values
-        provided in a request payload. Note that the rulechain's ID
-        cannot be changed.
-      tags:
-        - updatestatus
-      parameters:
-        - $ref: "#/parameters/Authorization"
-        - $ref: "#/parameters/RuleChainId"
-        - $ref: "#/parameters/UpdateStatus"
-      responses:
-        204:
-          description: rulechain status updated.
-        400:
-          description: Failed due to malformed rulechain's ID.
-        403:
-          description: Missing or invalid access token provided.
-        500:
-          $ref: "#/responses/ServiceError"     
 
 parameters:
   Authorization:
@@ -160,15 +141,9 @@ parameters:
     in: header
     type: string
     required: true
-  UpdateStatus:
-    name: updatestatus
-    description: rulechain updatestatus
-    in: header
-    type: string
-    required: true
-  RuleChainId:
-    name: rulechainId
-    description: Unique rulechain identifier.
+  ProjectId:
+    name: projectId
+    description: Unique project identifier.
     in: path
     type: integer
     minimum: 1
@@ -210,9 +185,15 @@ responses:
     description: Unexpected server-side error occurred.
 
 definitions:
-  RuleChainPage:
+  ProjectsPage:
     type: object
     properties:
+      projects:
+        type: array
+        minItems: 0
+        uniqueItems: true
+        items:
+          $ref: "#/definitions/ProjectRes"
       total:
         type: integer
         description: Total number of items.
@@ -222,50 +203,56 @@ definitions:
       limit:
         type: integer
         description: Maximum number of items to return in one page.
-      rulechains:
-        type: array
-        minItems: 0
-        uniqueItems: true
-        items:
-          $ref: "#/definitions/RuleChain"
     required:
-      - rulechains
-  RuleChain:
+      - projects
+  ProjectRes:
+    type: object
+    properties:
+      owner:
+        type: string
+        description: the owner of the project
+      id:
+        type: string
+        description: Unique thing identifier generated by the service.
+      name:
+        type: string
+        description: Free-form thing name.
+      created:
+        type: integer
+        description: project created time
+      updated:
+        type: integer
+        description: project updated time
+      metadata:
+        type: object
+        description: Arbitrary, object-encoded thing's data.
+    required:
+      - owner
+      - id
+  CreateProjectReq:
     type: object
     properties:
       name:
         type: string
-        description: Free-form rulechain name.
-      id:
-        type: string
-        description: rulechain's id
-      description:
-        type: string
-        description: rulechain's description
-      debugmode:
-        type: integer
-        description: rulechain's debugmode, boolean
-      userid:
-        type: string
-        description: the owner of the rulechain's id
-      status:
-        type: string
-        description: rulechain's status
-      payload:
+        description: Free-form project name.
+      project:
         type: object
-        description: rulechain's payload
-      root:
-        type: integer
-        description: rulechain's root
-      channel:
+        description: a project's basic attributions
+      metadata:
+        type: object
+        description: Arbitrary, object-encoded project's data.
+  UpdateProjectReq:
+    type: object
+    properties:
+      name:
         type: string
-        description: rulechain's channel
-      subtopic:
+        description: Free-form project name.
+      thingid:
         type: string
-        description: rulechain's subtopic
-      createat:
-        type: string
-        description: when rulechain created
-      lastupdateat:
-        type: string
-        description: when rulechain last updated 
+        description: thingid
+      project:
+        type: object
+        description: a project's basic attributions
+      metadata:
+        type: object
+        description: Arbitrary, object-encoded thing's data.

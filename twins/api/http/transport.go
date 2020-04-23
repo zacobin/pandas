@@ -17,6 +17,7 @@ import (
 	"github.com/cloustone/pandas/twins"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
 	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-zoo/bone"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -99,7 +100,23 @@ func MakeHandler(tracer opentracing.Tracer, svc twins.Service) http.Handler {
 	r.GetFunc("/version", pandas.Version("twins"))
 	r.Handle("/metrics", promhttp.Handler())
 
+	r.Handle("/swagger", RedocUI(promhttp.Handler()))
+
 	return r
+}
+
+//RedocUI docs to show redoc ui
+func RedocUI(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		opts := middleware.RedocOpts{
+			Path:     "twinsdocs",
+			SpecURL:  r.URL.Host + "/twins/swagger.yaml",
+			RedocURL: r.URL.Host + "/swagger/static/js/redoc.standalone.js",
+			Title:    "twins api",
+		}
+		middleware.Redoc(opts, handler).ServeHTTP(w, r)
+		return
+	})
 }
 
 func decodeTwinCreation(_ context.Context, r *http.Request) (interface{}, error) {

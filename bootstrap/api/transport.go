@@ -17,6 +17,7 @@ import (
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/errors"
 	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-zoo/bone"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -112,7 +113,23 @@ func MakeHandler(svc bootstrap.Service, reader bootstrap.ConfigReader) http.Hand
 	r.GetFunc("/version", pandas.Version("bootstrap"))
 	r.Handle("/metrics", promhttp.Handler())
 
+	r.Handle("/swagger", RedocUI(promhttp.Handler()))
+
 	return r
+}
+
+//RedocUI docs to show redoc ui
+func RedocUI(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		opts := middleware.RedocOpts{
+			Path:     "bootstrapdocs",
+			SpecURL:  r.URL.Host + "/bootstrap/swagger.yaml",
+			RedocURL: r.URL.Host + "/swagger/static/js/redoc.standalone.js",
+			Title:    "bootstrap api",
+		}
+		middleware.Redoc(opts, handler).ServeHTTP(w, r)
+		return
+	})
 }
 
 func decodeAddRequest(_ context.Context, r *http.Request) (interface{}, error) {

@@ -4,13 +4,28 @@ import (
 	"github.com/cloustone/pandas/rulechain"
 )
 
-type RuleChainRequestInfo struct {
+type RuleChainInfoRequest struct {
+	token       string
+	RuleChainID string
+}
+
+func (req RuleChainInfoRequest) validate() error {
+	if req.token == "" {
+		return rulechain.ErrUnauthorizedAccess
+	}
+	if req.RuleChainID == "" {
+		return rulechain.ErrMalformedEntity
+	}
+	return nil
+}
+
+type updateRuleChainStatusRequest struct {
 	token        string
 	RuleChainID  string
 	updatestatus string
 }
 
-func (req RuleChainRequestInfo) validate() error {
+func (req updateRuleChainStatusRequest) validate() error {
 	if req.token == "" {
 		return rulechain.ErrUnauthorizedAccess
 	}
