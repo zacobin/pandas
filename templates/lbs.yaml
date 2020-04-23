@@ -48,14 +48,14 @@ spec:
         imagePullPolicy: {{.Values.docker.pullPolicy}}
 {{ end }}
         ports:
-        - containerPort: 8080
+        - containerPort: {{.Values.lbs.port }}
         command: ["/bin/sh", "-c"]
-        args: ["PANDAS_PORT=8080 /main"]
+        args: ["PANDAS_PORT=8190 /main"]
         env:
         - name: PANDAS_POD_NAME
           valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
+            fieldRef:
+              fieldPath: metadata.name
         - name: PANDAS_POD_NAMESPACE
           valueFrom:
             fieldRef:
@@ -76,6 +76,24 @@ spec:
           value: {{ .Values.public.rabbitmq.username }}
         - name: PANDAS_MESSAGE_PASSWORD
           value: {{ .Values.public.rabbitmq.password }}
+        - name: PD_JAEGER_URL
+          value: {{.Values.jaeger.url }}
+        - name: PD_TOKEN_RESET_ENDPOINT
+          value: {{.Values.rulechain.token }}
+        - name: PD_LBS_DB
+          value: {{.Values.lbs.db.name }}
+        - name: PD_LBS_DB_HOST
+          value: {{.Values.lbs.db.host }}
+        - name: PD_LBS_DB_PASS
+          value: {{.Values.lbs.db.pass }}
+        - name: PD_LBS_DB_PORT
+          value: "5432"
+        - name: PD_LBS_DB_USER
+          value: {{.Values.lbs.db.user }}
+        - name: PD_LBS_HTTP_PORT
+          value: {{.Values.lbs.port }}
+        - name: PD_LBS_LOG_LEVEL
+          value: {{.Values.lbs.log_level }} 
         resources:
           limits:
             cpu: {{.Values.lbs.cpus}}
@@ -101,8 +119,8 @@ metadata:
 spec:
   ports:
   - name: pandas-lbs
-    port: 80
-    targetPort: 8080
+    port: {{.Values.lbs.port }}
+    targetPort: {{.Values.lbs.targetPort }}
   selector:
     service: pandas-lbs
 {{ end }}

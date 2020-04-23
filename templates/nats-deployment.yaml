@@ -25,14 +25,8 @@ spec:
           image: nats:1.3.0
 {{ end }}
           imagePullPolicy: IfNotPresent
-          volumeMounts:
-          - name: nats-claim0
-            mountPath: /etc/nats
+         
       restartPolicy: Always
-      volumes:
-      - name: nats-claim0
-        persistentVolumeClaim:
-          claimName: nats-claim0
       args:
       - -c
       - /etc/nats/nats.conf

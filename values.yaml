@@ -5,7 +5,7 @@ env: dev
 services:
   expose_node_port: true
 docker:
-  #registry: 10.4.47.129:5000
+  registry: 10.4.47.129:5000
   namespace: cloustone 
   image_prefix: pandas-
   pullPolicy: Always
@@ -36,7 +36,7 @@ public:
 apimachinery:
   deploy: true
   version: latest
-  port: 30001
+  port: 30001	
   cpus: 100m
   memory: 256Mi
 dmms:
@@ -45,6 +45,12 @@ dmms:
   port: 0 
   cpus: 100m
   memory: 256Mi
+pms_db:
+  deploy: true
+  port: 5432
+  dbname: pms
+  username: mainflux
+  password: mainflux
 pms:
   deploy: true
   version: latest
@@ -57,16 +63,46 @@ headmast:
   port: 0 
   cpus: 100m
   memory: 256Mi
+
+rulechain_db:
+  deploy: true
+  port: 5432
+  dbname: rulechain
+  username: mainflux
+  password: mainflux	
 rulechain:
   deploy: true
+  port: 8191
+  targetPort: 8191
+  db:
+    name: rulechain
+    host: rulechain-db
+    user: mainflux
+    pass: mainflux
+  log_level: debug 
+  secret: secret
   version: latest
-  port: 0
   cpus: 100m
   memory: 64Mi
+
+lbs_db:
+  deploy: true
+  port: 5432
+  dbname: lbs
+  username: mainflux
+  password: mainflux
 lbs:
   deploy: true
   version: latest
-  port: 0
+  port: 8190
+  targetPort: 8190
+  db:
+    name: lbs
+    host: lbs-db
+    user: mainflux
+    pass: mainflux
+  log_level: debug 
+  secret: secret
   cpus: 100m
   memory: 64Mi
   baidu:
@@ -170,16 +206,19 @@ users:
     temp: email.tmpl
   token: /reset-request
 
-mqtt_adapter:
+mqtt:
   deploy: true 
-  port: 
-    ws: 8880
-    ws_broker: 8881
-    port: 1883
-    target: 1883
-    broker: 1883
-  log_level: debug
-  target_host: vernemq
+  proxy:
+    mqtt_port: 1884
+    ws_port: 8081
+    logLevel: debug
+  broker:
+    mqtt_port: 1883
+    ws_port: 8080
+    logLevel: info
+    limits:
+      maxRam: 4Gi
+      reqRam: 512Mi
 
 coap_adapter:
   deploy: true
@@ -192,13 +231,17 @@ ws_adapter:
   log_level: debug 
   port: 8186
   targetport: 8186
+
+http_adapter:
+  deploy: true 
+  log_level: debug 
+  port: 8185
+  targetport: 8185
   
 vernemq:
   deploy: true
-  log_level: debug 
   port: 
-    port1: 18831
-    port2: 8881
-    port3: 8888
+    mqtt_port: 1883
+    ws_port: 8881
   anonymous: "'on'"
   log_level: info
