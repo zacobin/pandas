@@ -54,7 +54,13 @@ pms_db:
 pms:
   deploy: true
   version: latest
-  port: 0 
+  port: 8194
+  targetport: 8194
+  db:
+    name: pms
+    host: pms-db
+    user: mainflux
+    pass: mainflux
   cpus: 100m
   memory: 256Mi
 headmast:

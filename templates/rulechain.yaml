@@ -50,7 +50,7 @@ spec:
         ports:
         - containerPort: {{.Values.rulechain.port }}
         command: ["/bin/sh", "-c"]
-        args: ["PANDAS_PORT=8189 /main"]
+        args: ["PANDAS_PORT=8191 /main"]
         env:
         - name: PANDAS_REDIS_ADDRESS
           value: {{ .Values.public.redis.address }}
@@ -69,21 +69,15 @@ spec:
         - name: PD_RULECHAIN_DB_USER
           value: {{.Values.rulechain.db.user }}
         - name: PD_RULECHAIN_HTTP_PORT
-          value: {{.Values.rulechain.port }}
+          value: "8191"
         - name: PD_RULECHAIN_LOG_LEVEL
-          value: {{.Values.rulechain.log_level }}   
+          value: {{.Values.rulechain.log_level }}
+        - name: PD_NATS_URL
+          value: {{.Values.nats.url}}  
         resources:
           limits:
             cpu: {{.Values.rulechain.cpus}}
             memory: {{.Values.rulechain.memory}}
-        readinessProbe:
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:4430"]
-          initialDelaySeconds: 5
-        livenessProbe:
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:4430"]
-          initialDelaySeconds: 10
             
 ---
 

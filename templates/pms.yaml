@@ -48,24 +48,30 @@ spec:
         imagePullPolicy: {{.Values.docker.pullPolicy}}
 {{ end }}
         ports:
-        - containerPort: 8080
+        - containerPort:  {{.Values.pms.port }}
         command: ["/bin/sh", "-c"]
         args: ["PANDAS_PORT=8080 /main"]
         env:
         - name: PANDAS_REDIS_ADDRESS
           value: {{ .Values.public.redis.address }}
+        - name: PD_NATS_URL
+          value: {{.Values.nats.url}}
+        - name: PD_JAEGER_URL
+          value: {{.Values.jaeger.url }}
+        - name: PD_PMS_DB
+          value: {{.Values.pms.db.name }}
+        - name: PD_PMS_DB_HOST
+          value: {{.Values.pms.db.host }}
+        - name: PD_PMS_DB_PASS
+          value: {{.Values.pms.db.pass }}
+        - name: PD_PMS_DB_PORT
+          value: "5432"
+        - name: PD_PMS_DB_USER
+          value: {{.Values.pms.db.user }}
         resources:
           limits:
             cpu: {{.Values.pms.cpus}}
             memory: {{.Values.pms.memory}}
-        readinessProbe:
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:4430"]
-          initialDelaySeconds: 5
-        livenessProbe:
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:4430"]
-          initialDelaySeconds: 10
             
 ---
 
