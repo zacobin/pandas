@@ -50,8 +50,6 @@ spec:
         ports:
         - containerPort:  {{.Values.vms.port }}
         env:
-        - name: PANDAS_REDIS_ADDRESS
-          value: {{ .Values.public.redis.address }}
         - name: PD_VMS_HTTP_PORT
           value: "8193"
         - name: PD_NATS_URL

@@ -50,8 +50,6 @@ spec:
         ports:
         - containerPort:  {{.Values.realms.port }}
         env:
-        - name: PANDAS_REDIS_ADDRESS
-          value: {{ .Values.public.redis.address }}
         - name: PD_REALMS_HTTP_PORT
           value: "8195"
         - name: PD_NATS_URL

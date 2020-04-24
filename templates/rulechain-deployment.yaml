@@ -50,8 +50,6 @@ spec:
         ports:
         - containerPort: {{.Values.rulechain.port }}
         env:
-        - name: PANDAS_REDIS_ADDRESS
-          value: {{ .Values.public.redis.address }}
         - name: PD_JAEGER_URL
           value: {{.Values.jaeger.url }}
         - name: PD_TOKEN_RESET_ENDPOINT
