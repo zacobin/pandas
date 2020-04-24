@@ -15,119 +15,14 @@ public:
     deploy: false
   prometheus: 
     address: prometheus.kube-public:9090
-  etcd:
-    address: etcd.kube-public:2379
-    username: test
-    password: test
-    prefix: test
   redis:
     address: redis.kube-public:6379
     port: 6379
-  rabbitmq:
-    address: rabbitmq.kube-public
-    username: pandas 
-    password: pandas 
-    port:
-      epmd: 4369
-      amqp: 5672
-      stats: 15672
-      dist: 25672
-
-apimachinery:
-  deploy: true
-  version: latest
-  port: 30001	
-  cpus: 100m
-  memory: 256Mi
-dmms:
-  deploy: true
-  version: latest
-  port: 0 
-  cpus: 100m
-  memory: 256Mi
-pms_db:
-  deploy: true
-  port: 5432
-  dbname: pms
-  username: mainflux
-  password: mainflux
-pms:
-  deploy: true
-  version: latest
-  port: 8194
-  targetPort: 8194
-  db:
-    name: pms
-    host: pms-db
-    user: mainflux
-    pass: mainflux
-  cpus: 100m
-  memory: 256Mi
-headmast:
-  deploy: true
-  version: latest
-  port: 0 
-  cpus: 100m
-  memory: 256Mi
-
-rulechain_db:
-  deploy: true
-  port: 5432
-  dbname: rulechain
-  username: mainflux
-  password: mainflux	
-rulechain:
-  deploy: true
-  port: 8191
-  targetPort: 8191
-  db:
-    name: rulechain
-    host: rulechain-db
-    user: mainflux
-    pass: mainflux
-  log_level: debug 
-  secret: secret
-  version: latest
-  cpus: 100m
-  memory: 64Mi
-
-lbs_db:
-  deploy: true
-  port: 5432
-  dbname: lbs
-  username: mainflux
-  password: mainflux
-lbs:
-  deploy: true
-  version: latest
-  port: 8190
-  targetPort: 8190
-  db:
-    name: lbs
-    host: lbs-db
-    user: mainflux
-    pass: mainflux
-  log_level: debug 
-  secret: secret
-  cpus: 100m
-  memory: 64Mi
-  baidu:
-    service_id: pandas
-    ak: xxxxxxxxxx
-
-dashboard:
-  deploy: false
-  version: latest
-  port: 30880
-  cpus: 100m
-  memory: 64Mi
-
 nats:
   deploy: true
   url: nats:4222 
   port: 4222
   targetport: 4222
-
 jaeger:
   deploy: true
   port:
@@ -136,81 +31,13 @@ jaeger:
     collect: 14268
     configs: 5778
   url: jaeger:6831
-
 redis:
   deploy: true
   port: 6379
   things_url: things-redis:6379
   es_url: es-redis:6379
-
-authn_db:
-  deploy: true
-  port: 5432
-  dbname: authn
-  username: mainflux
-  password: mainflux
-
-authn:
-  deploy: true
-  url: authn:8189
-  httpPort: 8189
-  grpcPort: 8181
-  db:
-    name: authn
-    host: authn-db
-    user: mainflux
-    pass: mainflux
-  log_level: debug 
-  secret: secret
-
-things:
-  deploy: true 
-  url: things:8183
-  port: 8183
-  targetport: 8183
-  db:
-    name: things
-    host: things-db
-    user: mainflux
-    pass: mainflux
-  log_level: debug  
-  secret: secret
-
-things_db:
-  deploy: true
-  port: 5432
-  dbname: things
-  username: mainflux
-  password: mainflux
-
-users_db:
-  deploy: true
-  port: 5432
-  dbname: users
-  username: mainflux
-  password: mainflux
-
-users:
-  deploy: true
-  port: 8180
-  targetport: 8180
-  db:
-    name: users
-    host: users-db
-    user: mainflux
-    pass: mainflux
-  log_level: debug 
-  secret: secret
-  email:
-    driver: smtp
-    from: 
-      address: from@example.com
-      name: Example
-    host: smtp.mailtrap.io
-    pass: 2b0d302e775b1e
-    name: 18bf7f70705139
-    temp: email.tmpl
-  token: /reset-request
+  pms_url: pms-redis:6379
+  realms_url: realms-redis:6379
 
 mqtt:
   deploy: true 
@@ -247,3 +74,231 @@ vernemq:
     ws_port: 8881
   anonymous: "'on'"
   log_level: info
+
+pms_db:
+  deploy: true
+  port: 5432
+  dbname: pms
+  username: mainflux
+  password: mainflux
+pms:
+  deploy: true
+  version: latest
+  port: 8194
+  targetPort: 8194
+  db:
+    name: pms
+    host: pms-db
+    user: mainflux
+    pass: mainflux
+  cpus: 100m
+  memory: 256Mi
+  secret: secret
+realms_db:
+  deploy: true
+  port: 5432
+  dbname: realms
+  username: mainflux
+  password: mainflux
+realms:
+  deploy: true
+  version: latest
+  port: 8195
+  targetPort: 8195
+  db:
+    name: realms
+    host: realms-db
+    user: mainflux
+    pass: mainflux
+  cpus: 100m
+  memory: 256Mi
+  secret: secret
+vms_db:
+  deploy: true
+  port: 5432
+  dbname: vms
+  username: mainflux
+  password: mainflux
+vms:
+  deploy: true
+  version: latest
+  port: 8193
+  targetPort: 8193
+  db:
+    name: vms
+    host: vms-db
+    user: mainflux
+    pass: mainflux
+  cpus: 100m
+  memory: 256Mi
+  secret: secret
+headmast:
+  deploy: true
+  version: latest
+  port: 0 
+  cpus: 100m
+  memory: 256Mi
+rulechain_db:
+  deploy: true
+  port: 5432
+  dbname: rulechain
+  username: mainflux
+  password: mainflux	
+rulechain:
+  deploy: true
+  port: 8191
+  targetPort: 8191
+  db:
+    name: rulechain
+    host: rulechain-db
+    user: mainflux
+    pass: mainflux
+  log_level: debug 
+  secret: secret
+  version: latest
+  cpus: 100m
+  memory: 64Mi
+lbs_db:
+  deploy: true
+  port: 5432
+  dbname: lbs
+  username: mainflux
+  password: mainflux
+lbs:
+  deploy: true
+  version: latest
+  port: 8190
+  targetPort: 8190
+  db:
+    name: lbs
+    host: lbs-db
+    user: mainflux
+    pass: mainflux
+  log_level: debug 
+  secret: secret
+  cpus: 100m
+  memory: 64Mi
+  baidu:
+    service_id: pandas
+    ak: xxxxxxxxxx
+dashboard:
+  deploy: false
+  version: latest
+  port: 30880
+  cpus: 100m
+  memory: 64Mi
+authn_db:
+  deploy: true
+  port: 5432
+  dbname: authn
+  username: mainflux
+  password: mainflux
+authn:
+  deploy: true
+  url: authn:8189
+  httpPort: 8189
+  grpcPort: 8181
+  db:
+    name: authn
+    host: authn-db
+    user: mainflux
+    pass: mainflux
+  log_level: debug 
+  secret: secret
+authz:
+  deploy: true
+  url: authz:8192
+  httpPort: 8192
+  log_level: debug 
+  secret: secret
+things:
+  deploy: true 
+  url: things:8183
+  port: 8183
+  targetport: 8183
+  db:
+    name: things
+    host: things-db
+    user: mainflux
+    pass: mainflux
+  log_level: debug  
+  secret: secret
+things_db:
+  deploy: true
+  port: 5432
+  dbname: things
+  username: mainflux
+  password: mainflux
+users_db:
+  deploy: true
+  port: 5432
+  dbname: users
+  username: mainflux
+  password: mainflux
+users:
+  deploy: true
+  port: 8180
+  targetport: 8180
+  db:
+    name: users
+    host: users-db
+    user: mainflux
+    pass: mainflux
+  log_level: debug 
+  secret: secret
+  email:
+    driver: smtp
+    from: 
+      address: from@example.com
+      name: Example
+    host: smtp.mailtrap.io
+    pass: 2b0d302e775b1e
+    name: 18bf7f70705139
+    temp: email.tmpl
+  token: /reset-request
+bootstrap:
+  deploy: true 
+  port: 8202
+  targetPort: 8202
+  db:
+    name: bootstrap
+    host: bootstrap-db
+    user: mainflux
+    pass: mainflux
+  log_level: debug  
+  secret: secret
+bootstrap_db:
+  deploy: true
+  port: 5432
+  dbname: bootstrap
+  username: mainflux
+  password: mainflux
+twins:
+  deploy: true 
+  port: 9021
+  targetPort: 9021
+  db:
+    name: bootstrap
+    host: twins-db
+    user: mainflux
+    pass: mainflux
+  log_level: debug  
+  secret: secret
+twins_db:
+  deploy: true
+  port: 5432
+  dbname: twins
+  username: mainflux
+  password: mainflux
+swagger:
+  deploy: true
+  version: latest
+  port: 8196
+  targetPort: 8196
+  auth:
+    httpPort: 8189
+    grpcPort: 8183
+  cpus: 100m
+  memory: 256Mi
+  secret: secret
+

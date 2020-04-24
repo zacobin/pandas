@@ -1,0 +1,51 @@
+{{ if .Values.bootstrap_db.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}bootstrap-db 
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}bootstrap-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}bootstrap-db
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}bootstrap-db
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}bootstrap-db
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/postgres:10.8-alpine
+{{ else }}
+          image: postgres:10.8-alpine
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{.Values.bootstrap_db.port }}
+          env:
+          - name: POSTGRES_USER
+            value: {{.Values.bootstrap_db.username }}
+          - name: POSTGRES_PASSWORD
+            value: {{.Values.bootstrap_db.password }}
+          - name: POSTGRES_DB
+            value: {{.Values.bootstrap_db.dbname }}
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: bootstrap-db
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.bootstrap_db.port }}
+    targetPort: {{ .Values.bootstrap_db.targetPort }}
+  selector:
+    service: {{.Values.docker.image_prefix}}bootstrap-db
+{{ end }}

@@ -1,0 +1,84 @@
+{{ if .Values.authz.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}authz
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}authz
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}authz
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}authz
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}authz 
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}authz:latest
+{{ else }}
+          image: {{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}authz:latest
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{.Values.authz.httpPort }}
+            protocol: TCP
+          env:
+          - name: PD_AUTHZ_LOG_LEVEL
+            value: {{.Values.authz.log_level }}
+          - name: PD_USERS_DB
+            value: {{.Values.users.db.name }}
+          - name: PD_USERS_DB_HOST
+            value: {{.Values.users.db.host }}
+          - name: PD_USERS_DB_PASS
+            value: {{.Values.users.db.pass }}
+          - name: PD_USERS_DB_PORT
+            value: "5432"
+          - name: PD_USERS_DB_USER
+            value: {{.Values.users.db.user }}
+          - name: PD_AUTHZ_HTTP_PORT
+            value: "8189"
+          - name: PD_JAEGER_URL
+            value: {{.Values.jaeger.url }}
+          - name: PD_EMAIL_DRIVER
+            value: {{.Values.users.email.driver }}
+          - name: PD_EMAIL_FROM_ADDRESS
+            value: {{.Values.users.email.from.address }}
+          - name: PD_EMAIL_FROM_NAME
+            value: {{.Values.users.email.from.name }}
+          - name: PD_EMAIL_HOST
+            value: {{.Values.users.email.host }}
+          - name: PD_EMAIL_PASSWORD
+            value: {{.Values.users.email.pass }}
+          - name: PD_EMAIL_PORT
+            value: "2525"
+          - name: PD_EMAIL_TEMPLATE
+            value: {{.Values.users.email.temp }}
+          - name: PD_EMAIL_USERNAME
+            value: {{.Values.users.email.name }}
+          - name: PD_TOKEN_RESET_ENDPOINT
+            value: {{.Values.users.token }}
+          - name: PD_AUTHN_URL
+            value: {{.Values.authn.url }}
+      restartPolicy: Always
+      
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}authz
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.authz.httpPort }}
+    name: {{.Values.docker.image_prefix}}authz-http
+    protocol: TCP
+  selector:
+    service: {{.Values.docker.image_prefix}}authz
+{{ end }}

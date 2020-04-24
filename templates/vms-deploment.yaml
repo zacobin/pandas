@@ -1,0 +1,100 @@
+{{ if .Values.vms.deploy }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{.Values.docker.image_prefix}}vms
+  namespace: {{.Values.namespace.name}}
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: {{.Values.docker.image_prefix}}vms
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: {{.Values.docker.image_prefix}}vms
+    namespace: {{.Values.namespace.name}}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}vms
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}vms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}vms
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}vms
+    spec:
+      serviceAccount: {{.Values.docker.image_prefix}}vms
+      serviceAccountName: {{.Values.docker.image_prefix}}vms
+      containers:
+      - name: {{.Values.docker.image_prefix}}vms
+        image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}vms:{{.Values.vms.version}}
+{{ if .Values.docker.pullPolicy }}
+        imagePullPolicy: {{.Values.docker.pullPolicy}}
+{{ end }}
+        ports:
+        - containerPort:  {{.Values.vms.port }}
+        env:
+        - name: PANDAS_REDIS_ADDRESS
+          value: {{ .Values.public.redis.address }}
+        - name: PD_VMS_HTTP_PORT
+          value: "8193"
+        - name: PD_NATS_URL
+          value: {{.Values.nats.url}}
+        - name: PD_JAEGER_URL
+          value: {{.Values.jaeger.url }}
+        - name: PD_VMS_DB
+          value: {{.Values.vms.db.name }}
+        - name: PD_VMS_DB_HOST
+          value: {{.Values.vms.db.host }}
+        - name: PD_VMS_DB_PASS
+          value: {{.Values.vms.db.pass }}
+        - name: PD_VMS_DB_PORT
+          value: "5432"
+        - name: PD_VMS_DB_USER
+          value: {{.Values.vms.db.user }}
+        - name: PD_AUTH_URL
+          value: authn:{{.Values.authn.grpcPort }}
+        - name: PD_VMS_SECRET
+          value: {{.Values.vms.secret }}
+        - name: PD_VMS_CACHE_URL
+          value: {{.Values.redis.vms_url }}
+        - name: PD_VMS_ES_URL
+          value: {{.Values.redis.es_url }}
+        resources:
+          limits:
+            cpu: {{.Values.vms.cpus}}
+            memory: {{.Values.vms.memory}}
+            
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}vms
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}vms
+spec:
+  ports:
+  - name: {{.Values.docker.image_prefix}}vms
+    port: {{.Values.vms.port }}
+    targetPort: {{.Values.vms.targetPort }}
+  selector:
+    service: {{.Values.docker.image_prefix}}vms
+{{ end }}

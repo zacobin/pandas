@@ -42,7 +42,7 @@ spec:
       serviceAccount: {{.Values.docker.image_prefix}}pms
       serviceAccountName: {{.Values.docker.image_prefix}}pms
       containers:
-      - name: pandas-pms
+      - name: {{.Values.docker.image_prefix}}pms
         image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}pms:{{.Values.pms.version}}
 {{ if .Values.docker.pullPolicy }}
         imagePullPolicy: {{.Values.docker.pullPolicy}}
@@ -52,6 +52,8 @@ spec:
         env:
         - name: PANDAS_REDIS_ADDRESS
           value: {{ .Values.public.redis.address }}
+        - name: PD_PMS_HTTP_PORT
+          value: "8194"
         - name: PD_NATS_URL
           value: {{.Values.nats.url}}
         - name: PD_JAEGER_URL
@@ -66,6 +68,14 @@ spec:
           value: "5432"
         - name: PD_PMS_DB_USER
           value: {{.Values.pms.db.user }}
+        - name: PD_AUTH_URL
+          value: {{.Values.authn.url }}
+        - name: PD_PMS_SECRET
+          value: {{.Values.pms.secret }}
+        - name: PD_PMS_CACHE_URL
+          value: {{.Values.redis.pms_url }}
+        - name: PD_PMS_ES_URL
+          value: {{.Values.redis.es_url }}
         resources:
           limits:
             cpu: {{.Values.pms.cpus}}

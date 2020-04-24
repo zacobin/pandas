@@ -1,0 +1,44 @@
+{{ if .Values.redis.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}vms-redis 
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}vms-redis 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}vms-redis 
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}vms-redis 
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}vms-redis 
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/redis:5.0-alpine
+{{ else }}
+          image: redis:5.0-alpine
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{ .Values.redis.port }}
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}vms-redis
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.redis.port }}
+    targetPort: {{ .Values.redis.port }}
+  selector:
+    service: {{.Values.docker.image_prefix}}vms-redis
+{{ end }}

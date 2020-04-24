@@ -1,0 +1,90 @@
+{{ if .Values.swagger.deploy }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{.Values.docker.image_prefix}}swagger
+  namespace: {{.Values.namespace.name}}
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: {{.Values.docker.image_prefix}}swagger
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: {{.Values.docker.image_prefix}}swagger
+    namespace: {{.Values.namespace.name}}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}swagger
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}swagger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}swagger
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}swagger
+    spec:
+      serviceAccount: {{.Values.docker.image_prefix}}swagger
+      serviceAccountName: {{.Values.docker.image_prefix}}swagger
+      containers:
+      - name: {{.Values.docker.image_prefix}}swagger
+        image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}swagger:{{.Values.swagger.version}}
+{{ if .Values.docker.pullPolicy }}
+        imagePullPolicy: {{.Values.docker.pullPolicy}}
+{{ end }}
+        ports:
+        - containerPort:  {{.Values.swagger.port }}
+        env:
+        - name: PANDAS_REDIS_ADDRESS
+          value: {{ .Values.public.redis.address }}
+        - name: PD_SWAGGER_HTTP_PORT
+          value: "{{.Values.swagger.port }}"
+        - name: PD_NATS_URL
+          value: {{.Values.nats.url}}
+        - name: PD_JAEGER_URL
+          value: {{.Values.jaeger.url }}
+        - name: PD_AUTH_URL
+          value: {{.Values.authn.url }}
+        - name: PD_SWAGGER_SECRET
+          value: {{.Values.swagger.secret }}
+        - name: PD_SWAGGER_AUTH_HTTP_PORT
+          value: "{{.Values.swagger.auth.httpPort }}"
+        - name: PD_SWAGGER_AUTH_GRPC_PORT
+          value: "{{.Values.swagger.auth.grpcPort }}"
+        resources:
+          limits:
+            cpu: {{.Values.swagger.cpus}}
+            memory: {{.Values.swagger.memory}}
+            
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}swagger
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}swagger
+spec:
+  ports:
+  - name: {{.Values.docker.image_prefix}}swagger
+    port: {{.Values.swagger.port }}
+    targetPort: {{.Values.swagger.targetPort }}
+  selector:
+    service: {{.Values.docker.image_prefix}}swagger
+{{ end }}

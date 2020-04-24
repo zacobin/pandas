@@ -1,0 +1,71 @@
+{{ if .Values.bootstrap.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}bootstrap 
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}bootstrap 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}bootstrap
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}bootstrap
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}bootstrap
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}bootstrap:latest
+{{ else }}
+          image: {{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}bootstrap:latest
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{.Values.bootstrap.port }}
+          env:
+          - name: PD_AUTH_URL
+            value: {{.Values.authn.url }}
+          - name: PD_JAEGER_URL
+            value: {{.Values.jaeger.url }}
+          - name: PD_BOOTSTRAP_AUTH_HTTP_PORT
+            value: "8202"
+          - name: PD_BOOTSTRAP_CACHE_URL
+            value: {{.Values.redis.bootstrap_url }}
+          - name: PD_BOOTSTRAP_DB
+            value: {{.Values.bootstrap.db.name }}
+          - name: PD_BOOTSTRAP_DB_HOST
+            value: {{.Values.bootstrap.db.host }}
+          - name: PD_BOOTSTRAP_DB_PASS
+            value: {{.Values.bootstrap.db.pass }}
+          - name: PD_BOOTSTRAP_DB_PORT
+            value: "5432"
+          - name: PD_BOOTSTRAP_DB_USER
+            value: {{.Values.bootstrap.db.user }}
+          - name: PD_BOOTSTRAP_ES_URL
+            value: {{.Values.redis.es_url }}
+          - name: PD_BOOTSTRAP_HTTP_PORT
+            value: "8202"
+          - name: PD_BOOTSTRAP_LOG_LEVEL
+            value: {{.Values.bootstrap.log_level }}
+          - name: PD_BOOTSTRAP_SECRET
+            value: {{.Values.bootstrap.secret }}
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}bootstrap
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.bootstrap.port }}
+    targetPort: {{ .Values.bootstrap.targetport }}
+  selector:
+    service: {{.Values.docker.image_prefix}}bootstrap
+{{ end }}
