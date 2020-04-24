@@ -11,6 +11,12 @@ var (
 	_ mainflux.Response = (*updateRuleChainResponse)(nil)
 )
 
+type pageRes struct {
+	Total  uint64 `json:"total"`
+	Offset uint64 `json:"offset"`
+	Limit  uint64 `json:"limit"`
+}
+
 type addRuleChainResponse struct{}
 
 func (res addRuleChainResponse) Code() int                  { return http.StatusOK }

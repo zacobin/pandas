@@ -1,0 +1,271 @@
+swagger: "2.0"
+info:
+  title: rulechain service
+  description: HTTP API for rulechain service
+  version: "1.0.0"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+paths:
+  /rulechain:
+    post:
+      summary: Adds new rulechain
+      description: |
+        Adds new rulechain to the list of rulechains owned by user identified using
+        the provided access token.
+      tags:
+        - rulechain
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: rulechain
+          description: JSON-formatted document describing the new rulechain.
+          in: body
+          schema:
+            $ref: "#/definitions/RuleChain"
+          required: true
+      responses:
+        201:
+          description: rulechain registered.
+          headers:
+            Location:
+              type: string
+              description: Created rulechain's relative URL (i.e. /rulechain/{rulechainId}).
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        415:
+          description: Missing or invalid content type.
+        500:
+          $ref: "#/responses/ServiceError"
+    get:
+      summary: Retrieves rulechains
+      description: |
+        Retrieves a list of rulechains. Due to performance concerns, data
+        is retrieved in subsets. The API rulechains must ensure that the entire
+        dataset is consumed either by making subsequent requests, or by
+        increasing the subset size of the initial request.
+      tags:
+        - rulechain
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/Offset"
+        - $ref: "#/parameters/Limit"
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            $ref: "#/definitions/RuleChainPage"
+        400:
+          description: Failed due to malformed query parameters.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+  /rulechain/{rulechainId}:
+    get:
+      summary: Retrieves rulechain info
+      tags:
+        - rulechain
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/RuleChainId"
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            $ref: "#/definitions/RuleChain"
+        403:
+          description: Missing or invalid access token provided.
+        404:
+          description: project does not exist.
+        500:
+          $ref: "#/responses/ServiceError"
+    put:
+      summary: Updates rulechain info
+      description: |
+        Update is performed by replacing the current resource data with values
+        provided in a request payload. Note that the rulechain's ID
+        cannot be changed.
+      tags:
+        - rulechain
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/RuleChainId"
+        - name: rulechain
+          description: JSON-formatted document describing the updated project.
+          in: body
+          schema:
+            $ref: "#/definitions/RuleChain"
+          required: true
+      responses:
+        200:
+          description: rulechain updated.
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        404:
+          description: rulechain does not exist.
+        415:
+          description: Missing or invalid content type.
+        500:
+          $ref: "#/responses/ServiceError"
+    delete:
+      summary: Removes a rulechain
+      description: |
+        Removes a rulechain. The service will ensure that the rulechain is removed
+      tags:
+        - rulechain
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/RuleChainId"
+      responses:
+        204:
+          description: rulechain removed.
+        400:
+          description: Failed due to malformed rulechain's ID.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+  /rulechain/{rulechainId}/status:
+    put:
+      summary: Updates rulechain status
+      description: |
+        Update is performed by replacing the current resource data with values
+        provided in a request payload. Note that the rulechain's ID
+        cannot be changed.
+      tags:
+        - updatestatus
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/RuleChainId"
+        - $ref: "#/parameters/UpdateStatus"
+      responses:
+        204:
+          description: rulechain status updated.
+        400:
+          description: Failed due to malformed rulechain's ID.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"     
+
+parameters:
+  Authorization:
+    name: Authorization
+    description: User's access token.
+    in: header
+    type: string
+    required: true
+  UpdateStatus:
+    name: updatestatus
+    description: rulechain updatestatus
+    in: header
+    type: string
+    required: true
+  RuleChainId:
+    name: rulechainId
+    description: Unique rulechain identifier.
+    in: path
+    type: integer
+    minimum: 1
+    required: true
+  Limit:
+    name: limit
+    description: Size of the subset to retrieve.
+    in: query
+    type: integer
+    default: 10
+    maximum: 100
+    minimum: 1
+    required: false
+  Offset:
+    name: offset
+    description: Number of items to skip during retrieval.
+    in: query
+    type: integer
+    default: 0
+    minimum: 0
+    required: false
+  Name:
+    name: name
+    description: Name filter. Filtering is performed as a case-insensitive partial match.
+    in: query
+    type: string
+    minimum: 0
+    required: false
+  Metadata:
+    name: metadata
+    description: Metadata filter. Filtering is performed matching the parameter with metadata on top level. Parameter is json.
+    in: query
+    type: string
+    minimum: 0
+    required: false
+
+responses:
+  ServiceError:
+    description: Unexpected server-side error occurred.
+
+definitions:
+  RuleChainPage:
+    type: object
+    properties:
+      total:
+        type: integer
+        description: Total number of items.
+      offset:
+        type: integer
+        description: Number of items to skip during retrieval.
+      limit:
+        type: integer
+        description: Maximum number of items to return in one page.
+      rulechains:
+        type: array
+        minItems: 0
+        uniqueItems: true
+        items:
+          $ref: "#/definitions/RuleChain"
+    required:
+      - rulechains
+  RuleChain:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Free-form rulechain name.
+      id:
+        type: string
+        description: rulechain's id
+      description:
+        type: string
+        description: rulechain's description
+      debugmode:
+        type: integer
+        description: rulechain's debugmode, boolean
+      userid:
+        type: string
+        description: the owner of the rulechain's id
+      status:
+        type: string
+        description: rulechain's status
+      payload:
+        type: object
+        description: rulechain's payload
+      root:
+        type: integer
+        description: rulechain's root
+      channel:
+        type: string
+        description: rulechain's channel
+      subtopic:
+        type: string
+        description: rulechain's subtopic
+      createat:
+        type: string
+        description: when rulechain created
+      lastupdateat:
+        type: string
+        description: when rulechain last updated 
