@@ -1,0 +1,61 @@
+# Copyright (c) cloustone
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}influxdb-reader
+  namespace: {{.Values.namespace.name}}
+spec:
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}influxdb-reader
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}influxdb-reader
+    spec:
+      containers:
+        - env:
+            - name: PD_INFLUX_READER_LOG_LEVEL
+              value: debug
+            - name: PD_THINGS_URL
+              value: {{.Values.things.url }}
+            - name: PD_INFLUX_READER_PORT
+              value: "{{.Values.influxdb_reader.port}}"                         
+            - name: PD_INFLUX_READER_DB_NAME
+              value: {{.Values.influxdb_reader.db.name }}
+            - name: PD_INFLUX_READER_DB_USER
+              value: {{.Values.influxdb_reader.db.user }}
+            - name: PD_INFLUX_READER_DB_PASS
+              value: {{.Values.influxdb_reader.db.pass }}              
+            - name: PD_INFLUX_READER_DB_HOST
+              value: {{.Values.influxdb_reader.db.host }}
+            - name: PD_INFLUX_READER_DB_PORT
+              value: "{{.Values.influxdb_reader.db.port }}"
+            - name: PD_JAEGER_URL
+              value: {{.Values.jaeger.url }}
+          image:  {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}influxdb-reader:latest
+          imagePullPolicy: {{.Values.docker.pullPolicy}}
+          name: {{.Values.docker.image_prefix}}influxdb-reader
+          ports:
+            - containerPort: {{.Values.influxdb_reader.port}}
+              protocol: TCP
+          stdin: true
+          tty: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}influxdb-reader
+  namespace: {{.Values.namespace.name}}
+spec:
+  selector:
+    service: {{.Values.docker.image_prefix}}influxdb-reader
+  ports:
+    - port: {{.Values.influxdb_reader.port}}
+      protocol: TCP
+      name: {{.Values.docker.image_prefix}}influxdb-writer-8905

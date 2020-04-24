@@ -34,9 +34,15 @@ nginx_internal:
 
 nats:
   deploy: true
-  url: nats:4222 
+  url: nats://nats:4222 
+#  url: nats://pandas-nats:4222
   port: 4222
   targetport: 4222
+  auth:
+    enabled: false
+  clusterAuth:
+    enabled: false
+  maxPayload: 268435456
 jaeger:
   deploy: true
   port:
@@ -315,4 +321,23 @@ swagger:
   cpus: 100m
   memory: 256Mi
   secret: secret
+
+influxdb_reader:
+  deploy: true
+  port: 8905
+  db:
+    name: mainflux
+    host: influxdb
+    user: mainflux
+    pass: mainflux
+    port: 8086
+influxdb_writer:
+  deploy: true
+  port: 8900
+  db:
+    name: mainflux
+    host: influxdb
+    user: mainflux
+    pass: mainflux
+    port: 8086
 
