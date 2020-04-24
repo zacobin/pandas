@@ -67,6 +67,8 @@ spec:
             value: "8180"
           - name: PD_USERS_LOG_LEVEL
             value: {{.Values.users.log_level }}
+          - name: PD_NATS_URL
+            value: {{.Values.nats.url}}
       restartPolicy: Always
       volumes:
       - name: email-tmpl

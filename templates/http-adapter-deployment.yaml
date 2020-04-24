@@ -20,7 +20,7 @@ spec:
       containers:
         - name: {{.Values.docker.image_prefix}}http-adapter
 {{ if .Values.docker.registry }}
-          image: {{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}http:latest
+          image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}http:latest
 {{ else }}
           image: {{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}http:latest
 {{ end }}

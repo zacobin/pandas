@@ -52,30 +52,8 @@ spec:
         command: ["/bin/sh", "-c"]
         args: ["PANDAS_PORT=8080 /main"]
         env:
-        - name: PANDAS_POD_NAME
-          valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
-        - name: PANDAS_POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: PANDAS_SERVICE_DISCOVERY_PATH
-          value: /pandas
-        - name: PANDAS_DEPLOY_MODE
-          value: kubernetes
-        - name: PANDAS_PRODUCT_REGISTRY
-          value: {{.Values.docker.registry}}/{{.Values.docker.namespace}}
         - name: PANDAS_REDIS_ADDRESS
           value: {{ .Values.public.redis.address }}
-        - name: PANDAS_MESSAGE_BACKEND
-          value: "rabbitmq"
-        - name: PANDAS_MESSAGE_ADDRESS
-          value: {{ .Values.public.rabbitmq.address }}
-        - name: PANDAS_MESSAGE_USERNAME
-          value: {{ .Values.public.rabbitmq.username }}
-        - name: PANDAS_MESSAGE_PASSWORD
-          value: {{ .Values.public.rabbitmq.password }}
         resources:
           limits:
             cpu: {{.Values.headmast.cpus}}

@@ -18,13 +18,33 @@ push_image() {
 if [ $# -ge 1 ]; then
     push_image cloustone/pandas-$1
 else
-    push_image cloustone/pandas-apimachinery
-    push_image cloustone/pandas-dmms
-    push_image cloustone/pandas-pms
-    push_image cloustone/pandas-headmast
     push_image cloustone/pandas-rulechain
-    push_image cloustone/pandas-authn
     push_image cloustone/pandas-lbs
+    push_image cloustone/pandas-authn
+    push_image cloustone/pandas-authz
+    push_image cloustone/pandas-things
+    push_image cloustone/pandas-bootstrap
+    push_image cloustone/pandas-twins
+    push_image cloustone/pandas-users
+    push_image cloustone/pandas-vms
+    push_image cloustone/pandas-pms
+    push_image cloustone/pandas-realms
+    push_image cloustone/pandas-swagger
+    push_image cloustone/pandas-http
+    push_image cloustone/pandas-ws
+    push_image cloustone/pandas-coap
+    push_image cloustone/pandas-lora
+    push_image cloustone/pandas-opcua
+    push_image cloustone/pandas-mqtt
+    push_image cloustone/pandas-cli
+    push_image cloustone/pandas-influxdb-writer
+    push_image cloustone/pandas-influxdb-reader
+    push_image cloustone/pandas-mongodb-writer
+    push_image cloustone/pandas-mongodb-reader
+    push_image cloustone/pandas-cassandra-writer
+    push_image cloustone/pandas-cassandra-reader
+    push_image cloustone/pandas-postgres-writer
+    push_image cloustone/pandas-postgres-reader
 fi
 #push_image redis:alpine
 #push_image bitnami/rabbitmq
