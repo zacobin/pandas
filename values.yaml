@@ -55,7 +55,7 @@ pms:
   deploy: true
   version: latest
   port: 8194
-  targetport: 8194
+  targetPort: 8194
   db:
     name: pms
     host: pms-db
@@ -152,9 +152,9 @@ authn_db:
 
 authn:
   deploy: true
-  url: authn:8181
-  port: 8181
-  targetport: 8181
+  url: authn:8189
+  httpPort: 8189
+  grpcPort: 8181
   db:
     name: authn
     host: authn-db
@@ -225,25 +225,21 @@ mqtt:
     limits:
       maxRam: 4Gi
       reqRam: 512Mi
-
 coap_adapter:
   deploy: true
   log_level: debug 
   port: 5683
   targetport: 5683
-
 ws_adapter:
   deploy: true
   log_level: debug 
   port: 8186
   targetport: 8186
-
 http_adapter:
   deploy: true 
   log_level: debug 
   port: 8185
   targetport: 8185
-  
 vernemq:
   deploy: true
   port: 

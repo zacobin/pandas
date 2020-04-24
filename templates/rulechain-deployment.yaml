@@ -1,0 +1,96 @@
+{{ if .Values.rulechain.deploy }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{.Values.docker.image_prefix}}rulechain
+  namespace: {{.Values.namespace.name}}
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: {{.Values.docker.image_prefix}}rulechain
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: {{.Values.docker.image_prefix}}rulechain
+    namespace: {{.Values.namespace.name}}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}rulechain
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}rulechain
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}rulechain
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}rulechain
+    spec:
+      serviceAccount: {{.Values.docker.image_prefix}}rulechain
+      serviceAccountName: {{.Values.docker.image_prefix}}rulechain
+      containers:
+      - name: pandas-rulechain
+        image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}rulechain:{{.Values.rulechain.version}}
+{{ if .Values.docker.pullPolicy }}
+        imagePullPolicy: {{.Values.docker.pullPolicy}}
+{{ end }}
+        ports:
+        - containerPort: {{.Values.rulechain.port }}
+        env:
+        - name: PANDAS_REDIS_ADDRESS
+          value: {{ .Values.public.redis.address }}
+        - name: PD_JAEGER_URL
+          value: {{.Values.jaeger.url }}
+        - name: PD_TOKEN_RESET_ENDPOINT
+          value: {{.Values.rulechain.token }}
+        - name: PD_RULECHAIN_DB
+          value: {{.Values.rulechain.db.name }}
+        - name: PD_RULECHAIN_DB_HOST
+          value: {{.Values.rulechain.db.host }}
+        - name: PD_RULECHAIN_DB_PASS
+          value: {{.Values.rulechain.db.pass }}
+        - name: PD_RULECHAIN_DB_PORT
+          value: "5432"
+        - name: PD_RULECHAIN_DB_USER
+          value: {{.Values.rulechain.db.user }}
+        - name: PD_RULECHAIN_HTTP_PORT
+          value: "8191"
+        - name: PD_RULECHAIN_LOG_LEVEL
+          value: {{.Values.rulechain.log_level }}
+        - name: PD_NATS_URL
+          value: {{.Values.nats.url}}  
+        resources:
+          limits:
+            cpu: {{.Values.rulechain.cpus}}
+            memory: {{.Values.rulechain.memory}}
+            
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}rulechain
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}rulechain
+spec:
+  ports:
+  - name: {{.Values.docker.image_prefix}}rulechain
+    port: {{.Values.rulechain.port }}
+    targetPort: {{.Values.rulechain.targetPort }}
+  selector:
+    service: {{.Values.docker.image_prefix}}rulechain
+{{ end }}

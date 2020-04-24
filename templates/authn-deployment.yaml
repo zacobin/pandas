@@ -26,7 +26,10 @@ spec:
 {{ end }}
           imagePullPolicy: IfNotPresent
           ports:
-          - containerPort: {{.Values.authn.port }}
+          - containerPort: {{.Values.authn.httpPort }}
+            protocol: TCP
+          - containerPort: {{.Values.authn.grpcPort }}
+            protocol: TCP
           env:
           - name: PD_AUTHN_DB
             value: {{.Values.authn.db.name }}
@@ -59,8 +62,12 @@ metadata:
   namespace: {{.Values.namespace.name}}
 spec:
   ports:
-  - port: {{ .Values.authn.port }}
-    targetPort: {{ .Values.authn.targetport }}
+  - port: {{ .Values.authn.httpPort }}
+    name: {{.Values.docker.image_prefix}}authn-http
+    protocol: TCP
+  - port: {{ .Values.authn.grpcPort }}
+    name: {{.Values.docker.image_prefix}}authn-grpc
+    protocol: TCP
   selector:
     service: {{.Values.docker.image_prefix}}authn
 {{ end }}

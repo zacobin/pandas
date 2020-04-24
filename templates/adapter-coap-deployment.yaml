@@ -1,0 +1,57 @@
+{{ if .Values.coap_adapter.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}adapter-coap
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}adapter-coap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}adapter-coap 
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}adapter-coap 
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}adapter-coap
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}coap:latest
+{{ else }}
+          image: {{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}coap:latest
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{.Values.coap_adapter.port }}
+            protocal: UDP
+          env:
+          - name: PD_COAP_ADAPTER_LOG_LEVEL
+            value: {{.Values.coap_adapter.log_level }}
+          - name: PD_COAP_ADAPTER_PORT
+            value: "5683"
+          - name: PD_JAEGER_URL
+            value: {{.Values.jaeger.url }}
+          - name: PD_NATS_URL
+            value: {{.Values.nats.url }}
+          - name: PD_THINGS_URL
+            value: {{.Values.things.url }}
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}adapter-coap
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.coap_adapter.port }}
+    protocal: TCP
+    targetPort: {{ .Values.coap_adapter.targetport }}
+  selector:
+    service: {{.Values.docker.image_prefix}}adapter-coap
+{{ end }}
