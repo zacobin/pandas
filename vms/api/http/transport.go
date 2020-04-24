@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -16,6 +17,7 @@ import (
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/twins"
 	"github.com/cloustone/pandas/vms"
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-openapi/runtime/middleware"
@@ -161,23 +163,57 @@ func MakeHandler(tracer opentracing.Tracer, svc vms.Service) http.Handler {
 	r.GetFunc("/version", pandas.Version("twins"))
 	r.Handle("/metrics", promhttp.Handler())
 
-	r.Handle("/swagger", RedocUI(promhttp.Handler()))
+	return SetupMiddleware(r)
+}
 
-	return r
+func assetFS() *assetfs.AssetFS {
+	return &assetfs.AssetFS{
+		Asset:    vms.Asset,
+		AssetDir: vms.AssetDir,
+		Prefix:   "dist",
+	}
+}
+
+//SSwagger s_swagger
+func SSwagger(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/swagger" || r.URL.Path == "/" {
+			http.Redirect(w, r, "/swagger/", http.StatusFound)
+			return
+		}
+
+		if strings.Index(r.URL.Path, "/swagger/") == 0 {
+			http.StripPrefix("/swagger/", http.FileServer(assetFS())).ServeHTTP(w, r)
+			fmt.Println("111111111111111111")
+			fmt.Println(r.URL.Path)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	})
 }
 
 //RedocUI docs to show redoc ui
 func RedocUI(handler http.Handler) http.Handler {
+	fmt.Println("222222222222222222222222")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("33333333333333333333")
 		opts := middleware.RedocOpts{
-			Path:     "v2msdocs",
-			SpecURL:  r.URL.Host + "/v2ms/swagger.yaml",
+			Path:     "docs",
+			SpecURL:  r.URL.Host + "/swagger/static/swagger/swagger.yaml",
 			RedocURL: r.URL.Host + "/swagger/static/js/redoc.standalone.js",
-			Title:    "v2ms api",
+			Title:    "swagger api",
 		}
+
 		middleware.Redoc(opts, handler).ServeHTTP(w, r)
 		return
 	})
+}
+
+//SetupMiddleware setupmiddleware
+func SetupMiddleware(handler http.Handler) http.Handler {
+	return SSwagger(
+		RedocUI(handler),
+	)
 }
 
 // View handlers

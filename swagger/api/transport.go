@@ -6,14 +6,18 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	swagger "github.com/cloustone/pandas/swagger"
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
 	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-zoo/bone"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -60,8 +64,62 @@ func MakeHandler(tracer opentracing.Tracer, svc swagger.Service) http.Handler {
 
 	r.GetFunc("/version", pandas.Version("swagger"))
 	r.Handle("/metrics", promhttp.Handler())
+	//r.Handle("/swag", SetupMiddleware(promhttp.Handler()))
+	// r.Handle("/swag", SSwagger(promhttp.Handler()))
+	// r.Handle("/swag/docs", RedocUI(promhttp.Handler()))
 
-	return r
+	//return r
+	return SetupMiddleware(r)
+}
+
+func assetFS() *assetfs.AssetFS {
+	return &assetfs.AssetFS{
+		Asset:    swagger.Asset,
+		AssetDir: swagger.AssetDir,
+		Prefix:   "dist",
+	}
+}
+
+//SSwagger s_swagger
+func SSwagger(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/swagger" || r.URL.Path == "/" {
+			http.Redirect(w, r, "/swagger/", http.StatusFound)
+			return
+		}
+
+		if strings.Index(r.URL.Path, "/swagger/") == 0 {
+			http.StripPrefix("/swagger/", http.FileServer(assetFS())).ServeHTTP(w, r)
+			fmt.Println("111111111111111111")
+			fmt.Println(r.URL.Path)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	})
+}
+
+//RedocUI docs to show redoc ui
+func RedocUI(handler http.Handler) http.Handler {
+	fmt.Println("222222222222222222222222")
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("33333333333333333333")
+		opts := middleware.RedocOpts{
+			Path:     "docs",
+			SpecURL:  r.URL.Host + "/swagger/static/swagger/swagger.yaml",
+			RedocURL: r.URL.Host + "/swagger/static/js/redoc.standalone.js",
+			Title:    "swagger api",
+		}
+
+		middleware.Redoc(opts, handler).ServeHTTP(w, r)
+		return
+	})
+}
+
+//SetupMiddleware setupmiddleware
+func SetupMiddleware(handler http.Handler) http.Handler {
+	return SSwagger(
+		RedocUI(handler),
+	)
 }
 
 func decodeView(_ context.Context, r *http.Request) (interface{}, error) {

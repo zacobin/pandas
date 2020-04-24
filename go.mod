@@ -17,6 +17,7 @@ require (
 	github.com/dre1080/recover v0.0.0-20150930082637-1c296bbb3227
 	github.com/dustin/go-coap v0.0.0-20170214053734-ddcc80675fa4
 	github.com/eclipse/paho.mqtt.golang v1.2.0
+	github.com/elazarl/go-bindata v3.0.5+incompatible // indirect
 	github.com/elazarl/go-bindata-assetfs v1.0.0
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
 	github.com/fatih/color v1.9.0

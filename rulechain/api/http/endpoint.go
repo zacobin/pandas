@@ -82,12 +82,12 @@ func listRuleChainEndpoint(svc rulechain.Service) endpoint.Endpoint {
 				Offset: page.Offset,
 				Limit:  page.Limit,
 			},
-			RuleChains: []rulechain.RuleChain,
+			RuleChains: []rulechain.RuleChain{},
 		}
 		for _, rulechain := range page.RuleChains {
 			res.RuleChains = append(res.RuleChains, rulechain)
 		}
-		
+
 		return res, nil
 	}
 }

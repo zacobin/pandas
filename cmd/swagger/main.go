@@ -52,7 +52,7 @@ const (
 	defJaegerURL       = ""
 	defAuthURL         = "localhost:8181"
 	defAuthTimeout     = "1" // in seconds
-	defDownstreams     = "./downstreams.json"
+	defDownstreams     = "./cmd/swagger/downstreams.json"
 
 	envLogLevel        = "PD_SWAGGER_LOG_LEVEL"
 	envClientTLS       = "PD_SWAGGER_CLIENT_TLS"

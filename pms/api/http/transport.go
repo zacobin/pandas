@@ -16,6 +16,7 @@ import (
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pms"
 	"github.com/cloustone/pandas/twins"
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-openapi/runtime/middleware"
@@ -88,23 +89,53 @@ func MakeHandler(tracer opentracing.Tracer, svc pms.Service) http.Handler {
 	r.GetFunc("/version", pandas.Version("twins"))
 	r.Handle("/metrics", promhttp.Handler())
 
-	r.Handle("/swagger", RedocUI(promhttp.Handler()))
+	return SetupMiddleware(r)
+}
 
-	return r
+func assetFS() *assetfs.AssetFS {
+	return &assetfs.AssetFS{
+		Asset:    pms.Asset,
+		AssetDir: pms.AssetDir,
+		Prefix:   "dist",
+	}
+}
+
+//SSwagger s_swagger
+func SSwagger(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/swagger" || r.URL.Path == "/" {
+			http.Redirect(w, r, "/swagger/", http.StatusFound)
+			return
+		}
+
+		if strings.Index(r.URL.Path, "/swagger/") == 0 {
+			http.StripPrefix("/swagger/", http.FileServer(assetFS())).ServeHTTP(w, r)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	})
 }
 
 //RedocUI docs to show redoc ui
 func RedocUI(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		opts := middleware.RedocOpts{
-			Path:     "pmsdocs",
-			SpecURL:  r.URL.Host + "/pms/swagger.yaml",
+			Path:     "docs",
+			SpecURL:  r.URL.Host + "/swagger/static/swagger/swagger.yaml",
 			RedocURL: r.URL.Host + "/swagger/static/js/redoc.standalone.js",
-			Title:    "pms api",
+			Title:    "swagger api",
 		}
+
 		middleware.Redoc(opts, handler).ServeHTTP(w, r)
 		return
 	})
+}
+
+//SetupMiddleware setupmiddleware
+func SetupMiddleware(handler http.Handler) http.Handler {
+	return SSwagger(
+		RedocUI(handler),
+	)
 }
 
 // Project handlers
