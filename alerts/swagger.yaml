@@ -1,0 +1,407 @@
+swagger: "2.0"
+info:
+  title: Pandas  alerts service
+  description: HTTP API for managing platform alerts.
+  version: "1.0.0"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+paths:
+  /alerts:
+    post:
+      summary: Create new alert 
+      description: |
+        Create new  alerts with given name
+      tags:
+        - alerts 
+      parameters:
+        - name: alert 
+          description: JSON-formatted document describing the new  alert.
+          in: body
+          schema:
+            $ref: "#/definitions/Alert"
+          required: true
+      responses:
+        201:
+          description: New alert created.
+        400:
+          description: Failed due to malformed JSON.
+        409:
+          description: Failed due to using an existing email address.
+        415:
+          description: Missing or invalid content type.
+        500:
+          $ref: "#/responses/ServiceError"
+    
+    get:
+      summary: Gets user's all alerts.
+      description: |
+        Gets all alerts. Info is obtained using authorization token
+      tags:
+        - alerts 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/AlertPage"
+        400:
+          description: Failed due to malformed query parameters.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+
+  /alerts/{alertName}:
+    get:
+      summary: Gets info on specified alert info.
+      description: |
+        Gets info on specified alert. Info is obtained using
+        authorization token and  alert name
+      tags:
+        - alerts 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: alertName
+          in: path
+          description: alertname
+          required: true
+          type: string
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            $ref: "#/definitions/Alert"
+        400:
+          description: Failed due to malformed query parameters.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+
+    put:
+      summary: Updates info on specified alert.
+      description: |
+        Updates info on specified alert. Info is updated using
+        authorization token and the new received info.
+      tags:
+        - alerts 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: alert 
+          description: JSON-formatted document containing realm info.
+          in: body
+          schema:
+            $ref: "#/definitions/Alert"
+          required: true
+      responses:
+        200:
+          description: alert updated.
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+
+    delete:
+      summary: delete specified alert 
+      description: |
+        Delete a specified alert 
+      tags:
+        - alerts 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: alertName 
+          in: path 
+          type: string
+          required: true
+      responses:
+        201:
+          description: User authenticated.
+          schema:
+            $ref: "#/definitions/Token"
+        400:
+          description: |
+            Failed due to malformed JSON.
+          schema:
+            $ref: "#/definitions/Error"
+        403:
+          description: |
+            Failed due to using invalid credentials.
+          schema:
+            $ref: "#/definitions/Error"
+        415:
+          description: Missing or invalid content type.
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          $ref: "#/responses/ServiceError"
+
+
+
+
+#alert rules
+  /alertrules:
+    post:
+      summary: Create new alert rule
+      description: |
+        Create new alert rule with given name
+      tags:
+        - alerts 
+      parameters:
+        - name: alertRule 
+          description: JSON-formatted document describing the new  alert.
+          in: body
+          schema:
+            $ref: "#/definitions/AlertRule"
+          required: true
+      responses:
+        201:
+          description: New alert rule created.
+        400:
+          description: Failed due to malformed JSON.
+        409:
+          description: Failed due to using an existing email address.
+        415:
+          description: Missing or invalid content type.
+        500:
+          $ref: "#/responses/ServiceError"
+    
+    get:
+      summary: Gets user's all alert rules.
+      description: |
+        Gets all alert rules. Info is obtained using authorization token
+      tags:
+        - alerts 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/AlertRulesPage"
+        400:
+          description: Failed due to malformed query parameters.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+
+  /alertrules/{alertRuleName}:
+    get:
+      summary: Gets info on specified alert rule info.
+      description: |
+        Gets info on specified alert rule. Info is obtained using
+        authorization token and  alert name
+      tags:
+        - alerts 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: alertRuleName
+          in: path
+          description: alertruleName
+          required: true
+          type: string
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            $ref: "#/definitions/AlertRule"
+        400:
+          description: Failed due to malformed query parameters.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+
+    put:
+      summary: Updates info on specified alert rule.
+      description: |
+        Updates info on specified alert rule. Info is updated using
+        authorization token and the new received info.
+      tags:
+        - alerts 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: alert 
+          description: JSON-formatted document containing realm info.
+          in: body
+          schema:
+            $ref: "#/definitions/AlertRule"
+          required: true
+      responses:
+        200:
+          description: alert rule updated.
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+
+    delete:
+      summary: delete specified alert rule
+      description: |
+        Delete a specified alert rule
+      tags:
+        - alerts 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: alertRuleName 
+          in: path 
+          type: string
+          required: true
+      responses:
+        201:
+          description: User authenticated.
+          schema:
+            $ref: "#/definitions/Token"
+        400:
+          description: |
+            Failed due to malformed JSON.
+          schema:
+            $ref: "#/definitions/Error"
+        403:
+          description: |
+            Failed due to using invalid credentials.
+          schema:
+            $ref: "#/definitions/Error"
+        415:
+          description: Missing or invalid content type.
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          $ref: "#/responses/ServiceError"
+
+responses:
+  ServiceError:
+    description: Unexpected server-side error occurred.
+definitions:
+  Token:
+    type: object
+    properties:
+      token:
+        type: string
+        description: Generated access token.
+    required:
+      - token
+  Alert:
+    type: object
+    properties:
+      name:
+        type: string
+        description: realm's name 
+      certfile:
+        type: string
+        description: realm's certfile 
+      keyfile:
+        type: string
+        description: realm's keyfile 
+      password:
+        type: string
+        format: password
+        minimum: 8
+        description: Free-form account password used for acquiring auth token(s).
+      serviceURL:
+        type: string
+        description: realm's service connect url 
+      searchDN:
+        type: string
+        description: realm's searchDN 
+    required:
+      - name 
+      - password
+      - certfile
+      - keyfile
+      - serviceURL
+      - searchDN
+  Email:
+    properties:
+      email:
+        type: string
+        format: email
+        example: "test@example.com"
+        description: User's email address will be used as its unique identifier
+    required:
+      - email
+
+parameters:
+  Authorization:
+    name: Authorization
+    description: User's access token.
+    in: header
+    type: string
+    required: true
+  Referer:
+    name: Referer
+    description: Host being sent by browser.
+    in: header
+    type: string
+    required: true
+  Metadata:
+    name: metadata
+    description: Metadata filter. Filtering is performed matching the parameter with metadata on top level. Parameter is json.
+    in: query
+    type: string
+    minimum: 0
+    required: false
+
+responses:
+  ServiceError:
+    description: Unexpected server-side error occurred.
+
+definitions:
+  UsersPage:
+    type: object
+    properties:
+      email:
+        type: string
+        description: ID of the user
+      metadata:
+        type: object
+        description: Custom metadata related to User
+  updateUserReq:
+    type: object
+    description: Arbitrary, object-encoded user's data.
+  PasswordResetRequest:
+    type: object
+    properties:
+      email:
+        type: string
+        description: Email of the user
+  PasswordReset:
+    type: object
+    properties:
+      password:
+        type: string
+        description: New password
+        minimum: 8
+      confirm_password:
+        type: string
+        description: New password confirmed
+        minimum: 8
+      token:
+        type: string
+        description: Reset token generated and sent in email
+  PasswordChange:
+    type: object
+    properties:
+      password:
+        type: string
+        description: New password
+      old_password:
+        type: string
+        description: Confirm password
+  Error:
+    type: object
+    properties:
+      error:
+        type: string
+        description: Error message
