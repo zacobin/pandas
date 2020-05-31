@@ -14,6 +14,8 @@ import (
 	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/errors"
+	assetfs "github.com/elazarl/go-bindata-assetfs"
+	"github.com/go-openapi/runtime/middleware"
 
 	log "github.com/cloustone/pandas/pkg/logger"
 	"github.com/cloustone/pandas/users"
@@ -99,7 +101,53 @@ func MakeHandler(svc users.Service, tracer opentracing.Tracer, l log.Logger) htt
 	mux.GetFunc("/version", pandas.Version("users"))
 	mux.Handle("/metrics", promhttp.Handler())
 
-	return mux
+	return SetupMiddleware(mux)
+}
+
+func assetFS() *assetfs.AssetFS {
+	return &assetfs.AssetFS{
+		Asset:    users.Asset,
+		AssetDir: users.AssetDir,
+		Prefix:   "dist",
+	}
+}
+
+//SSwagger s_swagger
+func SSwagger(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/swagger" || r.URL.Path == "/" {
+			http.Redirect(w, r, "/swagger/", http.StatusFound)
+			return
+		}
+
+		if strings.Index(r.URL.Path, "/swagger/") == 0 {
+			http.StripPrefix("/swagger/", http.FileServer(assetFS())).ServeHTTP(w, r)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	})
+}
+
+//RedocUI docs to show redoc ui
+func RedocUI(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		opts := middleware.RedocOpts{
+			Path:     "docs",
+			SpecURL:  r.URL.Host + "/swagger/static/swagger/swagger.yaml",
+			RedocURL: r.URL.Host + "/swagger/static/js/redoc.standalone.js",
+			Title:    "swagger api",
+		}
+
+		middleware.Redoc(opts, handler).ServeHTTP(w, r)
+		return
+	})
+}
+
+//SetupMiddleware setupmiddleware
+func SetupMiddleware(handler http.Handler) http.Handler {
+	return SSwagger(
+		RedocUI(handler),
+	)
 }
 
 func decodeViewInfo(_ context.Context, r *http.Request) (interface{}, error) {

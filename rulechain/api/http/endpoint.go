@@ -23,7 +23,7 @@ func addRuleChainEndpoint(svc rulechain.Service) endpoint.Endpoint {
 
 func rulechainInfoEndpoint(svc rulechain.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(RuleChainRequestInfo)
+		req := request.(RuleChainInfoRequest)
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
@@ -51,7 +51,7 @@ func updateRuleChainEndpoint(svc rulechain.Service) endpoint.Endpoint {
 
 func deleteRuleChainEndpoint(svc rulechain.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(RuleChainRequestInfo)
+		req := request.(RuleChainInfoRequest)
 		if err := req.validate(); err != nil {
 			return nil, err
 		}
@@ -71,17 +71,30 @@ func listRuleChainEndpoint(svc rulechain.Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		rulechains, err := svc.ListRuleChain(ctx, req.token, req.limit, req.offset)
+		page, err := svc.ListRuleChain(ctx, req.token, req.limit, req.offset)
 		if err != nil {
 			return nil, err
 		}
-		return listrulechainResponse{rulechains}, nil
+
+		res := rulechainPageRes{
+			pageRes: pageRes{
+				Total:  page.Total,
+				Offset: page.Offset,
+				Limit:  page.Limit,
+			},
+			RuleChains: []rulechain.RuleChain{},
+		}
+		for _, rulechain := range page.RuleChains {
+			res.RuleChains = append(res.RuleChains, rulechain)
+		}
+
+		return res, nil
 	}
 }
 
 func updateRuleChainStatusEndpoint(svc rulechain.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(RuleChainRequestInfo)
+		req := request.(updateRuleChainStatusRequest)
 		if err := req.validate(); err != nil {
 			return nil, err
 		}

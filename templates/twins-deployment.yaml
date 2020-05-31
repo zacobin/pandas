@@ -1,0 +1,73 @@
+{{ if .Values.twins.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}twins 
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}twins 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}twins
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}twins
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}twins
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}twins:latest
+{{ else }}
+          image: {{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}twins:latest
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{.Values.twins.port }}
+          env:
+          - name: PD_AUTH_URL
+            value: {{.Values.authn.url }}
+          - name: PD_JAEGER_URL
+            value: {{.Values.jaeger.url }}
+          - name: PD_NATS_URL
+            value: {{.Values.nats.url}}
+          - name: PD_TWINS_AUTH_HTTP_PORT
+            value: "9021"
+          - name: PD_TWINS_CACHE_URL
+            value: {{.Values.redis.twins_url }}
+          - name: PD_TWINS_DB
+            value: {{.Values.twins.db.name }}
+          - name: PD_TWINS_DB_HOST
+            value: {{.Values.twins.db.host }}
+          - name: PD_TWINS_DB_PASS
+            value: {{.Values.twins.db.pass }}
+          - name: PD_TWINS_DB_PORT
+            value: "5432"
+          - name: PD_TWINS_DB_USER
+            value: {{.Values.twins.db.user }}
+          - name: PD_TWINS_ES_URL
+            value: {{.Values.redis.es_url }}
+          - name: PD_TWINS_HTTP_PORT
+            value: "9021"
+          - name: PD_TWINS_LOG_LEVEL
+            value: {{.Values.twins.log_level }}
+          - name: PD_TWINS_SECRET
+            value: {{.Values.twins.secret }}
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}twins
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.twins.port }}
+    targetPort: {{ .Values.twins.targetPort }}
+  selector:
+    service: {{.Values.docker.image_prefix}}twins
+{{ end }}

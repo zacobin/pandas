@@ -186,7 +186,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer nc.Close()
-	ncTracer, ncCloser := initJaeger("v2ms_nats", cfg.jaegerURL, logger)
+	ncTracer, ncCloser := initJaeger("vms_nats", cfg.jaegerURL, logger)
 	defer ncCloser.Close()
 
 	svc := newService(auth, nc, ncTracer, cfg.channelID, provider, dbTracer, db, logger)

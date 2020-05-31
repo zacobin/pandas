@@ -27,14 +27,7 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
           - containerPort: {{ .Values.redis.port }}
-          volumeMounts:
-          - name: {{.Values.docker.image_prefix}}things-redis-volume
-            mountPath: /data
       restartPolicy: Always
-      volumes:
-      - name: {{.Values.docker.image_prefix}}things-redis-volume
-        persistentVolumeClaim:
-          claimName: pandas-things-redis-volume
 ---
 
 apiVersion: v1

@@ -52,18 +52,18 @@ const (
 	defJaegerURL       = ""
 	defAuthURL         = "localhost:8181"
 	defAuthTimeout     = "1" // in seconds
-	defDownstreams     = "./downstreams.json"
+	defDownstreams     = "./cmd/swagger/downstreams.json"
 
-	envLogLevel        = "PD_V2MS_LOG_LEVEL"
-	envClientTLS       = "PD_V2MS_CLIENT_TLS"
-	envCACerts         = "PD_V2MS_CA_CERTS"
-	envHTTPPort        = "PD_V2MS_HTTP_PORT"
-	envAuthHTTPPort    = "PD_V2MS_AUTH_HTTP_PORT"
-	envAuthGRPCPort    = "PD_V2MS_AUTH_GRPC_PORT"
-	envServerCert      = "PD_V2MS_SERVER_CERT"
-	envServerKey       = "PD_V2MS_SERVER_KEY"
-	envSingleUserEmail = "PD_V2MS_SINGLE_USER_EMAIL"
-	envSingleUserToken = "PD_V2MS_SINGLE_USER_TOKEN"
+	envLogLevel        = "PD_SWAGGER_LOG_LEVEL"
+	envClientTLS       = "PD_SWAGGER_CLIENT_TLS"
+	envCACerts         = "PD_SWAGGER_CA_CERTS"
+	envHTTPPort        = "PD_SWAGGER_HTTP_PORT"
+	envAuthHTTPPort    = "PD_SWAGGER_AUTH_HTTP_PORT"
+	envAuthGRPCPort    = "PD_SWAGGER_AUTH_GRPC_PORT"
+	envServerCert      = "PD_SWAGGER_SERVER_CERT"
+	envServerKey       = "PD_SWAGGER_SERVER_KEY"
+	envSingleUserEmail = "PD_SWAGGER_SINGLE_USER_EMAIL"
+	envSingleUserToken = "PD_SWAGGER_SINGLE_USER_TOKEN"
 	envJaegerURL       = "PD_JAEGER_URL"
 	envAuthURL         = "PD_AUTH_URL"
 	envAuthTimeout     = "PD_AUTH_TIMEOUT"
@@ -104,8 +104,8 @@ func main() {
 		log.Fatalf(err.Error())
 	}
 
-	thingsTracer, thingsCloser := initJaeger("swagger", cfg.jaegerURL, logger)
-	defer thingsCloser.Close()
+	swaggerTracer, swaggerCloser := initJaeger("swagger", cfg.jaegerURL, logger)
+	defer swaggerCloser.Close()
 
 	authTracer, authCloser := initJaeger("auth", cfg.jaegerURL, logger)
 	defer authCloser.Close()
@@ -121,7 +121,7 @@ func main() {
 	svc := newService(auth, swaggerConfigs, logger)
 	errs := make(chan error, 2)
 
-	go startHTTPServer(httpapi.MakeHandler(thingsTracer, svc), cfg.httpPort, cfg, logger, errs)
+	go startHTTPServer(httpapi.MakeHandler(swaggerTracer, svc), cfg.httpPort, cfg, logger, errs)
 
 	go func() {
 		c := make(chan os.Signal)

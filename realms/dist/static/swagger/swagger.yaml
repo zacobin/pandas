@@ -1,0 +1,213 @@
+swagger: "2.0"
+info:
+  title: Pandas realm service
+  description: HTTP API for managing platform realms.
+  version: "1.0.0"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+paths:
+  /realms:
+    post:
+      summary: Registers new realm 
+      description: |
+        Registers new realm given name and password.
+      tags:
+        - realms 
+      parameters:
+        - name: realm 
+          description: JSON-formatted document describing the new realm.
+          in: body
+          schema:
+            $ref: "#/definitions/Realm"
+          required: true
+        - $ref: "#/parameters/Authorization"
+      responses:
+        201:
+          description: Registered new realm.
+        400:
+          description: Failed due to malformed JSON.
+        409:
+          description: Failed due to using an existing email address.
+        415:
+          description: Missing or invalid content type.
+        500:
+          $ref: "#/responses/ServiceError"
+
+    get:
+      summary: Gets all registered realm info.
+      description: |
+        Gets all realms. Info is obtained using authorization token
+      tags:
+        - realms 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Realm"
+        400:
+          description: Failed due to malformed query parameters.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+
+
+  /realms/{realmName}:
+    get:
+      summary: Gets info on specified realm info.
+      description: |
+        Gets info on specified realm. Info is obtained using
+        authorization token and realm name
+      tags:
+        - realms 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: realmName
+          in: path
+          description: realm name
+          required: true
+          type: string
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            $ref: "#/definitions/Realm"          
+        400:
+          description: Failed due to malformed query parameters.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+    put:
+      summary: Updates info on specified realm.
+      description: |
+        Updates info on specified realm . Info is updated using
+        authorization token and the new received info.
+      tags:
+        - realms 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/RealmName"
+        - name: realm 
+          description: JSON-formatted document containing realm info.
+          in: body
+          schema:
+            $ref: "#/definitions/Realm"
+          required: true
+      responses:
+        200:
+          description: realm updated.
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"
+    delete:
+      summary: delete specified realm 
+      description: |
+        Delete a specified realm
+      tags:
+        - realms 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: realmName 
+          in: path 
+          type: string
+          required: true
+      responses:
+        201:
+          description: realm deleted.
+        400:
+          description: |
+            Failed due to malformed JSON.
+          schema:
+            $ref: "#/definitions/Error"
+        403:
+          description: |
+            Failed due to using invalid credentials.
+          schema:
+            $ref: "#/definitions/Error"
+        415:
+          description: Missing or invalid content type.
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          $ref: "#/responses/ServiceError"
+
+responses:
+  ServiceError:
+    description: Unexpected server-side error occurred.
+
+definitions:
+  Realm:
+    type: object
+    properties:
+      name:
+        type: string
+        description: realm's name 
+      certfile:
+        type: string
+        description: realm's certfile 
+      keyfile:
+        type: string
+        description: realm's keyfile 
+      password:
+        type: string
+        format: password
+        minimum: 8
+        description: Free-form account password used for acquiring auth token(s).
+      serviceURL:
+        type: string
+        description: realm's service connect url 
+      searchDN:
+        type: string
+        description: realm's searchDN 
+    required:
+      - name 
+      - password
+      - certfile
+      - keyfile
+      - serviceURL
+      - searchDN
+  Error:
+    type: object
+    properties:
+      error:
+        type: string
+        description: Error message
+
+parameters:
+  Authorization:
+    name: Authorization
+    description: User's access token.
+    in: header
+    type: string
+    required: true
+  RealmName:
+    name: realmName
+    description: realm name
+    in: path
+    type: string
+    required: true
+  Referer:
+    name: Referer
+    description: Host being sent by browser.
+    in: header
+    type: string
+    required: true
+  Metadata:
+    name: metadata
+    description: Metadata filter. Filtering is performed matching the parameter with metadata on top level. Parameter is json.
+    in: query
+    type: string
+    minimum: 0
+    required: false
+
+

@@ -14,8 +14,10 @@ import (
 	"github.com/cloustone/pandas"
 	"github.com/cloustone/pandas/authn"
 	"github.com/cloustone/pandas/mainflux"
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
 	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-zoo/bone"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -57,7 +59,53 @@ func MakeHandler(svc authn.Service, tracer opentracing.Tracer) http.Handler {
 	mux.GetFunc("/version", pandas.Version("auth"))
 	mux.Handle("/metrics", promhttp.Handler())
 
-	return mux
+	return SetupMiddleware(mux)
+}
+
+func assetFS() *assetfs.AssetFS {
+	return &assetfs.AssetFS{
+		Asset:    authn.Asset,
+		AssetDir: authn.AssetDir,
+		Prefix:   "dist",
+	}
+}
+
+//SSwagger s_swagger
+func SSwagger(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/swagger" || r.URL.Path == "/" {
+			http.Redirect(w, r, "/swagger/", http.StatusFound)
+			return
+		}
+
+		if strings.Index(r.URL.Path, "/swagger/") == 0 {
+			http.StripPrefix("/swagger/", http.FileServer(assetFS())).ServeHTTP(w, r)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	})
+}
+
+//RedocUI docs to show redoc ui
+func RedocUI(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		opts := middleware.RedocOpts{
+			Path:     "docs",
+			SpecURL:  r.URL.Host + "/swagger/static/swagger/swagger.yaml",
+			RedocURL: r.URL.Host + "/swagger/static/js/redoc.standalone.js",
+			Title:    "swagger api",
+		}
+
+		middleware.Redoc(opts, handler).ServeHTTP(w, r)
+		return
+	})
+}
+
+//SetupMiddleware setupmiddleware
+func SetupMiddleware(handler http.Handler) http.Handler {
+	return SSwagger(
+		RedocUI(handler),
+	)
 }
 
 func decodeIssue(_ context.Context, r *http.Request) (interface{}, error) {

@@ -1,0 +1,51 @@
+{{ if .Values.twins_db.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}twins-db 
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}twins-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}twins-db
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}twins-db
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}twins-db
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/postgres:10.8-alpine
+{{ else }}
+          image: postgres:10.8-alpine
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{.Values.twins_db.port }}
+          env:
+          - name: POSTGRES_USER
+            value: {{.Values.twins_db.username }}
+          - name: POSTGRES_PASSWORD
+            value: {{.Values.twins_db.password }}
+          - name: POSTGRES_DB
+            value: {{.Values.twins_db.dbname }}
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: twins-db
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.twins_db.port }}
+    targetPort: {{ .Values.twins_db.targetPort }}
+  selector:
+    service: {{.Values.docker.image_prefix}}twins-db
+{{ end }}

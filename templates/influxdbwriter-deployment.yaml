@@ -1,0 +1,82 @@
+# Copyright (c) cloustone
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{.Values.docker.image_prefix}}influxdb-writer-config
+  namespace: {{.Values.namespace.name}}
+data:
+  channels.toml: |
+    # If you want to listen on all channels, just pass one element ["*"], otherwise
+    # pass the list of channels.
+    [channels]
+    filter = ["*"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}influxdb-writer
+  namespace: {{.Values.namespace.name}}
+spec:
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}influxdb-writer
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}influxdb-writer
+    spec:
+      containers:
+        - env:
+            - name: PF_INFLUX_WRITER_LOG_LEVEL
+              value: debug
+            - name: PF_NATS_URL
+              value: {{.Values.nats.url }}
+            - name: PF_INFLUX_WRITER_PORT
+              value: "{{.Values.influxdb_writer.port }}"
+            - name: PF_INFLUX_WRITER_BATCH_SIZE
+              value: "5000"
+            - name: PF_INFLUX_WRITER_BATCH_TIMEOUT
+              value: "5"                            
+            - name: PF_INFLUX_WRITER_DB_NAME
+              value: {{.Values.influxdb_writer.db.name }}	           
+            - name: PF_INFLUX_WRITER_DB_HOST
+              value: {{.Values.influxdb_writer.db.host }}
+            - name: PF_INFLUX_WRITER_DB_PORT
+              value: "{{.Values.influxdb_writer.db.port }}"
+          image: {{.Values.docker.registry}}/{{.Values.docker.namespace}}/{{.Values.docker.image_prefix}}influxdb-writer:latest
+          imagePullPolicy: {{.Values.docker.pullPolicy}}
+          name: {{.Values.docker.image_prefix}}influxdb-writer
+          ports:
+            - containerPort: {{.Values.influxdb_writer.port}}
+              protocol: TCP
+          stdin: true
+          tty: true
+          volumeMounts:
+            - mountPath: /config/channels.toml
+              name: influxdb-writer-config
+              subPath: channels.toml
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            defaultMode: 256
+            name: {{.Values.docker.image_prefix}}influxdb-writer-config
+            optional: false
+          name: influxdb-writer-config
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.docker.image_prefix}}influxdb-writer
+  namespace: {{.Values.namespace.name}}
+spec:
+  selector:
+    service: {{.Values.docker.image_prefix}}influxdb-writer
+  ports:
+    - port: {{.Values.influxdb_writer.port}}
+      protocol: TCP
+      name: {{.Values.docker.image_prefix}}influxdb-writer-8900

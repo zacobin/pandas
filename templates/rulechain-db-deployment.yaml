@@ -1,0 +1,51 @@
+{{ if .Values.rulechain_db.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.docker.image_prefix}}rulechain-db
+  namespace: {{.Values.namespace.name}}
+  labels:
+    service: {{.Values.docker.image_prefix}}rulechain-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{.Values.docker.image_prefix}}rulechain-db
+  template:
+    metadata:
+      labels:
+        service: {{.Values.docker.image_prefix}}rulechain-db
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{.Values.docker.image_prefix}}rulechain-db
+{{ if .Values.docker.registry }}
+          image: {{.Values.docker.registry}}/postgres:10.8-alpine
+{{ else }}
+          image: postgres:10.8-alpine
+{{ end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: {{.Values.rulechain_db.port }}
+          env:
+          - name: POSTGRES_USER
+            value: {{.Values.rulechain_db.username }}
+          - name: POSTGRES_PASSWORD
+            value: {{.Values.rulechain_db.password }}
+          - name: POSTGRES_DB
+            value: {{.Values.rulechain_db.dbname }}
+      restartPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: rulechain-db
+  namespace: {{.Values.namespace.name}}
+spec:
+  ports:
+  - port: {{ .Values.rulechain_db.port }}
+    targetPort: {{ .Values.rulechain_db.port }}
+  selector:
+    service: {{.Values.docker.image_prefix}}rulechain-db
+{{ end }}

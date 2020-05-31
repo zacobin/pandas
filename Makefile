@@ -13,7 +13,7 @@ DOCKER_NAMESPACE := cloustone
 # Space separated patterns of packages to skip in list, test, format.
 IGNORED_PACKAGES := /vendor/
 
-SERVICES = authn authz things bootstrap twins users v2ms realms swagger rulechain lbs 
+SERVICES = swagger authn authz things bootstrap twins users vms realms swagger rulechain lbs 
 	
 ADAPTOR_SERVICE = http ws coap lora opcua mqtt cli
 	
@@ -21,8 +21,8 @@ ADDONE_SERVICE = influxdb-writer influxdb-reader mongodb-writer mongodb-reader \
 				cassandra-writer cassandra-reader postgres-writer postgres-reader
 
 UNAME = $(shell uname)
-DOCKER_REPO = docker.io
-IMAGES = rulechain lbs authn authz things bootstrap twins users v2ms realms swagger
+#DOCKER_REPO = 10.4.47.129:5000
+IMAGES = rulechain lbs authn authz things bootstrap twins users vms pms realms swagger
 ADAPTOR_IMAGES = http ws coap lora opcua mqtt cli
 ADDONE_IMAGES = influxdb-writer influxdb-reader mongodb-writer mongodb-reader \
 				cassandra-writer cassandra-reader postgres-writer postgres-reader
@@ -57,7 +57,7 @@ define make_docker_dev
 	cp bin/$(svc) cmd/$(svc)/bin/main
 	@full_img_name=$(IMAGE_NAME_PREFIX)$(svc); \
 		cd ./cmd/$(svc)/ && \
-			docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/$$full_img_name ../../../. -f Dockerfile.dev 
+			docker build -t $(DOCKER_NAMESPACE)/$$full_img_name ../../../. -f Dockerfile.dev 
 	@rm -rf cmd/$(svc)/bin
 endef
 

@@ -12,6 +12,11 @@ volumes:
   pandas-bootstrap-db-volume:
   pandas-twins-db-volume:
   pandas-twins-db-configdb-volume:
+  pandas-vms-db-volume:
+  pandas-vms-redis-volume:
+  pandas-pms-db-volume:
+  pandas-pms-redis-volume:
+  pandas-realms-db-volume:
 
 services:
   nats:
@@ -239,7 +244,7 @@ services:
     ports:
       - ${PD_COAP_ADAPTER_PORT}:${PD_COAP_ADAPTER_PORT}/udp
       - ${PD_COAP_ADAPTER_PORT}:${PD_COAP_ADAPTER_PORT}/tcp
-  
+
   bootstrap-db:
     image: postgres:10.8-alpine
     container_name: pandas-bootstrap-db
@@ -395,3 +400,182 @@ services:
       PD_JAEGER_URL: ${PD_JAEGER_URL}
     depends_on:
       - lbs-db
+  
+  authz:
+    image: cloustone/pandas-authz:latest
+    container_name: pandas-authz
+    volumes:
+      - ./users/emailer/templates/${PD_EMAIL_TEMPLATE}:/${PD_EMAIL_TEMPLATE}
+    depends_on:
+      - users-db
+      - authn
+    restart: on-failure
+    environment:
+      PD_USERS_LOG_LEVEL: ${PD_USERS_LOG_LEVEL}
+      PD_USERS_DB_HOST: users-db
+      PD_USERS_DB_PORT: ${PD_USERS_DB_PORT}
+      PD_USERS_DB_USER: ${PD_USERS_DB_USER}
+      PD_USERS_DB_PASS: ${PD_USERS_DB_PASS}
+      PD_USERS_DB: ${PD_USERS_DB}
+      PD_AUTHZ_HTTP_PORT: ${PD_AUTHZ_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_EMAIL_DRIVER: ${PD_EMAIL_DRIVER}
+      PD_EMAIL_HOST: ${PD_EMAIL_HOST}
+      PD_EMAIL_PORT: ${PD_EMAIL_PORT}
+      PD_EMAIL_USERNAME: ${PD_EMAIL_USERNAME}
+      PD_EMAIL_PASSWORD: ${PD_EMAIL_PASSWORD}
+      PD_EMAIL_FROM_ADDRESS: ${PD_EMAIL_FROM_ADDRESS}
+      PD_EMAIL_FROM_NAME: ${PD_EMAIL_FROM_NAME}
+      PD_EMAIL_TEMPLATE: ${PD_EMAIL_TEMPLATE}
+      PD_TOKEN_RESET_ENDPOINT: ${PD_TOKEN_RESET_ENDPOINT}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+    ports:
+      - ${PD_AUTHZ_HTTP_PORT}:${PD_AUTHZ_HTTP_PORT}
+
+  vms-db:
+    image: postgres:10.8-alpine
+    container_name: pandas-vms-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${PD_VMS_DB_USER}
+      POSTGRES_PASSWORD: ${PD_VMS_DB_USER}
+      POSTGRES_DB: ${PD_VMS_DB}
+    volumes:
+      - pandas-vms-db-volume:/var/lib/postgresql/data
+
+  vms-redis:
+    image: redis:5.0-alpine
+    container_name: pandas-vms-redis
+    restart: on-failure
+    volumes:
+      - pandas-vms-redis-volume:/data
+
+  vms:
+    image: cloustone/pandas-vms:latest
+    container_name: pandas-vms
+    depends_on:
+      - vms-db
+      - authn
+    restart: on-failure
+    environment:
+      PD_VMS_LOG_LEVEL: ${PD_VMS_LOG_LEVEL}
+      PD_VMS_HTTP_PORT: ${PD_VMS_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_VMS_DB_HOST: vms-db
+      PD_VMS_DB_PORT: ${PD_VMS_DB_PORT}
+      PD_VMS_DB_USER: ${PD_VMS_DB_USER}
+      PD_VMS_DB_PASS: ${PD_VMS_DB_PASS}
+      PD_VMS_DB: ${PD_VMS_DB}
+      PD_VMS_AUTH_HTTP_PORT: ${PD_VMS_AUTH_HTTP_PORT}
+      PD_VMS_AUTH_GRPC_PORT: ${PD_VMS_AUTH_GRPC_PORT}
+      PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_VMS_SECRET: ${PD_VMS_SECRET}
+      PD_VMS_CACHE_URL: vms-redis:${PD_REDIS_TCP_PORT}
+      PD_VMS_ES_URL: es-redis:${PD_REDIS_TCP_PORT}
+      PD_NATS_URL: ${PD_NATS_URL}
+    ports:
+      - ${PD_VMS_HTTP_PORT}:${PD_VMS_HTTP_PORT}
+  
+  pms-db:
+    image: postgres:10.8-alpine
+    container_name: pandas-pms-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${PD_PMS_DB_USER}
+      POSTGRES_PASSWORD: ${PD_PMS_DB_USER}
+      POSTGRES_DB: ${PD_PMS_DB}
+    volumes:
+      - pandas-pms-db-volume:/var/lib/postgresql/data
+
+  pms-redis:
+    image: redis:5.0-alpine
+    container_name: pandas-pms-redis
+    restart: on-failure
+    volumes:
+      - pandas-pms-redis-volume:/data
+
+  pms:
+    image: cloustone/pandas-pms:latest
+    container_name: pandas-pms
+    depends_on:
+      - pms-db
+      - authn
+    restart: on-failure
+    environment:
+      PD_PMS_LOG_LEVEL: ${PD_PMS_LOG_LEVEL}
+      PD_PMS_HTTP_PORT: ${PD_PMS_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_PMS_DB_HOST: pms-db
+      PD_PMS_DB_PORT: ${PD_PMS_DB_PORT}
+      PD_PMS_DB_USER: ${PD_PMS_DB_USER}
+      PD_PMS_DB_PASS: ${PD_PMS_DB_PASS}
+      PD_PMS_DB: ${PD_PMS_DB}
+      PD_PMS_AUTH_HTTP_PORT: ${PD_PMS_AUTH_HTTP_PORT}
+      PD_PMS_AUTH_GRPC_PORT: ${PD_PMS_AUTH_GRPC_PORT}
+      PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_PMS_SECRET: ${PD_PMS_SECRET}
+      PD_PMS_CACHE_URL: pms-redis:${PD_REDIS_TCP_PORT}
+      PD_PMS_ES_URL: es-redis:${PD_REDIS_TCP_PORT}
+      PD_NATS_URL: ${PD_NATS_URL}
+    ports:
+      - ${PD_PMS_HTTP_PORT}:${PD_PMS_HTTP_PORT}
+
+  realms-db:
+    image: postgres:10.8-alpine
+    container_name: pandas-realms-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${PD_REALMS_DB_USER}
+      POSTGRES_PASSWORD: ${PD_REALMS_DB_USER}
+      POSTGRES_DB: ${PD_REALMS_DB}
+    volumes:
+      - pandas-realms-db-volume:/var/lib/postgresql/data
+
+  realms:
+    image: cloustone/pandas-realms:latest
+    container_name: pandas-realms
+    depends_on:
+      - realms-db
+      - authn
+    restart: on-failure
+    environment:
+      PD_REALMS_LOG_LEVEL: ${PD_REALMS_LOG_LEVEL}
+      PD_REALMS_HTTP_PORT: ${PD_REALMS_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_REALMS_DB_HOST: realms-db
+      PD_REALMS_DB_PORT: ${PD_REALMS_DB_PORT}
+      PD_REALMS_DB_USER: ${PD_REALMS_DB_USER}
+      PD_REALMS_DB_PASS: ${PD_REALMS_DB_PASS}
+      PD_REALMS_DB: ${PD_REALMS_DB}
+      PD_REALMS_AUTH_HTTP_PORT: ${PD_REALMS_AUTH_HTTP_PORT}
+      PD_REALMS_AUTH_GRPC_PORT: ${PD_REALMS_AUTH_GRPC_PORT}
+      PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_REALMS_SECRET: ${PD_REALMS_SECRET}
+    ports:
+      - ${PD_REALMS_HTTP_PORT}:${PD_REALMS_HTTP_PORT}
+  
+  swagger:
+    image: cloustone/pandas-swagger:latest
+    container_name: pandas-swagger
+
+    restart: on-failure
+    environment:
+      PD_SWAGGER_LOG_LEVEL: ${PD_SWAGGER_LOG_LEVEL}
+      PD_SWAGGER_HTTP_PORT: ${PD_SWAGGER_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_SWAGGER_AUTH_HTTP_PORT: ${PD_SWAGGER_AUTH_HTTP_PORT}
+      PD_SWAGGER_AUTH_GRPC_PORT: ${PD_SWAGGER_AUTH_GRPC_PORT}
+      PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_SWAGGER_SECRET: ${PD_SWAGGER_SECRET}
+    ports:
+      - ${PD_SWAGGER_HTTP_PORT}:${PD_SWAGGER_HTTP_PORT}
+
+  

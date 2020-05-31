@@ -49,7 +49,7 @@ const (
 	defDBPort          = "5432"
 	defDBUser          = "mainflux"
 	defDBPass          = "mainflux"
-	defDBName          = "things"
+	defDBName          = "pms"
 	defDBSSLMode       = "disable"
 	defDBSSLCert       = ""
 	defDBSSLKey        = ""
@@ -75,36 +75,36 @@ const (
 	defNatsURL         = nats.DefaultURL
 	defChannelID       = ""
 
-	envLogLevel        = "PD_V2MS_LOG_LEVEL"
-	envDBHost          = "PD_V2MS_DB_HOST"
-	envDBPort          = "PD_V2MS_DB_PORT"
-	envDBUser          = "PD_V2MS_DB_USER"
-	envDBPass          = "PD_V2MS_DB_PASS"
-	envDBName          = "PD_V2MS_DB"
-	envDBSSLMode       = "PD_V2MS_DB_SSL_MODE"
-	envDBSSLCert       = "PD_V2MS_DB_SSL_CERT"
-	envDBSSLKey        = "PD_V2MS_DB_SSL_KEY"
-	envDBSSLRootCert   = "PD_V2MS_DB_SSL_ROOT_CERT"
-	envClientTLS       = "PD_V2MS_CLIENT_TLS"
-	envCACerts         = "PD_V2MS_CA_CERTS"
-	envCacheURL        = "PD_V2MS_CACHE_URL"
-	envCachePass       = "PD_V2MS_CACHE_PASS"
-	envCacheDB         = "PD_V2MS_CACHE_DB"
-	envESURL           = "PD_V2MS_ES_URL"
-	envESPass          = "PD_V2MS_ES_PASS"
-	envESDB            = "PD_V2MS_ES_DB"
-	envHTTPPort        = "PD_V2MS_HTTP_PORT"
-	envAuthHTTPPort    = "PD_V2MS_AUTH_HTTP_PORT"
-	envAuthGRPCPort    = "PD_V2MS_AUTH_GRPC_PORT"
-	envServerCert      = "PD_V2MS_SERVER_CERT"
-	envServerKey       = "PD_V2MS_SERVER_KEY"
-	envSingleUserEmail = "PD_V2MS_SINGLE_USER_EMAIL"
-	envSingleUserToken = "PD_V2MS_SINGLE_USER_TOKEN"
+	envLogLevel        = "PD_PMS_LOG_LEVEL"
+	envDBHost          = "PD_PMS_DB_HOST"
+	envDBPort          = "PD_PMS_DB_PORT"
+	envDBUser          = "PD_PMS_DB_USER"
+	envDBPass          = "PD_PMS_DB_PASS"
+	envDBName          = "PD_PMS_DB"
+	envDBSSLMode       = "PD_PMS_DB_SSL_MODE"
+	envDBSSLCert       = "PD_PMS_DB_SSL_CERT"
+	envDBSSLKey        = "PD_PMS_DB_SSL_KEY"
+	envDBSSLRootCert   = "PD_PMS_DB_SSL_ROOT_CERT"
+	envClientTLS       = "PD_PMS_CLIENT_TLS"
+	envCACerts         = "PD_PMS_CA_CERTS"
+	envCacheURL        = "PD_PMS_CACHE_URL"
+	envCachePass       = "PD_PMS_CACHE_PASS"
+	envCacheDB         = "PD_PMS_CACHE_DB"
+	envESURL           = "PD_PMS_ES_URL"
+	envESPass          = "PD_PMS_ES_PASS"
+	envESDB            = "PD_PMS_ES_DB"
+	envHTTPPort        = "PD_PMS_HTTP_PORT"
+	envAuthHTTPPort    = "PD_PMS_AUTH_HTTP_PORT"
+	envAuthGRPCPort    = "PD_PMS_AUTH_GRPC_PORT"
+	envServerCert      = "PD_PMS_SERVER_CERT"
+	envServerKey       = "PD_PMS_SERVER_KEY"
+	envSingleUserEmail = "PD_PMS_SINGLE_USER_EMAIL"
+	envSingleUserToken = "PD_PMS_SINGLE_USER_TOKEN"
 	envJaegerURL       = "PD_JAEGER_URL"
 	envAuthURL         = "PD_AUTH_URL"
 	envAuthTimeout     = "PD_AUTH_TIMEOUT"
 	envNatsURL         = "PD_NATS_URL"
-	envChannelID       = "PD_V2MS_CHANNEL_ID"
+	envChannelID       = "PD_PMS_CHANNEL_ID"
 )
 
 type config struct {
@@ -140,8 +140,8 @@ func main() {
 		log.Fatalf(err.Error())
 	}
 
-	thingsTracer, thingsCloser := initJaeger("things", cfg.jaegerURL, logger)
-	defer thingsCloser.Close()
+	pmsTracer, pmsCloser := initJaeger("pms", cfg.jaegerURL, logger)
+	defer pmsCloser.Close()
 
 	cacheClient := connectToRedis(cfg.cacheURL, cfg.cachePass, cfg.cacheDB, logger)
 
@@ -177,7 +177,7 @@ func main() {
 	svc := newService(nc, ncTracer, cfg.channelID, auth, dbTracer, cacheTracer, db, cacheClient, esClient, logger)
 	errs := make(chan error, 2)
 
-	go startHTTPServer(httpapi.MakeHandler(thingsTracer, svc), cfg.httpPort, cfg, logger, errs)
+	go startHTTPServer(httpapi.MakeHandler(pmsTracer, svc), cfg.httpPort, cfg, logger, errs)
 
 	go func() {
 		c := make(chan os.Signal)
@@ -337,13 +337,13 @@ func newService(nc *nats.Conn, ncTracer opentracing.Tracer, chanID string, auth 
 	svc = api.MetricsMiddleware(
 		svc,
 		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "things",
+			Namespace: "pms",
 			Subsystem: "api",
 			Name:      "request_count",
 			Help:      "Number of requests received.",
 		}, []string{"method"}),
 		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "things",
+			Namespace: "pms",
 			Subsystem: "api",
 			Name:      "request_latency_microseconds",
 			Help:      "Total duration of requests in microseconds.",

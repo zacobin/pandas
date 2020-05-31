@@ -27,9 +27,6 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
           - containerPort: {{.Values.things_db.port }}
-          volumeMounts:
-          - name: {{.Values.docker.image_prefix}}things-db-volume
-            mountPath: /var/lib/postgresql/data
           env:
           - name: POSTGRES_USER
             value: {{.Values.things_db.username }}
@@ -38,10 +35,6 @@ spec:
           - name: POSTGRES_DB
             value: {{.Values.things_db.dbname }}
       restartPolicy: Always
-      volumes:
-      - name: {{.Values.docker.image_prefix}}things-db-volume
-        persistentVolumeClaim:
-          claimName: pandas-things-db-volume
 ---
 
 apiVersion: v1

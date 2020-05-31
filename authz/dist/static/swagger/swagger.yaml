@@ -1,0 +1,234 @@
+swagger: "2.0"
+info:
+  title: Pandas authz service
+  description: HTTP API for authz service.
+  version: "1.0.0"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+paths:
+  /roles:
+    get:
+      description: |
+        get roles
+      tags:
+        - roles 
+      parameters:
+        - $ref: "#/parameters/Authorization"
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Role"
+        400:
+          description: Failed due to malformed JSON.
+        409:
+          description: Failed due to using an existing email address.
+        415:
+          description: Missing or invalid content type.
+        500:
+          $ref: "#/responses/ServiceError"
+    patch:
+      tags:
+        - roles
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - name: role
+          in: body
+          schema:
+            $ref: "#/definitions/Role"
+          required: true
+      responses:
+        200:
+          description: role updated.
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"        
+  /realms/{roleName}:
+    get:
+      tags:
+        - roles
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/RoleName"
+      responses:
+        200:
+          description: Data retrieved.
+          schema:
+            $ref: "#/definitions/Role"
+        400:
+          description: Failed due to malformed JSON.
+        409:
+          description: Failed due to using an existing email address.
+        415:
+          description: Missing or invalid content type.
+        500:
+          $ref: "#/responses/ServiceError"
+  /authz:
+    post:
+      tags:
+        - authz
+      parameters:
+        - $ref: "#/parameters/Authorization"
+        - $ref: "#/parameters/RoleName"
+        - $ref: "#/parameters/Subject"
+      responses:
+        200:
+          description: role updated.
+        400:
+          description: Failed due to malformed JSON.
+        403:
+          description: Missing or invalid access token provided.
+        500:
+          $ref: "#/responses/ServiceError"   
+
+responses:
+  ServiceError:
+    description: Unexpected server-side error occurred.
+
+
+parameters:
+  Authorization:
+    name: Authorization
+    description: User's access token.
+    in: header
+    type: string
+    required: true
+  Subject:
+    name: subject
+    in: header
+    type: string
+    required: true
+  RoleName:
+    name: roleName
+    description: User's role name
+    in: path
+    type: string
+    required: true
+  Referer:
+    name: Referer
+    description: Host being sent by browser.
+    in: header
+    type: string
+    required: true
+  Metadata:
+    name: metadata
+    description: Metadata filter. Filtering is performed matching the parameter with metadata on top level. Parameter is json.
+    in: query
+    type: string
+    minimum: 0
+    required: false
+
+
+
+definitions:
+  Token:
+    type: object
+    properties:
+      token:
+        type: string
+        description: Generated access token.
+    required:
+      - token
+  Realm:
+    type: object
+    properties:
+      name:
+        type: string
+        description: realm's name 
+      certfile:
+        type: string
+        description: realm's certfile 
+      keyfile:
+        type: string
+        description: realm's keyfile 
+      password:
+        type: string
+        format: password
+        minimum: 8
+        description: Free-form account password used for acquiring auth token(s).
+      serviceURL:
+        type: string
+        description: realm's service connect url 
+      searchDN:
+        type: string
+        description: realm's searchDN 
+    required:
+      - name 
+      - password
+      - certfile
+      - keyfile
+      - serviceURL
+      - searchDN
+  Email:
+    properties:
+      email:
+        type: string
+        format: email
+        example: "test@example.com"
+        description: User's email address will be used as its unique identifier
+    required:
+      - email
+  Role:
+    type: object
+    properties:
+      name: 
+        type: string
+      routes:
+        type: array
+        items:
+          type: string 
+
+  UsersPage:
+    type: object
+    properties:
+      email:
+        type: string
+        description: ID of the user
+      metadata:
+        type: object
+        description: Custom metadata related to User
+  updateUserReq:
+    type: object
+    description: Arbitrary, object-encoded user's data.
+  PasswordResetRequest:
+    type: object
+    properties:
+      email:
+        type: string
+        description: Email of the user
+  PasswordReset:
+    type: object
+    properties:
+      password:
+        type: string
+        description: New password
+        minimum: 8
+      confirm_password:
+        type: string
+        description: New password confirmed
+        minimum: 8
+      token:
+        type: string
+        description: Reset token generated and sent in email
+  PasswordChange:
+    type: object
+    properties:
+      password:
+        type: string
+        description: New password
+      old_password:
+        type: string
+        description: Confirm password
+  Error:
+    type: object
+    properties:
+      error:
+        type: string
+        description: Error message
