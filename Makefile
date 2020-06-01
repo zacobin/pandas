@@ -13,7 +13,7 @@ DOCKER_NAMESPACE := cloustone
 # Space separated patterns of packages to skip in list, test, format.
 IGNORED_PACKAGES := /vendor/
 
-SERVICES = swagger authn authz things bootstrap twins users vms realms swagger rulechain lbs 
+SERVICES = swagger authn authz things bootstrap twins users vms realms rulechain lbs 
 	
 ADAPTOR_SERVICE = http ws coap lora opcua mqtt cli
 	
