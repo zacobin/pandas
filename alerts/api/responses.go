@@ -1,4 +1,3 @@
-// Copyright (c) Mainflux
 // SPDX-License-Identifier: Apache-2.0
 
 package api
@@ -6,14 +5,14 @@ package api
 import (
 	"net/http"
 
+	"github.com/cloustone/pandas/alerts"
 	"github.com/cloustone/pandas/mainflux"
-	"github.com/cloustone/pandas/realms"
 )
 
 var (
-	_ mainflux.Response = (*listRealmsResponse)(nil)
-	_ mainflux.Response = (*realmResponse)(nil)
-	_ mainflux.Response = (*updateRealmResponse)(nil)
+	_ mainflux.Response = (*listAlertsResponse)(nil)
+	_ mainflux.Response = (*alertResponse)(nil)
+	_ mainflux.Response = (*updateAlertResponse)(nil)
 )
 
 type genericResponse struct{}
@@ -22,27 +21,27 @@ func (res genericResponse) Code() int                  { return http.StatusOK }
 func (res genericResponse) Headers() map[string]string { return map[string]string{} }
 func (res genericResponse) Empty() bool                { return true }
 
-type listRealmsResponse struct {
-	Realms []realms.Realm `json:"realms, omitempty"`
+type listAlertsResponse struct {
+	Alerts []alerts.Alert `json:"alerts, omitempty"`
 }
 
-func (r listRealmsResponse) Code() int                  { return http.StatusOK }
-func (r listRealmsResponse) Headers() map[string]string { return map[string]string{} }
-func (r listRealmsResponse) Empty() bool                { return len(r.Realms) > 0 }
+func (r listAlertsResponse) Code() int                  { return http.StatusOK }
+func (r listAlertsResponse) Headers() map[string]string { return map[string]string{} }
+func (r listAlertsResponse) Empty() bool                { return len(r.Alerts) > 0 }
 
-type realmResponse struct {
-	Realm realms.Realm `json:"realm,omitempty"`
+type alertResponse struct {
+	Alert alerts.Alert `json:"alert,omitempty"`
 }
 
-func (r realmResponse) Code() int                  { return http.StatusOK }
-func (r realmResponse) Headers() map[string]string { return map[string]string{} }
-func (r realmResponse) Empty() bool                { return r.Realm.Name == "" }
+func (r alertResponse) Code() int                  { return http.StatusOK }
+func (r alertResponse) Headers() map[string]string { return map[string]string{} }
+func (r alertResponse) Empty() bool                { return r.Alert.Name == "" }
 
-type updateRealmResponse struct{}
+type updateAlertResponse struct{}
 
-func (res updateRealmResponse) Code() int                  { return http.StatusOK }
-func (res updateRealmResponse) Headers() map[string]string { return map[string]string{} }
-func (res updateRealmResponse) Empty() bool                { return true }
+func (res updateAlertResponse) Code() int                  { return http.StatusOK }
+func (res updateAlertResponse) Headers() map[string]string { return map[string]string{} }
+func (res updateAlertResponse) Empty() bool                { return true }
 
 type errorRes struct {
 	Err string `json:"error"`

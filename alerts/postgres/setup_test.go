@@ -1,4 +1,3 @@
-// Copyright (c) Mainflux
 // SPDX-License-Identifier: Apache-2.0
 
 // Package postgres_test contains tests for PostgreSQL repository
@@ -12,8 +11,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/cloustone/pandas/users/postgres"
+	"github.com/jmoiron/sqlx"
 	dockertest "gopkg.in/ory/dockertest.v3"
 )
 
