@@ -10,9 +10,9 @@ import (
 type AlertMethod string
 
 const (
-	AlertMethodEmail   Method = "email"
-	AlertMethodMessage Method = "message"
-	AlertMethodTel     Method = "tel"
+	AlertMethodEmail   AlertMethod = "email"
+	AlertMethodMessage AlertMethod = "message"
+	AlertMethodTel     AlertMethod = "tel"
 )
 
 // Metadata stores arbitrary variable data
@@ -55,6 +55,8 @@ type AlertExtension struct {
 }
 
 type AlertRule struct {
+	ID          string
+	Owner       string
 	Alert       string
 	Expr        string
 	For         string
@@ -78,7 +80,6 @@ type AlertRuleExtension struct {
 	Labels      map[string]string
 	Group       string
 	Annotations map[string]string
-	Labels      map[string]string
 }
 
 type Point struct {
@@ -91,6 +92,11 @@ type Point struct {
 }
 
 type Alarm struct {
+	ID               string `json:"id"`
+	Owner            string `json:"owner"`
+	Name             string `json:"name"`
+	Key              string `json:"key"`
+	Metadata         []byte `json:"metadata"`
 	FenceID          int32  `json:"id,omitempty"`
 	FenceName        string `json:"fence_name,omitempty"`
 	MonitoredObjects string `json:"monitored_objects,omitempty"`

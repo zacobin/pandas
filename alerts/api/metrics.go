@@ -30,13 +30,13 @@ func MetricsMiddleware(svc alerts.Service, counter metrics.Counter, latency metr
 }
 
 // Alert
-func (ms *metricsMiddleware) CreateAlert(ctx context.Context, token string, alert alerts.Alert) error {
+func (ms *metricsMiddleware) CreateAlert(ctx context.Context, token string, alert alerts.Alert) (alerts.Alert, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "create_alert").Add(1)
 		ms.latency.With("method", "create_alert").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.CreaetAlert(ctx, token, alert)
+	return ms.svc.CreateAlert(ctx, token, alert)
 }
 
 func (ms *metricsMiddleware) RetrieveAlert(ctx context.Context, token, name string) (alerts.Alert, error) {
@@ -66,23 +66,23 @@ func (ms *metricsMiddleware) RevokeAlert(ctx context.Context, token string, name
 	return ms.svc.RevokeAlert(ctx, token, name)
 }
 
-func (ms *metricsMiddleware) RetrieveAlerts(ctx context.Context, token string) (alerts.AlertsPage, error) {
+func (ms *metricsMiddleware) RetrieveAlerts(ctx context.Context, token string, offset, limit uint64, name string, metadata alerts.Metadata) (alerts.AlertsPage, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "list_alerts").Add(1)
 		ms.latency.With("method", "list_alerts").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.RetrieveAlerts(ctx, token)
+	return ms.svc.RetrieveAlerts(ctx, token, offset, limit, name, metadata)
 }
 
 // Alarms
-func (ms *metricsMiddleware) CreateAlertRule(ctx context.Context, token string, alertRule alerts.AlertRule) error {
+func (ms *metricsMiddleware) CreateAlertRule(ctx context.Context, token string, alertRule alerts.AlertRule) (alerts.AlertRule, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "create_alert_rule").Add(1)
 		ms.latency.With("method", "create_alert_rule").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.CreaetAlertRule(ctx, token, alertRule)
+	return ms.svc.CreateAlertRule(ctx, token, alertRule)
 }
 
 func (ms *metricsMiddleware) RetrieveAlertRule(ctx context.Context, token, name string) (alerts.AlertRule, error) {
@@ -112,11 +112,11 @@ func (ms *metricsMiddleware) RevokeAlertRule(ctx context.Context, token string, 
 	return ms.svc.RevokeAlertRule(ctx, token, name)
 }
 
-func (ms *metricsMiddleware) RetrieveAlertRules(ctx context.Context, token string) (alerts.AlertRulesPage, error) {
+func (ms *metricsMiddleware) RetrieveAlertRules(ctx context.Context, token string, offset, limit uint64, name string, meta alerts.Metadata) (alerts.AlertRulesPage, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "list_alert_rules").Add(1)
 		ms.latency.With("method", "list_alert_rules").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.RetrieveAlertRules(ctx, token)
+	return ms.svc.RetrieveAlertRules(ctx, token, offset, limit, name, meta)
 }

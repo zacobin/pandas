@@ -4,7 +4,7 @@
 package api
 
 import (
-	"github.com/cloustone/pandas/realms"
+	"github.com/cloustone/pandas/alerts"
 )
 
 const minPassLen = 8
@@ -13,69 +13,64 @@ type apiReq interface {
 	validate() error
 }
 
-type createRealmReq struct {
-	realm realms.Realm
+type createAlertReq struct {
+	alert alerts.Alert
 	token string
 }
 
-func (req createRealmReq) validate() error {
-	return req.realm.Validate()
+func (req createAlertReq) validate() error {
+	return nil
 }
 
-type viewRealmInfoReq struct {
+type viewAlertInfoReq struct {
 	token string
 }
 
-func (req viewRealmInfoReq) validate() error {
+func (req viewAlertInfoReq) validate() error {
 	if req.token == "" {
-		return realms.ErrUnauthorizedAccess
+		return alerts.ErrUnauthorizedAccess
 	}
 	return nil
 }
 
-type realmRequestInfo struct {
+type alertRequestInfo struct {
 	token     string
-	realmName string
+	alertName string
 }
 
-func (req realmRequestInfo) validate() error {
+func (req alertRequestInfo) validate() error {
 	if req.token == "" {
-		return realms.ErrUnauthorizedAccess
+		return alerts.ErrUnauthorizedAccess
 	}
-	if req.realmName == "" {
-		return realms.ErrMalformedEntity
+	if req.alertName == "" {
+		return alerts.ErrMalformedEntity
 	}
 	return nil
 }
 
-type updateRealmReq struct {
+type updateAlertReq struct {
 	token     string
-	realmName string
-	realm     realms.Realm
+	alertName string
+	alert     alerts.Alert
 }
 
-func (req updateRealmReq) validate() error {
+func (req updateAlertReq) validate() error {
 	if req.token == "" {
-		return realms.ErrUnauthorizedAccess
+		return alerts.ErrUnauthorizedAccess
 	}
-	if req.realmName == "" {
-		return realms.ErrMalformedEntity
+	if req.alertName == "" {
+		return alerts.ErrMalformedEntity
 	}
 	return nil
 }
 
 type principalAuthRequest struct {
-	token     string
-	principal realms.Principal
+	token string
 }
 
 func (req principalAuthRequest) validate() error {
 	if req.token == "" {
-		return realms.ErrUnauthorizedAccess
-	}
-	if req.principal.Username == "" ||
-		req.principal.Password == "" {
-		return realms.ErrMalformedEntity
+		return alerts.ErrUnauthorizedAccess
 	}
 	return nil
 }

@@ -7,7 +7,6 @@ package tracing
 import (
 	"context"
 
-	"github.com/cloustone/pandas/alarms"
 	"github.com/cloustone/pandas/alerts"
 	opentracing "github.com/opentracing/opentracing-go"
 )
@@ -24,19 +23,19 @@ var _ alerts.AlarmRepository = (*alarmRepositoryMiddleware)(nil)
 
 type alarmRepositoryMiddleware struct {
 	tracer opentracing.Tracer
-	repo   alarms.AlarmRepository
+	repo   alerts.AlarmRepository
 }
 
 // AlarmRepositoryMiddleware tracks request and their latency, and adds spans
 // to context.
-func AlarmRepositoryMiddleware(repo alarms.AlarmRepository, tracer opentracing.Tracer) alarms.AlarmRepository {
+func AlarmRepositoryMiddleware(repo alerts.AlarmRepository, tracer opentracing.Tracer) alerts.AlarmRepository {
 	return alarmRepositoryMiddleware{
 		tracer: tracer,
 		repo:   repo,
 	}
 }
 
-func (arm alarmRepositoryMiddleware) Save(ctx context.Context, alarm ...alarms.Alarm) ([]alarms.Alarm, error) {
+func (arm alarmRepositoryMiddleware) Save(ctx context.Context, alarm ...alerts.Alarm) ([]alerts.Alarm, error) {
 	span := createSpan(ctx, arm.tracer, saveOp)
 	defer span.Finish()
 	ctx = opentracing.ContextWithSpan(ctx, span)
@@ -44,15 +43,15 @@ func (arm alarmRepositoryMiddleware) Save(ctx context.Context, alarm ...alarms.A
 	return arm.repo.Save(ctx, alarm...)
 }
 
-func (arm alarmRepositoryMiddleware) Update(ctx context.Context, alarm alarms.Alarm) error {
-	span := createSpan(ctx, arm.tracer, updageOp)
+func (arm alarmRepositoryMiddleware) Update(ctx context.Context, alarm alerts.Alarm) error {
+	span := createSpan(ctx, arm.tracer, updateOp)
 	defer span.Finish()
 	ctx = opentracing.ContextWithSpan(ctx, span)
 
 	return arm.repo.Update(ctx, alarm)
 }
 
-func (arm alarmRepositoryMiddleware) Retrieve(ctx context.Context, owner, name string) (alarms.Alarm, error) {
+func (arm alarmRepositoryMiddleware) Retrieve(ctx context.Context, owner, name string) (alerts.Alarm, error) {
 	span := createSpan(ctx, arm.tracer, retrieveOp)
 	defer span.Finish()
 	ctx = opentracing.ContextWithSpan(ctx, span)
@@ -68,7 +67,7 @@ func (arm alarmRepositoryMiddleware) Revoke(ctx context.Context, owner, name str
 	return arm.repo.Revoke(ctx, owner, name)
 }
 
-func (arm alarmRepositoryMiddleware) RetrieveAll(ctx context.Context, owner string, offset, limit uint64, name string, meta Metadata) (alerts.AlarmsPage, error) {
+func (arm alarmRepositoryMiddleware) RetrieveAll(ctx context.Context, owner string, offset, limit uint64, name string, meta alerts.Metadata) (alerts.AlarmsPage, error) {
 	span := createSpan(ctx, arm.tracer, listOp)
 	defer span.Finish()
 	ctx = opentracing.ContextWithSpan(ctx, span)

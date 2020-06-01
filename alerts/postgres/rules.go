@@ -13,13 +13,6 @@ import (
 	"github.com/lib/pq" // required for DB access
 )
 
-const (
-	errDuplicate  = "unique_violation"
-	errFK         = "foreign_key_violation"
-	errInvalid    = "invalid_text_representation"
-	errTruncation = "string_data_right_truncation"
-)
-
 var _ alerts.AlertRuleRepository = (*alertRuleRepository)(nil)
 
 type alertRuleRepository struct {
@@ -34,43 +27,41 @@ func NewAlertRuleRepository(db Database) alerts.AlertRuleRepository {
 	}
 }
 
-func (tr alertRuleRepository) Save(ctx context.Context, ths ...alerts.AlertRule) ([]alerts.AlertRule, error) {
+func (tr alertRuleRepository) Save(ctx context.Context, alert alerts.AlertRule) (alerts.AlertRule, error) {
 	tx, err := tr.db.BeginTxx(ctx, nil)
 	if err != nil {
-		return nil, err
+		return alerts.AlertRule{}, err
 	}
 
 	q := `INSERT INTO alerts (id, owner, name, key, metadata)
 		  VALUES (:id, :owner, :name, :key, :metadata);`
 
-	for _, thing := range ths {
-		dbth, err := toDBAlertRule(thing)
-		if err != nil {
-			return []alerts.AlertRule{}, err
-		}
+	dbth, err := toDBAlertRule(alert)
+	if err != nil {
+		return alerts.AlertRule{}, err
+	}
 
-		_, err = tx.NamedExecContext(ctx, q, dbth)
-		if err != nil {
-			tx.Rollback()
-			pqErr, ok := err.(*pq.Error)
-			if ok {
-				switch pqErr.Code.Name() {
-				case errInvalid, errTruncation:
-					return []alerts.AlertRule{}, alerts.ErrMalformedEntity
-				case errDuplicate:
-					return []alerts.AlertRule{}, alerts.ErrConflict
-				}
+	_, err = tx.NamedExecContext(ctx, q, dbth)
+	if err != nil {
+		tx.Rollback()
+		pqErr, ok := err.(*pq.Error)
+		if ok {
+			switch pqErr.Code.Name() {
+			case errInvalid, errTruncation:
+				return alerts.AlertRule{}, alerts.ErrMalformedEntity
+			case errDuplicate:
+				return alerts.AlertRule{}, alerts.ErrConflict
 			}
-
-			return []alerts.AlertRule{}, err
 		}
+
+		return alerts.AlertRule{}, err
 	}
 
 	if err = tx.Commit(); err != nil {
-		return []alerts.AlertRule{}, err
+		return alerts.AlertRule{}, err
 	}
 
-	return ths, nil
+	return alert, nil
 }
 
 func (tr alertRuleRepository) Update(ctx context.Context, thing alerts.AlertRule) error {
@@ -196,6 +187,10 @@ func (tr alertRuleRepository) Remove(ctx context.Context, owner, id string) erro
 	return nil
 }
 
+func (tr alertRuleRepository) Revoke(ctx context.Context, owner, name string) error {
+	return nil
+}
+
 type dbAlertRule struct {
 	ID       string `db:"id"`
 	Owner    string `db:"owner"`
@@ -205,21 +200,9 @@ type dbAlertRule struct {
 }
 
 func toDBAlertRule(th alerts.AlertRule) (dbAlertRule, error) {
-	data := []byte("{}")
-	if len(th.Metadata) > 0 {
-		b, err := json.Marshal(th.Metadata)
-		if err != nil {
-			return dbAlertRule{}, err
-		}
-		data = b
-	}
-
 	return dbAlertRule{
-		ID:       th.ID,
-		Owner:    th.Owner,
-		Name:     th.Name,
-		Key:      th.Key,
-		Metadata: data,
+		ID:    th.ID,
+		Owner: th.Owner,
 	}, nil
 }
 
@@ -230,10 +213,7 @@ func toAlertRule(dbth dbAlertRule) (alerts.AlertRule, error) {
 	}
 
 	return alerts.AlertRule{
-		ID:       dbth.ID,
-		Owner:    dbth.Owner,
-		Name:     dbth.Name,
-		Key:      dbth.Key,
-		Metadata: metadata,
+		ID:    dbth.ID,
+		Owner: dbth.Owner,
 	}, nil
 }

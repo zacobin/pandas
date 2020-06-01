@@ -27,43 +27,41 @@ func NewAlertRepository(db Database) alerts.AlertRepository {
 	}
 }
 
-func (tr alertRepository) Save(ctx context.Context, ths ...alerts.Alert) ([]alerts.Alert, error) {
+func (tr alertRepository) Save(ctx context.Context, alert alerts.Alert) (alerts.Alert, error) {
 	tx, err := tr.db.BeginTxx(ctx, nil)
 	if err != nil {
-		return nil, err
+		return alerts.Alert{}, err
 	}
 
 	q := `INSERT INTO alerts (id, owner, name, key, metadata)
 		  VALUES (:id, :owner, :name, :key, :metadata);`
 
-	for _, thing := range ths {
-		dbth, err := toDBAlert(thing)
-		if err != nil {
-			return []alerts.Alert{}, err
-		}
+	dbalert, err := toDBAlert(alert)
+	if err != nil {
+		return alerts.Alert{}, err
+	}
 
-		_, err = tx.NamedExecContext(ctx, q, dbth)
-		if err != nil {
-			tx.Rollback()
-			pqErr, ok := err.(*pq.Error)
-			if ok {
-				switch pqErr.Code.Name() {
-				case errInvalid, errTruncation:
-					return []alerts.Alert{}, alerts.ErrMalformedEntity
-				case errDuplicate:
-					return []alerts.Alert{}, alerts.ErrConflict
-				}
+	_, err = tx.NamedExecContext(ctx, q, dbalert)
+	if err != nil {
+		tx.Rollback()
+		pqErr, ok := err.(*pq.Error)
+		if ok {
+			switch pqErr.Code.Name() {
+			case errInvalid, errTruncation:
+				return alerts.Alert{}, alerts.ErrMalformedEntity
+			case errDuplicate:
+				return alerts.Alert{}, alerts.ErrConflict
 			}
-
-			return []alerts.Alert{}, err
 		}
+
+		return alerts.Alert{}, err
 	}
 
 	if err = tx.Commit(); err != nil {
-		return []alerts.Alert{}, err
+		return alerts.Alert{}, err
 	}
 
-	return ths, nil
+	return alert, nil
 }
 
 func (tr alertRepository) Update(ctx context.Context, thing alerts.Alert) error {
@@ -96,6 +94,11 @@ func (tr alertRepository) Update(ctx context.Context, thing alerts.Alert) error 
 		return alerts.ErrNotFound
 	}
 
+	return nil
+}
+
+// RevokeAlarm remove alert
+func (tr alertRepository) Revoke(context.Context, string, string) error {
 	return nil
 }
 
@@ -222,10 +225,10 @@ func toDBAlert(th alerts.Alert) (dbAlert, error) {
 	}
 
 	return dbAlert{
-		ID:       th.ID,
-		Owner:    th.Owner,
-		Name:     th.Name,
-		Key:      th.Key,
+		ID:    th.ID,
+		Owner: th.Owner,
+		Name:  th.Name,
+		//		Key:      th.Key,
 		Metadata: data,
 	}, nil
 }
@@ -237,10 +240,10 @@ func toAlert(dbth dbAlert) (alerts.Alert, error) {
 	}
 
 	return alerts.Alert{
-		ID:       dbth.ID,
-		Owner:    dbth.Owner,
-		Name:     dbth.Name,
-		Key:      dbth.Key,
+		ID:    dbth.ID,
+		Owner: dbth.Owner,
+		Name:  dbth.Name,
+		//Key:      dbth.Key,
 		Metadata: metadata,
 	}, nil
 }

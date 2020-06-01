@@ -12,9 +12,9 @@ import (
 	"strings"
 
 	"github.com/cloustone/pandas"
+	"github.com/cloustone/pandas/alerts"
 	"github.com/cloustone/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/errors"
-	"github.com/cloustone/pandas/realms"
 
 	log "github.com/cloustone/pandas/pkg/logger"
 	kitot "github.com/go-kit/kit/tracing/opentracing"
@@ -38,7 +38,7 @@ var (
 )
 
 // MakeHandler returns a HTTP handler for API endpoints.
-func MakeHandler(svc realms.Service, tracer opentracing.Tracer, l log.Logger) http.Handler {
+func MakeHandler(svc alerts.Service, tracer opentracing.Tracer, l log.Logger) http.Handler {
 	logger = l
 
 	opts := []kithttp.ServerOption{
@@ -117,68 +117,45 @@ func MakeHandler(svc realms.Service, tracer opentracing.Tracer, l log.Logger) ht
 		opts...,
 	))
 
-	mux.GetFunc("/version", pandas.Version("realms"))
+	mux.GetFunc("/version", pandas.Version("alerts"))
 	mux.Handle("/metrics", promhttp.Handler())
 
 	return mux
 }
 
-func decodeNewRealmRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeNewAlertRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
 		return nil, ErrUnsupportedContentType
 	}
-
-	var realm realms.Realm
-	if err := json.NewDecoder(r.Body).Decode(&realm); err != nil {
-		return nil, errors.Wrap(realms.ErrMalformedEntity, err)
-	}
-
-	return createRealmReq{
-		realm: realm,
-		token: r.Header.Get("Authorization"),
-	}, nil
+	return nil, nil
 }
 
-func decodeListRealmRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	req := viewRealmInfoReq{
-		token: r.Header.Get("Authorization"),
+func decodeListAlertsRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, ErrUnsupportedContentType
 	}
-	return req, nil
+	return nil, nil
 }
 
-func decodeRealmRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	req := realmRequestInfo{
-		token:     r.Header.Get("Authorization"),
-		realmName: r.Header.Get("realmName"),
+func decodeAlertRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, ErrUnsupportedContentType
 	}
-	return req, nil
+	return nil, nil
 }
 
-func decodeUpdateRealmRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	realm := realms.Realm{}
-	if err := json.NewDecoder(r.Body).Decode(&realm); err != nil {
-		logger.Warn(fmt.Sprintf("Failed to decode realm: %s", err))
-		return nil, err
+func decodeNewAlertRuleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, ErrUnsupportedContentType
 	}
-	req := updateRealmReq{
-		token:     r.Header.Get("Authorization"),
-		realmName: r.Header.Get("realmName"),
-		realm:     realm,
-	}
-	return req, nil
+	return nil, nil
 }
 
-func decodePrincipalAuthRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	principal := realms.Principal{}
-	if err := json.NewDecoder(r.Body).Decode(&principal); err != nil {
-		logger.Warn(fmt.Sprintf("Failed to decode principal: %s", err))
-		return nil, err
+func decodeListAlertRulesRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	if !strings.Contains(r.Header.Get("Content-Type"), contentType) {
+		return nil, ErrUnsupportedContentType
 	}
-	req := principalAuthRequest{
-		token:     r.Header.Get("Authorization"),
-		principal: principal,
-	}
-	return req, nil
+	return nil, nil
 }
 
 func decodeToken(_ context.Context, r *http.Request) (interface{}, error) {
@@ -215,12 +192,12 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	case errors.Error:
 		w.Header().Set("Content-Type", contentType)
 		switch {
-		case errors.Contains(errorVal, realms.ErrMalformedEntity):
+		case errors.Contains(errorVal, alerts.ErrMalformedEntity):
 			w.WriteHeader(http.StatusBadRequest)
 			logger.Warn(fmt.Sprintf("Failed to decode realm credentials: %s", errorVal))
-		case errors.Contains(errorVal, realms.ErrUnauthorizedAccess):
+		case errors.Contains(errorVal, alerts.ErrUnauthorizedAccess):
 			w.WriteHeader(http.StatusForbidden)
-		case errors.Contains(errorVal, realms.ErrConflict):
+		case errors.Contains(errorVal, alerts.ErrConflict):
 			w.WriteHeader(http.StatusConflict)
 		case errors.Contains(errorVal, ErrUnsupportedContentType):
 			w.WriteHeader(http.StatusUnsupportedMediaType)
@@ -231,7 +208,7 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 			w.WriteHeader(http.StatusBadRequest)
 		case errors.Contains(errorVal, io.EOF):
 			w.WriteHeader(http.StatusBadRequest)
-		case errors.Contains(errorVal, realms.ErrRealmNotFound):
+		case errors.Contains(errorVal, alerts.ErrAlertNotFound):
 			w.WriteHeader(http.StatusBadRequest)
 		default:
 			w.WriteHeader(http.StatusInternalServerError)

@@ -15,7 +15,7 @@ type AlertRulesPage struct {
 // AlertRuleRepository specifies alert persistence API
 type AlertRuleRepository interface {
 	// Save persists the alert rule
-	Save(context.Context, ...AlertRule) ([]AlertRule, error)
+	Save(context.Context, AlertRule) (AlertRule, error)
 
 	// Update updates the alert metdata
 	Update(context.Context, AlertRule) error

@@ -15,7 +15,7 @@ type AlertsPage struct {
 // AlertRepository specifies alert persistence API
 type AlertRepository interface {
 	// Save persists the alert
-	Save(context.Context, ...Alert) ([]Alert, error)
+	Save(context.Context, Alert) (Alert, error)
 
 	// Update updates the alert metdata
 	Update(context.Context, Alert) error

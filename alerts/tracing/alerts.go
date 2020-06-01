@@ -27,12 +27,12 @@ func AlertRepositoryMiddleware(repo alerts.AlertRepository, tracer opentracing.T
 	}
 }
 
-func (arm alertRepositoryMiddleware) Save(ctx context.Context, alert ...alerts.Alert) ([]alerts.Alert, error) {
+func (arm alertRepositoryMiddleware) Save(ctx context.Context, alert alerts.Alert) (alerts.Alert, error) {
 	span := createSpan(ctx, arm.tracer, saveOp)
 	defer span.Finish()
 	ctx = opentracing.ContextWithSpan(ctx, span)
 
-	return arm.repo.Save(ctx, alert...)
+	return arm.repo.Save(ctx, alert)
 }
 
 func (arm alertRepositoryMiddleware) Update(ctx context.Context, alert alerts.Alert) error {
@@ -59,10 +59,10 @@ func (arm alertRepositoryMiddleware) Revoke(ctx context.Context, owner, name str
 	return arm.repo.Revoke(ctx, owner, name)
 }
 
-func (arm alertRepositoryMiddleware) RetrieveAll(ctx context.Context, owner string, offset, limit uint64, name string, meta Metadata) (alerts.AlertsPage, error) {
+func (arm alertRepositoryMiddleware) RetrieveAll(ctx context.Context, owner string, offset, limit uint64, name string, meta alerts.Metadata) (alerts.AlertsPage, error) {
 	span := createSpan(ctx, arm.tracer, listOp)
 	defer span.Finish()
 	ctx = opentracing.ContextWithSpan(ctx, span)
 
-	return arm.repo.List(ctx, owner, offset, limit, name, meta)
+	return arm.repo.RetrieveAll(ctx, owner, offset, limit, name, meta)
 }

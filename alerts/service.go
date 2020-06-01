@@ -51,7 +51,7 @@ type PageMetadata struct {
 type Service interface {
 	// CreateAlert creates new alert . In case of the failed registration, a
 	// non-nil error value is returned.
-	CreateAlert(ctx context.Context, token string, alert Alert) error
+	CreateAlert(ctx context.Context, token string, alert Alert) (Alert, error)
 
 	// RetrieveAlert return authenticated alert info for the given token.
 	RetrieveAlert(ctx context.Context, token, name string) (Alert, error)
@@ -67,7 +67,7 @@ type Service interface {
 
 	// CreateAlertRule creates new alert rule. In case of the failed registration, a
 	// non-nil error value is returned.
-	CreateAlertRule(ctx context.Context, token string, alert AlertRule) error
+	CreateAlertRule(ctx context.Context, token string, alert AlertRule) (AlertRule, error)
 
 	// RetrieveAlertRule authenticated alert rule info for the given token.
 	RetrieveAlertRule(ctx context.Context, token, name string) (AlertRule, error)
@@ -94,7 +94,7 @@ type alertService struct {
 }
 
 // New instantiates the alerts service implementation
-func New(auth mainflux.AuthNServiceClient, phasher Hasher, idp IdentityProvider, alerts AlertRepository, alarms AlarmRepository, rules AlertRuleRepository) Service {
+func New(auth mainflux.AuthNServiceClient, hasher Hasher, idp IdentityProvider, alerts AlertRepository, alarms AlarmRepository, rules AlertRuleRepository) Service {
 	return &alertService{
 		hasher: hasher,
 		auth:   auth,
@@ -105,17 +105,17 @@ func New(auth mainflux.AuthNServiceClient, phasher Hasher, idp IdentityProvider,
 	}
 }
 
-func (svc alertService) CretetAlert(ctx context.Context, token string, alert Alert) (Alert, error) {
+func (svc alertService) CreateAlert(ctx context.Context, token string, alert Alert) (Alert, error) {
 	owner, err := svc.identify(ctx, token)
 	if err != nil {
 		return Alert{}, err
 	}
-	id, err := idp.ID()
+	id, err := svc.idp.ID()
 	if err != nil {
 		return Alert{}, err
 	}
 	alert.ID = id
-	alert.Owner = owner.GetValue()
+	alert.Owner = owner
 	return svc.alerts.Save(ctx, alert)
 }
 
@@ -125,7 +125,7 @@ func (svc alertService) RetrieveAlert(ctx context.Context, token, name string) (
 		return Alert{}, err
 	}
 
-	alert, err := svc.alerts.Retrieve(ctx, owner.GetValue(), name)
+	alert, err := svc.alerts.Retrieve(ctx, owner, name)
 	if err != nil {
 		return Alert{}, errors.Wrap(ErrUnauthorizedAccess, err)
 	}
@@ -138,18 +138,18 @@ func (svc alertService) UpdateAlert(ctx context.Context, token string, alert Ale
 	if err != nil {
 		return errors.Wrap(ErrUnauthorizedAccess, err)
 	}
-	if alert.Owner != user.GetValue() {
-		return ErrMaiformedEntity
+	if alert.Owner != user {
+		return ErrMalformedEntity
 	}
 	return svc.alerts.Update(ctx, alert)
 }
 
-func (svc alertService) RetrieveAlerts(ctx context.Context, token string) (AlertsPage, error) {
+func (svc alertService) RetrieveAlerts(ctx context.Context, token string, offset uint64, limit uint64, id string, meta Metadata) (AlertsPage, error) {
 	user, err := svc.identify(ctx, token)
 	if err != nil {
-		return nil, errors.Wrap(ErrUnauthorizedAccess, err)
+		return AlertsPage{}, errors.Wrap(ErrUnauthorizedAccess, err)
 	}
-	return svc.alerts.RetrieveAlerts(ctx, user.GetValue())
+	return svc.alerts.RetrieveAll(ctx, user, offset, limit, id, meta)
 }
 
 func (svc alertService) RevokeAlert(ctx context.Context, token string, name string) error {
@@ -157,32 +157,32 @@ func (svc alertService) RevokeAlert(ctx context.Context, token string, name stri
 	if err != nil {
 		return errors.Wrap(ErrUnauthorizedAccess, err)
 	}
-	return svc.alerts.Revoke(ctx, user.GetValue(), name)
+	return svc.alerts.Revoke(ctx, user, name)
 }
 
-func (svc alertService) CretetAlertRule(ctx context.Context, token string, alertRule AlertRule) (AlertRule, error) {
+func (svc alertService) CreateAlertRule(ctx context.Context, token string, alertRule AlertRule) (AlertRule, error) {
 	user, err := svc.identify(ctx, token)
 	if err != nil {
-		return Alert{}, err
+		return AlertRule{}, err
 	}
-	id, err := idp.ID()
+	id, err := svc.idp.ID()
 	if err != nil {
-		return Alert{}, err
+		return AlertRule{}, err
 	}
 	alertRule.ID = id
-	alertRule.Owner = user.GetValue()
-	return svc.rules.Save(ctx, alert)
+	alertRule.Owner = user
+	return svc.rules.Save(ctx, alertRule)
 }
 
 func (svc alertService) RetrieveAlertRule(ctx context.Context, token, name string) (AlertRule, error) {
 	user, err := svc.identify(ctx, token)
 	if err != nil {
-		return Alert{}, err
+		return AlertRule{}, err
 	}
 
-	alertRule, err := svc.alerts.Retrieve(ctx, user.GetValue(), name)
+	alertRule, err := svc.rules.Retrieve(ctx, user, name)
 	if err != nil {
-		return Alert{}, errors.Wrap(ErrUnauthorizedAccess, err)
+		return AlertRule{}, errors.Wrap(ErrUnauthorizedAccess, err)
 	}
 
 	return alertRule, nil
@@ -193,18 +193,18 @@ func (svc alertService) UpdateAlertRule(ctx context.Context, token string, alert
 	if err != nil {
 		return errors.Wrap(ErrUnauthorizedAccess, err)
 	}
-	if alertRule.Owner != user.GetValue() {
-		return ErrMaiformedEntity
+	if alertRule.Owner != user {
+		return ErrMalformedEntity
 	}
-	return svc.rules.Update(ctx, alert)
+	return svc.rules.Update(ctx, alertRule)
 }
 
-func (svc alertService) RetrieveAlertRules(ctx context.Context, token string) (AlertRulesPage, error) {
+func (svc alertService) RetrieveAlertRules(ctx context.Context, token string, offset uint64, limit uint64, rule string, meta Metadata) (AlertRulesPage, error) {
 	user, err := svc.identify(ctx, token)
 	if err != nil {
-		return nil, errors.Wrap(ErrUnauthorizedAccess, err)
+		return AlertRulesPage{}, errors.Wrap(ErrUnauthorizedAccess, err)
 	}
-	return svc.rules.RetrieveAlertRules(ctx, user.GetValue())
+	return svc.rules.RetrieveAll(ctx, user, offset, limit, rule, meta)
 }
 
 func (svc alertService) RevokeAlertRule(ctx context.Context, token string, name string) error {
@@ -212,5 +212,13 @@ func (svc alertService) RevokeAlertRule(ctx context.Context, token string, name 
 	if err != nil {
 		return errors.Wrap(ErrUnauthorizedAccess, err)
 	}
-	return svc.rules.Revoke(ctx, user.GetValue(), name)
+	return svc.rules.Revoke(ctx, user, name)
+}
+
+func (svc alertService) identify(ctx context.Context, token string) (string, error) {
+	owner, err := svc.auth.Identify(ctx, &mainflux.Token{Value: token})
+	if err != nil {
+		return "", errors.Wrap(ErrUnauthorizedAccess, err)
+	}
+	return owner.GetValue(), nil
 }

@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/cloustone/pandas/alerts"
 	"github.com/gofrs/uuid"
@@ -251,6 +252,11 @@ func (tr alarmRepository) RetrieveByChannel(ctx context.Context, owner, channel 
 	}, nil
 }
 
+// RevokeAlarm remove alert
+func (tr alarmRepository) Revoke(context.Context, string, string) error {
+	return nil
+}
+
 func (tr alarmRepository) Remove(ctx context.Context, owner, id string) error {
 	dbth := dbAlarm{
 		ID:    id,
@@ -262,43 +268,89 @@ func (tr alarmRepository) Remove(ctx context.Context, owner, id string) error {
 }
 
 type dbAlarm struct {
-	ID       string `db:"id"`
-	Owner    string `db:"owner"`
-	Name     string `db:"name"`
-	Key      string `db:"key"`
-	Metadata []byte `db:"metadata"`
+	ID               string `db:"id"`
+	Owner            string `db:"owner"`
+	Name             string `db:"name"`
+	Key              string `db:"key"`
+	Metadata         []byte `db:"metadata"`
+	FenceID          int32  `json:"id,omitempty"`
+	FenceName        string `json:"fence_name,omitempty"`
+	MonitoredObjects string `json:"monitored_objects,omitempty"`
+	UserID           string `json:"user_id,omitempty"`
+	Action           string `json:"action,omitempty" bson:"action,omitempty"`
+	//	AlarmPoint       *Point `json:"alarm_point,omitempty"`
+	//	PrePoint         *Point `json:"pre_point,omitempty"`
 }
 
-func toDBAlarm(th alerts.Alarm) (dbAlarm, error) {
-	data := []byte("{}")
-	if len(th.Metadata) > 0 {
-		b, err := json.Marshal(th.Metadata)
-		if err != nil {
-			return dbAlarm{}, err
-		}
-		data = b
-	}
-
+func toDBAlarm(alarm alerts.Alarm) (dbAlarm, error) {
 	return dbAlarm{
-		ID:       th.ID,
-		Owner:    th.Owner,
-		Name:     th.Name,
-		Key:      th.Key,
-		Metadata: data,
+		Owner:            alarm.Owner,
+		Name:             alarm.Name,
+		Key:              alarm.Key,
+		ID:               alarm.ID,
+		Metadata:         alarm.Metadata,
+		FenceID:          alarm.FenceID,
+		FenceName:        alarm.FenceName,
+		MonitoredObjects: alarm.MonitoredObjects,
+		UserID:           alarm.UserID,
+		Action:           alarm.Action,
+		//		AlarmPoint:       alarm.AlarmPoint,
+		//		PrePoint:         alarm.PrePoint,
 	}, nil
 }
 
-func toAlarm(dbth dbAlarm) (alerts.Alarm, error) {
+func toAlarm(alarm dbAlarm) (alerts.Alarm, error) {
 	var metadata map[string]interface{}
-	if err := json.Unmarshal([]byte(dbth.Metadata), &metadata); err != nil {
+	if err := json.Unmarshal([]byte(alarm.Metadata), &metadata); err != nil {
 		return alerts.Alarm{}, err
 	}
 
 	return alerts.Alarm{
-		ID:       dbth.ID,
-		Owner:    dbth.Owner,
-		Name:     dbth.Name,
-		Key:      dbth.Key,
-		Metadata: metadata,
+		ID:    alarm.ID,
+		Owner: alarm.Owner,
+		Name:  alarm.Name,
+		Key:   alarm.Key,
+		//Metadata: metadata,
 	}, nil
+}
+
+func getNameQuery(name string) (string, string) {
+	name = strings.ToLower(name)
+	nq := ""
+	if name != "" {
+		name = fmt.Sprintf(`%%%s%%`, name)
+		nq = ` AND LOWER(name) LIKE :name`
+	}
+	return nq, name
+}
+
+func getMetadataQuery(m alerts.Metadata) ([]byte, string, error) {
+	mq := ""
+	mb := []byte("{}")
+	if len(m) > 0 {
+		mq = ` AND metadata @> :metadata`
+
+		b, err := json.Marshal(m)
+		if err != nil {
+			return nil, "", err
+		}
+		mb = b
+	}
+	return mb, mq, nil
+}
+
+func total(ctx context.Context, db Database, query string, params map[string]interface{}) (uint64, error) {
+	rows, err := db.NamedQueryContext(ctx, query, params)
+	if err != nil {
+		return 0, err
+	}
+
+	total := uint64(0)
+	if rows.Next() {
+		if err := rows.Scan(&total); err != nil {
+			return 0, err
+		}
+	}
+
+	return total, nil
 }
