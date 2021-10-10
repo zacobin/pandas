@@ -1,24 +1,12 @@
-FROM golang:1.13.8-alpine AS go-builder
+FROM pandas/pandas-base 
 
-# Replicate the APK repository override.
-# If it is no longer necessary to avoid the CDN mirros we should consider dropping this as it is brittle.
-RUN sed -e 's/dl-cdn[.]alpinelinux.org/mirrors.aliyun.com/g' -i~ /etc/apk/repositories
-# Install our build time packages.
-RUN apk add --no-cache build-base git openssh-client upx
-# go proxy
-RUN go env -w GOPROXY=https://goproxy.io
-WORKDIR $GOPATH/src/github.com/cloustone/pandas
+LABEL vendor=pandas
+LABEL product=pandas
 
-COPY . .
-# make
-RUN make authn
-RUN upx bin/authn -o bin/main
-RUN chmod +x bin/main
-
-FROM alpine
-LABEL MAINTAINER="kaisawind <wind.kaisa@gmail.com>"
-
-COPY --from=go-builder /go/src/github.com/cloustone/pandas/bin/main /main
+# ADD certs/* /etc/ssl/pandas
+ADD bin/* /
+RUN chmod 755 /main
+RUN chmod 755 /dockerize
 
 USER root
 

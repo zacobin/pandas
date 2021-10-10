@@ -1,0 +1,15 @@
+FROM pandas/pandas-base 
+
+LABEL vendor=pandas
+LABEL product=pandas
+
+# ADD certs/* /etc/ssl/pandas
+ADD pandas/cmd/kuiper/bin/* /
+ADD pandas/kuiper/etc /
+ADD pandas/kuiper/plugins /
+RUN chmod 755 /main
+RUN chmod 755 /dockerize
+
+USER root
+
+CMD ["/main"]

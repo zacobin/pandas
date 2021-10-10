@@ -1,6 +1,6 @@
 FROM alpine:3.10
 
-LABEL vendor "cloustone"
+LABEL vendor "pandas"
 LABEL family "pandas"
 LABEL product "golang env"
 LABEL maintainer "jenson.zuo@gmail.com" 

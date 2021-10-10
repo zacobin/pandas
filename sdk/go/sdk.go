@@ -1,4 +1,3 @@
-// Copyright (c) Mainflux
 // SPDX-License-Identifier: Apache-2.0
 
 package sdk
@@ -9,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/cloustone/pandas/kuiper"
 	"github.com/cloustone/pandas/things"
 	"github.com/cloustone/pandas/users"
 )
@@ -64,9 +64,33 @@ var (
 	// ErrNotFound indicates that entity doesn't exist.
 	ErrNotFound = errors.New("entity not found")
 
-	// ErrInvalidContentType indicates that nonexistent message content type
+	// ErrFailedFetch indicates that fetching of entity data failed.
+	ErrFailedFetch = errors.New("failed to fetch entity")
+
+	// ErrFailedConnect indicates that connecting thing to channel failed.
+	ErrFailedConnect = errors.New("failed to connect thing to channel")
+
+	// ErrInvalidContentType indicates that non-existent message content type
 	// was passed.
 	ErrInvalidContentType = errors.New("Unknown Content Type")
+
+	// ErrFetchVersion indicates that fetching of version failed.
+	ErrFetchVersion = errors.New("failed to fetch version")
+
+	// ErrFailedWhitelist failed to whitelist configs
+	ErrFailedWhitelist = errors.New("failed to whitelist")
+
+	// ErrCerts indicates error fetching certificates.
+	ErrCerts = errors.New("failed to fetch certs data")
+
+	// ErrCertsRemove indicates failure while cleaning up from the Certs service.
+	ErrCertsRemove = errors.New("failed to remove certificate")
+
+	// ErrFailedCertUpdate failed to update certs in bootstrap config
+	ErrFailedCertUpdate = errors.New("failed to update certs in bootstrap config")
+
+	// ErrFailedUserAdd failed to add user to a group.
+	ErrFailedUserAdd = errors.New("failed to add user to group")
 )
 
 // ContentType represents all possible content types.
@@ -97,7 +121,7 @@ type Thing things.Thing
 // Channel represents mainflux channel.
 type Channel things.Channel
 
-// SDK contains Mainflux API.
+// SDK contains Pandas API.
 type SDK interface {
 	// CreateUser registers mainflux user.
 	CreateUser(user User) error
@@ -175,17 +199,94 @@ type SDK interface {
 
 	// Version returns used mainflux version.
 	Version() (string, error)
+
+	// CreateKuiperStream create a stream in kuiper and return id
+	CreateKuiperStream(args, token string) (string, error)
+
+	// CreateKuiperRule register a rule and return id
+	CreateKuiperRule(desc kuiper.Rule, token string) (string, error)
+
+	// KuiperStream retrurn specified stream info
+	KuiperStream(streamName, token string) (string, error)
+
+	// KuiperRule return specified rule info
+	KuiperRule(ruleName, token string) (string, error)
+
+	// KuiperPlugin return specified plugin info
+	KuiperPlugin(pluginType KuiperPluginType, id string, token string) (string, error)
+
+	// KuiperStreams retrurn streams info
+	KuiperStreams(token string) (string, error)
+
+	// KuiperRule return specified rule info
+	KuiperRules(token string) (string, error)
+
+	// KuiperPlugin return specified plugin info
+	KuiperPlugins(pluginType KuiperPluginType, token string) (string, error)
+
+	// DeleteKuiperStream remove kuiper stream
+	DeleteKuiperStream(streamName, token string) error
+
+	// DeleteKuiperRule remove kuiper rule
+	DeleteKuiperRule(ruleName, token string) error
+
+	// StartKuiperRule start an already existed rule in kuiper
+	StartKuiperRule(ruleName, token string) error
+
+	// StopKuiperRule stop an already existed rule in kuiper
+	StopKuiperRule(ruleName, token string) error
+
+	// RestartKuiperRule restart an already existed rule in kuiper
+	RestartKuiperRule(ruleName, token string) error
+
+	// KupirRuleStatus return a rule's status
+	KuiperRuleStatus(ruleName, token string) (string, error)
+
+	// AddBootstrap add bootstrap configuration
+	AddBootstrap(token string, cfg BootstrapConfig) (string, error)
+
+	// View returns Thing Config with given ID belonging to the user identified by the given token.
+	ViewBootstrap(token, id string) (BootstrapConfig, error)
+
+	// Update updates editable fields of the provided Config.
+	UpdateBootstrap(token string, cfg BootstrapConfig) error
+
+	// Update boostrap config certificates
+	UpdateBootstrapCerts(token string, id string, clientCert, clientKey, ca string) error
+
+	// Remove removes Config with specified token that belongs to the user identified by the given token.
+	RemoveBootstrap(token, id string) error
+
+	// Bootstrap returns Config to the Thing with provided external ID using external key.
+	Bootstrap(externalKey, externalID string) (BootstrapConfig, error)
+
+	// Whitelist updates Thing state Config with given ID belonging to the user identified by the given token.
+	Whitelist(token string, cfg BootstrapConfig) error
+
+	// IssueCert issues a certificate for a thing required for mtls.
+	IssueCert(thingID string, keyBits int, keyType, valid, token string) (Cert, error)
+
+	// RemoveCert removes a certificate
+	RemoveCert(id, token string) error
+
+	// RevokeCert revokes certificate with certID for thing with thingID
+	RevokeCert(thingID, certID, token string) error
 }
 
 type mfSDK struct {
 	baseURL           string
 	readerURL         string
+	bootstrapURL      string
+	certsURL          string
 	readerPrefix      string
 	usersPrefix       string
 	thingsPrefix      string
 	channelsPrefix    string
+	kuiperPrefix      string
+	certsPrefix       string
 	httpAdapterPrefix string
 	msgContentType    ContentType
+	bootstrapPrefix   string
 	client            *http.Client
 }
 
@@ -193,10 +294,14 @@ type mfSDK struct {
 type Config struct {
 	BaseURL           string
 	ReaderURL         string
+	CertsURL          string
+	BootstrapURL      string
 	ReaderPrefix      string
 	UsersPrefix       string
 	ThingsPrefix      string
+	KuiperPrefix      string
 	HTTPAdapterPrefix string
+	BootstrapPrefix   string
 	MsgContentType    ContentType
 	TLSVerification   bool
 }
@@ -206,11 +311,15 @@ func NewSDK(conf Config) SDK {
 	return &mfSDK{
 		baseURL:           conf.BaseURL,
 		readerURL:         conf.ReaderURL,
+		bootstrapURL:      conf.BootstrapURL,
+		certsURL:          conf.CertsURL,
 		readerPrefix:      conf.ReaderPrefix,
 		usersPrefix:       conf.UsersPrefix,
 		thingsPrefix:      conf.ThingsPrefix,
+		kuiperPrefix:      conf.KuiperPrefix,
 		httpAdapterPrefix: conf.HTTPAdapterPrefix,
 		msgContentType:    conf.MsgContentType,
+		bootstrapPrefix:   conf.BootstrapPrefix,
 		client: &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{

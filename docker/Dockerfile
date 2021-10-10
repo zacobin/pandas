@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-LABEL vendor=cloudtone
+LABEL vendor=pandas
 LABEL product=pandas
 
 RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list

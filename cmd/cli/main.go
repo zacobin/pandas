@@ -6,7 +6,7 @@ package main
 import (
 	"log"
 
-	"github.com/cloustone/pandas/mainflux/cli"
+	"github.com/cloustone/pandas/cli"
 	"github.com/cloustone/pandas/sdk/go"
 	"github.com/spf13/cobra"
 )
@@ -15,7 +15,7 @@ func main() {
 	msgContentType := string(sdk.CTJSONSenML)
 	sdkConf := sdk.Config{
 		BaseURL:           "http://localhost",
-		ReaderURL:         "http://localhost:8905",
+		ReaderURL:         "http://localhost:80",
 		ReaderPrefix:      "",
 		UsersPrefix:       "",
 		ThingsPrefix:      "",
@@ -26,7 +26,7 @@ func main() {
 
 	// Root
 	var rootCmd = &cobra.Command{
-		Use: "mainflux-cli",
+		Use: "pandas-cli",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			sdkConf.MsgContentType = sdk.ContentType(msgContentType)
 			s := sdk.NewSDK(sdkConf)
@@ -41,6 +41,7 @@ func main() {
 	channelsCmd := cli.NewChannelsCmd()
 	messagesCmd := cli.NewMessagesCmd()
 	provisionCmd := cli.NewProvisionCmd()
+	kuiperCmd := cli.NewKuiperCmd()
 
 	// Root Commands
 	rootCmd.AddCommand(versionCmd)
@@ -49,14 +50,15 @@ func main() {
 	rootCmd.AddCommand(channelsCmd)
 	rootCmd.AddCommand(messagesCmd)
 	rootCmd.AddCommand(provisionCmd)
+	rootCmd.AddCommand(kuiperCmd)
 
 	// Root Flags
 	rootCmd.PersistentFlags().StringVarP(
 		&sdkConf.BaseURL,
-		"mainflux-url",
-		"m",
+		"pandas-url",
+		"p",
 		sdkConf.BaseURL,
-		"Mainflux host URL",
+		"pandas host URL",
 	)
 
 	rootCmd.PersistentFlags().StringVarP(
@@ -64,7 +66,7 @@ func main() {
 		"users-prefix",
 		"u",
 		sdkConf.UsersPrefix,
-		"Mainflux users service prefix",
+		"pandas users service prefix",
 	)
 
 	rootCmd.PersistentFlags().StringVarP(
@@ -72,7 +74,7 @@ func main() {
 		"things-prefix",
 		"t",
 		sdkConf.ThingsPrefix,
-		"Mainflux things service prefix",
+		"pandas things service prefix",
 	)
 
 	rootCmd.PersistentFlags().StringVarP(
@@ -80,7 +82,15 @@ func main() {
 		"http-prefix",
 		"a",
 		sdkConf.HTTPAdapterPrefix,
-		"Mainflux http adapter prefix",
+		"pandas http adapter prefix",
+	)
+
+	rootCmd.PersistentFlags().StringVarP(
+		&sdkConf.HTTPAdapterPrefix,
+		"kuiper-prefix",
+		"k",
+		sdkConf.KuiperPrefix,
+		"pandas kuiper prefix",
 	)
 
 	rootCmd.PersistentFlags().StringVarP(
@@ -88,7 +98,7 @@ func main() {
 		"content-type",
 		"c",
 		msgContentType,
-		"Mainflux message content type",
+		"pandas message content type",
 	)
 
 	rootCmd.PersistentFlags().BoolVarP(

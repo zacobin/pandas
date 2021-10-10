@@ -7,7 +7,6 @@ volumes:
   pandas-things-redis-volume:
   pandas-es-redis-volume:
   pandas-mqtt-broker-volume:
-  pandas-rulechain-db-volume:
   pandas-lbs-db-volume:
   pandas-bootstrap-db-volume:
   pandas-twins-db-volume:
@@ -17,6 +16,7 @@ volumes:
   pandas-pms-db-volume:
   pandas-pms-redis-volume:
   pandas-realms-db-volume:
+  pandas-kuiper-db-volume:
 
 services:
   nats:
@@ -47,7 +47,7 @@ services:
       - pandas-authn-db-volume:/var/lib/postgresql/data
 
   authn:
-    image: cloustone/pandas-authn:latest
+    image: pandas/pandas-authn:latest
     container_name: pandas-authn
     depends_on:
       - authn-db
@@ -90,7 +90,7 @@ services:
       - pandas-things-redis-volume:/data
 
   things:
-    image: cloustone/pandas-things:latest
+    image: pandas/pandas-things:latest
     container_name: pandas-things
     depends_on:
       - things-db
@@ -128,7 +128,7 @@ services:
       - pandas-users-db-volume:/var/lib/postgresql/data
 
   users:
-    image: cloustone/pandas-users:latest
+    image: pandas/pandas-users:latest
     container_name: pandas-users
     volumes:
       - ./users/emailer/templates/${PD_EMAIL_TEMPLATE}:/${PD_EMAIL_TEMPLATE}
@@ -169,7 +169,7 @@ services:
       - pandas-mqtt-broker-volume:/var/lib/vernemq
 
   mqtt-adapter:
-    image: cloustone/pandas-mqtt:latest
+    image: pandas/pandas-mqtt:latest
     container_name: pandas-mqtt
     depends_on:
       - vernemq
@@ -190,7 +190,7 @@ services:
       PD_MQTT_ADAPTER_WS_TARGET_PORT: ${PD_MQTT_BROKER_WS_PORT}
 
   ws-adapter:
-    image: cloustone/pandas-ws:latest
+    image: pandas/pandas-ws:latest
     container_name: pandas-ws
     depends_on:
       - things
@@ -206,7 +206,7 @@ services:
       - ${PD_WS_ADAPTER_PORT}:${PD_WS_ADAPTER_PORT}
 
   http-adapter:
-    image: cloustone/pandas-http:latest
+    image: pandas/pandas-http:latest
     container_name: pandas-http
     depends_on:
       - things
@@ -229,7 +229,7 @@ services:
       - pandas-es-redis-volume:/data
 
   coap-adapter:
-    image: cloustone/pandas-coap:latest
+    image: pandas/pandas-coap:latest
     container_name: pandas-coap
     depends_on:
       - things
@@ -257,7 +257,7 @@ services:
       - pandas-bootstrap-db-volume:/var/lib/postgresql/data
 
   bootstrap:
-    image: cloustone/pandas-bootstrap:latest
+    image: pandas/pandas-bootstrap:latest
     container_name: pandas-bootstrap
     depends_on:
       - bootstrap-db
@@ -293,7 +293,7 @@ services:
       - pandas-twins-db-configdb-volume:/data/configdb
 
   twins:
-    image: cloustone/pandas-twins:latest
+    image: pandas/pandas-twins:latest
     container_name: pandas-twins
     restart: on-failure
     environment:
@@ -341,32 +341,6 @@ services:
       - http-adapter
       - ws-adapter
 
-  rulechain:
-    image: cloustone/pandas-rulechain
-    ports:
-      - ${PD_RULECHAIN_HTTP_PORT}:${PD_RULECHAIN_HTTP_PORT}
-    restart: always
-    environment:
-      PD_RULECHAIN_HTTP_PORT: ${PD_RULECHAIN_HTTP_PORT}
-      PANDAS_DNS_SERVER: "docker-compose"
-      PD_RULECHAIN_DB_HOST: rulechain-db
-      PD_RULECHAIN_DB_PORT: ${PD_RULECHAIN_DB_PORT}
-      PD_RULECHAIN_DB_USER: ${PD_RULECHAIN_DB_USER}
-      PD_RULECHAIN_DB_PASS: ${PD_RULECHAIN_DB_PASS}
-      PD_RULECHAIN_DB: ${PD_RULECHAIN_DB}
-      PD_NATS_URL: ${PD_NATS_URL}
-
-  rulechain-db:
-    image: postgres:10.8-alpine
-    container_name: pandas-rulechain-db
-    restart: on-failure
-    environment:
-      POSTGRES_USER: ${PD_RULECHAIN_DB_USER}
-      POSTGRES_PASSWORD: ${PD_RULECHAIN_DB_PASS}
-      POSTGRES_DB: ${PD_RULECHAIN_DB}
-    volumes:
-      - pandas-rulechain-db-volume:/var/lib/postgresql/data
-
   lbs-db:
     image: postgres:10.8-alpine
     container_name: pandas-lbs-db
@@ -379,7 +353,7 @@ services:
       - pandas-lbs-db-volume:/var/lib/postgresql/data
 
   lbs:
-    image: cloustone/pandas-lbs
+    image: pandas/pandas-lbs
     ports:
       - ${PD_LBS_HTTP_PORT}:${PD_LBS_HTTP_PORT}
     restart: always
@@ -402,7 +376,7 @@ services:
       - lbs-db
   
   authz:
-    image: cloustone/pandas-authz:latest
+    image: pandas/pandas-authz:latest
     container_name: pandas-authz
     volumes:
       - ./users/emailer/templates/${PD_EMAIL_TEMPLATE}:/${PD_EMAIL_TEMPLATE}
@@ -451,7 +425,7 @@ services:
       - pandas-vms-redis-volume:/data
 
   vms:
-    image: cloustone/pandas-vms:latest
+    image: pandas/pandas-vms:latest
     container_name: pandas-vms
     depends_on:
       - vms-db
@@ -497,7 +471,7 @@ services:
       - pandas-pms-redis-volume:/data
 
   pms:
-    image: cloustone/pandas-pms:latest
+    image: pandas/pandas-pms:latest
     container_name: pandas-pms
     depends_on:
       - pms-db
@@ -536,7 +510,7 @@ services:
       - pandas-realms-db-volume:/var/lib/postgresql/data
 
   realms:
-    image: cloustone/pandas-realms:latest
+    image: pandas/pandas-realms:latest
     container_name: pandas-realms
     depends_on:
       - realms-db
@@ -561,7 +535,7 @@ services:
       - ${PD_REALMS_HTTP_PORT}:${PD_REALMS_HTTP_PORT}
   
   swagger:
-    image: cloustone/pandas-swagger:latest
+    image: pandas/pandas-swagger:latest
     container_name: pandas-swagger
 
     restart: on-failure
@@ -578,4 +552,40 @@ services:
     ports:
       - ${PD_SWAGGER_HTTP_PORT}:${PD_SWAGGER_HTTP_PORT}
 
+  kuiper-db:
+    image: postgres:10.8-alpine
+    container_name: pandas-kuiper-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${PD_KUIPER_DB_USER}
+      POSTGRES_PASSWORD: ${PD_KUIPER_DB_USER}
+      POSTGRES_DB: ${PD_KUIPER_DB}
+    volumes:
+      - pandas-realms-db-volume:/var/lib/postgresql/data
+
+  kuiper:
+    image: pandas/pandas-kuiper:latest
+    container_name: pandas-kuiper
+    depends_on:
+      - kuiper-db
+      - authn
+    restart: on-failure
+    environment:
+      PD_KUIPER_LOG_LEVEL: ${PD_KUIPER_LOG_LEVEL}
+      PD_KUIPER_HTTP_PORT: ${PD_KUIPER_HTTP_PORT}
+      PD_JAEGER_URL: ${PD_JAEGER_URL}
+      PD_NATS_URL: ${PD_NATS_URL}
+      PD_AUTHN_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_KUIPER_DB_HOST: kuiper-db
+      PD_KUIPER_DB_PORT: ${PD_KUIPER_DB_PORT}
+      PD_KUIPER_DB_USER: ${PD_KUIPER_DB_USER}
+      PD_KUIPER_DB_PASS: ${PD_KUIPER_DB_PASS}
+      PD_KUIPER_DB: ${PD_KUIPER_DB}
+      PD_KUIPER_AUTH_HTTP_PORT: ${PD_KUIPER_AUTH_HTTP_PORT}
+      PD_KUIPER_AUTH_GRPC_PORT: ${PD_KUIPER_AUTH_GRPC_PORT}
+      PD_AUTH_URL: authn:${PD_AUTHN_GRPC_PORT}
+      PD_KUIPER_SECRET: ${PD_KUIPER_SECRET}
+    ports:
+      - ${PD_REALMS_HTTP_PORT}:${PD_KUIPER_HTTP_PORT}
   
+ 

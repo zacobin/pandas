@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/cloustone/mainflux"
+	"gitee.com/pandas/mainflux"
 	"github.com/cloustone/pandas/pkg/errors"
 	"github.com/cloustone/pandas/users"
 

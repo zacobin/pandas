@@ -8,12 +8,12 @@ DATE             := $(shell date -u '+%Y-%m-%d-%H%M UTC')
 VERSION_FLAGS    := -ldflags='-X "main.Version=$(VERSION)" -X "main.BuildTime=$(DATE)"'
 
 # Space separated patterns of packages to skip in list, test, format.
-DOCKER_NAMESPACE := cloustone
+DOCKER_NAMESPACE := pandas
 
 # Space separated patterns of packages to skip in list, test, format.
 IGNORED_PACKAGES := /vendor/
 
-SERVICES = swagger authn authz things bootstrap twins users vms realms rulechain lbs alerts
+SERVICES = dashboard swagger authn authz things bootstrap twins users vms realms lbs alerts pms kuiper provision
 	
 ADAPTOR_SERVICE = http ws coap lora opcua mqtt cli
 	
@@ -21,20 +21,22 @@ ADDONE_SERVICE = influxdb-writer influxdb-reader mongodb-writer mongodb-reader \
 				cassandra-writer cassandra-reader postgres-writer postgres-reader
 
 UNAME = $(shell uname)
-#DOCKER_REPO = 10.4.47.129:5000
-IMAGES = rulechain lbs authn authz things bootstrap twins users vms pms realms swagger
-ADAPTOR_IMAGES = http ws coap lora opcua mqtt cli
+# DOCKER_REPO = 127.0.0.1:5000
+IMAGES = dashboard lbs authn authz things bootstrap twins users vms pms realms swagger \
+
+ADAPTOR_IMAGES = http ws coap lora opcua mqtt cli 
+
 ADDONE_IMAGES = influxdb-writer influxdb-reader mongodb-writer mongodb-reader \
-				cassandra-writer cassandra-reader postgres-writer postgres-reader
+		cassandra-writer cassandra-reader postgres-writer postgres-reader
+
 IMAGE_NAME_PREFIX := pandas-
 IMAGE_DIR := $(IMAGE_NAME)
-ifeq ($(IMAGE_NAME),bridge)
-    IMAGE_DIR := edge/$(IMAGE_NAME)
-else ifneq (,$(filter $(IMAGE_NAME),  rulechain lbs authn))
-    IMAGE_DIR := cmd/$(IMAGE_NAME)
-else ifeq ($(IMAGE_NAME),cabinet)
-    IMAGE_DIR := security/$(IMAGE_NAME)
-endif
+
+#ifeq ($(IMAGE_NAME),bridge)
+#    IMAGE_DIR := edge/$(IMAGE_NAME)
+#else ifneq (,$(filter $(IMAGE_NAME),  lbs authn))
+#    IMAGE_DIR := cmd/$(IMAGE_NAME)
+#endif
 
 GCFLAGS  := -gcflags="-N -l"
 CGO_ENABLED ?= 0
@@ -57,7 +59,7 @@ define make_docker_dev
 	cp bin/$(svc) cmd/$(svc)/bin/main
 	@full_img_name=$(IMAGE_NAME_PREFIX)$(svc); \
 		cd ./cmd/$(svc)/ && \
-			docker build -t $(DOCKER_NAMESPACE)/$$full_img_name ../../../. -f Dockerfile.dev 
+		docker build -t $(DOCKER_NAMESPACE)/$$full_img_name ../../../. -f Dockerfile.dev 
 	@rm -rf cmd/$(svc)/bin
 endef
 
@@ -90,22 +92,20 @@ $(addprefix docker-build-, $(IMAGES)): docker-build-%: %
 
 .docker-build:
 	@echo building $(IMAGE_NAME_PREFIX)$(IMAGE_NAME) image ...
-	@if [ ! -d "$(IMAGE_DIR)/bin/" ]; then mkdir $(IMAGE_DIR)/bin/ ; fi
+	@if [ ! -d "$(IMAGE_DIR)/bin/" ]; then mkdir  $(IMAGE_DIR)/bin/ ; fi
 	@cp scripts/dockerize $(IMAGE_DIR)/bin/
-#	@if [ "$(UNAME)" = "Linux" ]; then cp bin/$(IMAGE_NAME) $(IMAGE_DIR)/bin/main ; fi
-#	@if [ "$(UNAME)" = "Darwin" ]; then cp bin/linux_amd64/$(IMAGE_NAME) $(IMAGE_DIR)/bin/main ; fi
 	cp bin/$(IMAGE_NAME) $(IMAGE_DIR)/bin/main
+	cp cmd/$(IMAGE_NAME)/Dockerfile.dev $(IMAGE_DIR)/Dockerfile
 	@full_img_name=$(IMAGE_NAME_PREFIX)$(IMAGE_NAME); \
 		cd ./$(IMAGE_DIR)/ && \
-			docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/$$full_img_name ../../../. -f Dockerfile.dev 
+			docker build -t $(DOCKER_NAMESPACE)/$$full_img_name .
 	@rm -rf $(IMAGE_DIR)/bin
-	@"./scripts/push.sh" $(IMAGE_NAME)
-	# @kubectl delete pod $$(kubectl get pod -n pandas | grep $(IMAGE_NAME) | awk '{print $$1}') -n pandas 
+	# @"./scripts/push.sh" $(IMAGE_NAME)
 
 pandas-base: export GOOS=linux
 pandas-base: 
 	@echo building $(IMAGE_NAME_PREFIX)pandas-base image ...
-	docker build -t $(DOCKER_REPO)/$(DOCKER_NAMESPACE)/pandas-base . -f docker/base/Dockerfile
+	docker build -t $(DOCKER_NAMESPACE)/pandas-base . -f docker/base/Dockerfile
 
 $(DOCKERS_DEV):
 	$(call make_docker_dev,$(@))
@@ -113,9 +113,13 @@ $(DOCKERS_ADAPTOR):
 	$(call make_docker_dev,$(@))
 $(DOCKERS_ADDONE):
 	$(call make_docker_dev,$(@))
-dockers_dev: $(DOCKERS_DEV)
-dockers_adaptor: $(DOCKERS_ADAPTOR)
-dockers_addone:	$(DOCKERS_ADDONE)
+
+dockers_dev: $(DOCKERS_DEV) 
+dockers_adaptor: $(DOCKERS_ADAPTOR) 
+dockers_addone: $(DOCKERS_ADDONE)
+dockers_all_dev: pandas-base dockers_dev dockers_adaptor dockers_addone
+	@echo "clearning none docker images!" 
+	docker images|grep none|awk '{print $3 }'|xargs docker rmi
 
 deploy:
 	@helm install .

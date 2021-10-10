@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t cloustone/pandas .
+docker build -t pandas/pandas .

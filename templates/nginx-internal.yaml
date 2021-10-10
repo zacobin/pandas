@@ -1,4 +1,4 @@
-# Copyright (c) cloustone
+# Copyright (c) pandas
 # SPDX-License-Identifier: Apache-2.0
 
 {{ if and (ne .Values.nginx_internal.mtls.tls "") (ne .Values.nginx_internal.mtls.intermediate_crt "") -}}

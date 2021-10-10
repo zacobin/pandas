@@ -18,7 +18,7 @@ services:
       - ${PD_JAEGER_CONFIGS}:${PD_JAEGER_CONFIGS}
 
   swagger:
-    image: cloustone/pandas-swagger:latest
+    image: pandas/pandas-swagger:latest
     container_name: pandas-swagger
 
     restart: on-failure

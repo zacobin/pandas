@@ -6,7 +6,7 @@ services:
   expose_node_port: true
 docker:
   registry: 10.4.47.129:5000
-  namespace: cloustone 
+  namespace: pandas 
   image_prefix: pandas-
   pullPolicy: Always
 public:

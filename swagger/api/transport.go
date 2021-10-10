@@ -90,7 +90,6 @@ func SSwagger(handler http.Handler) http.Handler {
 
 		if strings.Index(r.URL.Path, "/swagger/") == 0 {
 			http.StripPrefix("/swagger/", http.FileServer(assetFS())).ServeHTTP(w, r)
-			fmt.Println("111111111111111111")
 			fmt.Println(r.URL.Path)
 			return
 		}
@@ -100,9 +99,7 @@ func SSwagger(handler http.Handler) http.Handler {
 
 //RedocUI docs to show redoc ui
 func RedocUI(handler http.Handler) http.Handler {
-	fmt.Println("222222222222222222222222")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("33333333333333333333")
 		opts := middleware.RedocOpts{
 			Path:     "docs",
 			SpecURL:  r.URL.Host + "/swagger/static/swagger/swagger.yaml",

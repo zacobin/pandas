@@ -1,5 +1,4 @@
 # Overview
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcloustone%2Fpandas.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcloustone%2Fpandas?ref=badge_shield) ![Go](https://img.shields.io/badge/golang-1.13.8-green.svg) ![Go](https://github.com/cloustone/pandas/workflows/Go/badge.svg) 
 
 Pandas is device managment and modeling SaaS which can be deployed in any environments to provide the following features.
 
@@ -41,6 +40,11 @@ Verify the dashboard can be build rightly
 > npm install
 > npm run dev
 
+Update go-bindata-assetfs if building errors occure in the follwing
+instructions. 
+> go get github.com/go-bindata/go-bindata/...
+> go get github.com/elazarl/go-bindata-assetfs/...
+
 Build dashboard into go-bindata
 >   cd ..
 >  ./scripts/dashboard_gen.sh
@@ -48,9 +52,14 @@ Build dashboard into go-bindata
 build and run 
 > cd $GOPATH/src/github.com/cloustone/pandas  
 > make 
-> make docker
+> make dockers_all_dev // Only build once
+> make dockers_dev    // Build when needed
+> make dockers_adaptor 
+> make dockers_addone  
+> cd docker
 > docker-compose up -d
-````
 
-## License
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcloustone%2Fpandas.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcloustone%2Fpandas?ref=badge_large)
+Note: 
+dockers_all_dev shall be built only once and the three others docker images shall
+be built when needed. 
+````
